@@ -83,7 +83,7 @@ static individual_t* doRequest() {
 
     sslog_add_property(userRequest, PROPERTY_RELATESTO, user);
 
-    qDebug("Inserting request information");
+    qDebug() << "Inserting request information. Request uuid " << userRequest->uuid;
     sslog_ss_insert_individual(restaurantPreferenceItem);
     sslog_ss_insert_individual(userDynamicContext);
     sslog_ss_insert_individual(userRequest);

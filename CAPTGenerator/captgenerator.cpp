@@ -14,11 +14,14 @@ QMap<subscription_t*, CAPTGenerator*> CAPTGenerator::s_generators;
 QMutex CAPTGenerator::s_generatorsLock;
 
 Q_DECLARE_METATYPE(subscription_t*)
+Q_DECLARE_METATYPE(individual_t*)
 
 CAPTGenerator::CAPTGenerator(QString name, QString objectType)
     : m_name(name), m_objectType(objectType), m_idDistribution(1, 1000000000),
       m_isSubscribed(false), m_isPublished(false) {
     qRegisterMetaType<subscription_t*>();
+    qRegisterMetaType<individual_t*>();
+
 }
 
 void CAPTGenerator::publish() {
@@ -91,9 +94,13 @@ void CAPTGenerator::processSubscriptionChange(subscription_t *subscription) {
 
     list_head_t* listHead = NULL;
     list_for_each(listHead, &changes->links) {
-        const char* str = (const char*) (list_entry(listHead, list_t, links)->data);
-        qDebug() << "Found changes uuid" << str;
-        emit subscriptionChanged(subscription);
+        const char* uuid = (const char*) (list_entry(listHead, list_t, links)->data);
+
+        const individual_t* userRequest = sslog_repo_get_individual_by_uuid(uuid);
+        if (userRequest != nullptr) {
+            qDebug() << "Found inserted individual with uuid " << uuid;
+            emit subscriptionChanged(subscription, uuid);
+        }
     }
 
     list_free_with_nodes(changes, NULL);

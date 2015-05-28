@@ -45,7 +45,7 @@ public slots:
     void processSubscriptionChange(subscription_t* subscription);
 
 signals:
-    void subscriptionChanged(subscription_t* subscription);
+    void subscriptionChanged(subscription_t* subscription, QString userRequestUuid);
 
 private:
     void randomize();
