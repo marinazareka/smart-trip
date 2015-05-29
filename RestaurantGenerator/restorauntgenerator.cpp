@@ -37,16 +37,21 @@ void RestaurantGenerator::processNewRequest(QString userUuid, QString dynamicCon
     individual_t* dynamicContext = sslog_new_individual(CLASS_USERCONTEXT);
     sslog_set_individual_uuid(dynamicContext, dynamicContextUuid.toStdString().c_str());
 
+    individual_t* staticContext = sslog_new_individual(CLASS_USERCONTEXT);
+    sslog_set_individual_uuid(staticContext, staticContextUuid.toStdString().c_str());
+
     float latitude = 0.0;
     float longitude = 0.0;
+    float age = 0.0;
 
     latitude = getFloatProperty(dynamicContext, PROPERTY_LAT);
     longitude = getFloatProperty(dynamicContext, PROPERTY_LON);
+    age = getFloatProperty(staticContext, PROPERTY_AGE);
 
     sslog_free_individual(userRequest);
     sslog_free_individual(dynamicContext);
 
-    qDebug() << "Dynamic context lat = " << latitude << " lon = " << longitude;
+    qDebug() << "Dynamic context lat = " << latitude << " lon = " << longitude << " age = " << age;
 }
 
 void RestaurantGenerator::shutdown() {
