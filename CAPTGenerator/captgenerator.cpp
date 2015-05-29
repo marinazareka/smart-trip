@@ -96,14 +96,56 @@ void CAPTGenerator::processSubscriptionChange(subscription_t *subscription) {
     list_for_each(listHead, &changes->links) {
         const char* uuid = (const char*) (list_entry(listHead, list_t, links)->data);
 
-        const individual_t* userRequest = sslog_repo_get_individual_by_uuid(uuid);
+        individual_t* userRequest = sslog_new_individual(CLASS_USERREQUEST);
+        sslog_set_individual_uuid(userRequest, uuid);
+
+        prop_val_t* dynamicContextValue = sslog_ss_get_property(userRequest, PROPERTY_CONTAINSDYNAMICCONTEXT);
+        individual_t* dynamicContext = reinterpret_cast<individual_t*>(dynamicContextValue->prop_value);
+
+        prop_val_t* relatesToValue = sslog_ss_get_property(userRequest, PROPERTY_RELATESTO);
+        individual_t* user = reinterpret_cast<individual_t*>(relatesToValue->prop_value);
+
+        prop_val_t* staticUserContextValue = sslog_ss_get_property(user, PROPERTY_HASSTATICUSERCONTEXT);
+        individual_t* staticUserContext = reinterpret_cast<individual_t*>(staticUserContextValue->prop_value);
+
+        QString userUuid = user->uuid;
+        QString dynamicContextUuid = dynamicContext->uuid;
+        QString userRequestUuid = uuid;
+        QString staticContextUuid = staticUserContext->uuid;
+
+        sslog_free_data_property_value_struct(dynamicContextValue);
+        sslog_free_data_property_value_struct(staticUserContextValue);
+        sslog_free_data_property_value_struct(relatesToValue);
+
+        sslog_free_individual(dynamicContext);
+        sslog_free_individual(user);
+        sslog_free_individual(staticUserContext);
+        sslog_free_individual(userRequest);
+
         if (userRequest != nullptr) {
-            qDebug() << "Found inserted individual with uuid " << uuid;
-            emit subscriptionChanged(subscription, uuid);
+            qDebug() << "Found inserted UserRequest with uuid " << uuid;
+            emit subscriptionChanged(userUuid, dynamicContextUuid, staticContextUuid, userRequestUuid);
         }
     }
 
     list_free_with_nodes(changes, NULL);
+}
+
+void CAPTGenerator::initializeSmartspace() {
+    sslog_ss_init_session_with_parameters("X", "127.0.0.1", 10622);
+    register_ontology();
+
+    qDebug("Joining KP");
+    if (ss_join(sslog_get_ss_info(), const_cast<char*>(m_name.toStdString().c_str())) == -1) {
+        qDebug("Can't join SS");
+        throw std::runtime_error("Can't join SS");
+    }
+}
+
+void CAPTGenerator::shutdownSmartspace() {
+    qDebug("Shutting down KP");
+    sslog_repo_clean_all();
+    sslog_ss_leave_session(sslog_get_ss_info());
 }
 
 void CAPTGenerator::randomize() {

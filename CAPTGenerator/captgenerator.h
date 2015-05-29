@@ -44,13 +44,18 @@ public slots:
 
     void processSubscriptionChange(subscription_t* subscription);
 
+    void initializeSmartspace();
+    void shutdownSmartspace();
+
 signals:
-    void subscriptionChanged(subscription_t* subscription, QString userRequestUuid);
+    void subscriptionChanged(QString userUuid, QString dynamicContextUuid, QString staticContextUuid, QString userRequestUuid);
 
 private:
     void randomize();
     QString generateId();
     void setGeneratedId(individual_t* individual);
+    bool checkRequestProcessed();
+
 
     void registerStaticSubscription(subscription_t* subscription);
     static void unregisterStaticSubsciption(subscription_t* subscription);

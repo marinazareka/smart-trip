@@ -29,11 +29,11 @@ signals:
 
 public slots:
     void run();
-    void test(subscription_t*, QString);
+    void processNewRequest(QString, QString, QString, QString);
+    void shutdown();
 
 private:
-    void initializeSmartspace();
-    void shutdownSmartspace();
+
 
     QString getStringProperty(individual_t* individual, property_t* property);
     float getFloatProperty(individual_t* individual, property_t* property);
