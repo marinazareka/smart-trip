@@ -7,8 +7,13 @@
 
 class UserRequestData;
 
+class individual_s;
+typedef individual_s individual_t;
+
 class UserRequest
 {
+    friend class CAPTGenerator;
+
 public:
     UserRequest();
     UserRequest(QString userRequestUuid);
@@ -20,7 +25,10 @@ public:
     QVariant getDynamicContextProperty(const char *key);
 
 private:
-    QSharedDataPointer<UserRequestData> data;
+    individual_t* getUserRequestIndividual() const;
+
+private:
+    QExplicitlySharedDataPointer<UserRequestData> data;
 };
 
 Q_DECLARE_METATYPE(UserRequest)

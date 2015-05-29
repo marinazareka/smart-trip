@@ -2,9 +2,12 @@
 
 #include <QTimer>
 
+#include "captgenerator.h"
 #include "restorauntgenerator.h"
 
 int main(int argc, char *argv[]) {
+    CAPTGenerator::randomize();
+
     QCoreApplication a(argc, argv);
 
     RestaurantGenerator* generator = new RestaurantGenerator(&a);

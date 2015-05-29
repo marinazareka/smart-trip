@@ -12,6 +12,8 @@ class LessThanPreferenceTerm : public AttributePreferenceTerm
 
 public:
     LessThanPreferenceTerm(QString property, float value);
+
+    QList<individual_t*> convertToSslogIndividuals() override;
 };
 
 #endif // LESSTHANPREFERENCETERM_H

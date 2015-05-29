@@ -2,6 +2,8 @@
 #include <sstream>
 #include <stdexcept>
 
+#include <unistd.h>
+
 #include <QCoreApplication>
 #include <QSettings>
 #include <QDebug>

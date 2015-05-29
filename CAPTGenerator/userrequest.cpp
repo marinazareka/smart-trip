@@ -6,6 +6,9 @@
 
 class UserRequestData : public QSharedData {
 public:
+    UserRequestData();
+    ~UserRequestData();
+
     individual_t* userRequest;
     individual_t* dynamicContext;
     individual_t* user;
@@ -14,11 +17,13 @@ public:
     prop_val_t* dynamicContextValue;
     prop_val_t* relatesToValue;
     prop_val_t* staticUserContextValue;
+
+    bool isInitialized;
+    bool isFreed;
 };
 
-UserRequest::UserRequest()
-{
-
+UserRequest::UserRequest() {
+    data->userRequest = sslog_new_individual(CLASS_USERREQUEST);
 }
 
 UserRequest::UserRequest(QString userRequestUuid) : data(new UserRequestData) {
@@ -26,6 +31,11 @@ UserRequest::UserRequest(QString userRequestUuid) : data(new UserRequestData) {
     sslog_set_individual_uuid(data->userRequest, userRequestUuid.toStdString().c_str());
 
     data->dynamicContextValue = sslog_ss_get_property(data->userRequest, PROPERTY_CONTAINSDYNAMICCONTEXT);
+
+    if (data->dynamicContextValue == nullptr) {
+        throw std::runtime_error("User request doesn't contains dynamic context");
+    }
+
     data->dynamicContext = reinterpret_cast<individual_t*>(data->dynamicContextValue->prop_value);
 
     data->relatesToValue = sslog_ss_get_property(data->userRequest, PROPERTY_RELATESTO);
@@ -36,6 +46,8 @@ UserRequest::UserRequest(QString userRequestUuid) : data(new UserRequestData) {
 
     sslog_ss_populate_individual(data->staticUserContext);
     sslog_ss_populate_individual(data->dynamicContext);
+
+    data->isInitialized = true;
 }
 
 UserRequest::UserRequest(const UserRequest &rhs) : data(rhs.data) {
@@ -48,14 +60,6 @@ UserRequest &UserRequest::operator=(const UserRequest &rhs) {
 }
 
 UserRequest::~UserRequest() {
-    sslog_free_data_property_value_struct(data->dynamicContextValue);
-    sslog_free_data_property_value_struct(data->staticUserContextValue);
-    sslog_free_data_property_value_struct(data->relatesToValue);
-
-    sslog_free_individual(data->dynamicContext);
-    sslog_free_individual(data->user);
-    sslog_free_individual(data->staticUserContext);
-    sslog_free_individual(data->userRequest);
 }
 
 QVariant UserRequest::getStaticContextProperty(const char* key) {
@@ -78,5 +82,33 @@ QVariant UserRequest::getDynamicContextProperty(const char *key) {
     return strValue;
 }
 
+individual_t *UserRequest::getUserRequestIndividual() const {
+    return data->userRequest;
+}
 
 
+UserRequestData::UserRequestData() {
+    isInitialized = false;
+    isFreed = false;
+}
+
+UserRequestData::~UserRequestData() {
+    if (!isInitialized) {
+        return;
+    }
+
+    if (isFreed) {
+        throw std::runtime_error("Trying to free UserRequestData second time");
+    }
+
+    sslog_free_data_property_value_struct(dynamicContextValue);
+    sslog_free_data_property_value_struct(staticUserContextValue);
+    sslog_free_data_property_value_struct(relatesToValue);
+
+    sslog_free_individual(dynamicContext);
+    sslog_free_individual(user);
+    sslog_free_individual(staticUserContext);
+    sslog_free_individual(userRequest);
+
+    isFreed = true;
+}

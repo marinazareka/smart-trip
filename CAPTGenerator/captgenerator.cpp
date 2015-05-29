@@ -16,11 +16,14 @@
 QMap<subscription_t*, CAPTGenerator*> CAPTGenerator::s_generators;
 QMutex CAPTGenerator::s_generatorsLock;
 
+std::default_random_engine CAPTGenerator::m_randomEngine;
+std::uniform_int_distribution<int> CAPTGenerator::m_idDistribution(1, 1000000000);
+
 Q_DECLARE_METATYPE(subscription_t*)
 Q_DECLARE_METATYPE(individual_t*)
 
 CAPTGenerator::CAPTGenerator(QString name, QString objectType)
-    : m_name(name), m_objectType(objectType), m_idDistribution(1, 1000000000),
+    : m_name(name), m_objectType(objectType),
       m_isSubscribed(false), m_isPublished(false) {
     qRegisterMetaType<subscription_t*>();
     qRegisterMetaType<individual_t*>();
@@ -99,7 +102,14 @@ void CAPTGenerator::processSubscriptionChange(subscription_t *subscription) {
     list_for_each(listHead, &changes->links) {
         const char* uuid = (const char*) (list_entry(listHead, list_t, links)->data);
 
+        if (m_processedRequests.contains(uuid)) {
+            throw std::runtime_error("Request already processed");
+        }
+
+        m_processedRequests.insert(uuid);
+
         UserRequest userRequest(uuid);
+
 
         qDebug() << "Found inserted UserRequest with uuid " << uuid;
         emit userRequestReceived(userRequest);
@@ -108,8 +118,38 @@ void CAPTGenerator::processSubscriptionChange(subscription_t *subscription) {
     list_free_with_nodes(changes, NULL);
 }
 
-void CAPTGenerator::publishProcessedRequest(UserRequest userRequest, PreferenceTerm *preferenceTerm) {
+void CAPTGenerator::publishProcessedRequest(UserRequest userRequest, PreferenceTerm* preferenceTerm) {
+    qDebug() << "Publishing processed request";
 
+    individual_t* processedRequest = sslog_new_individual(CLASS_PROCESSEDREQUEST);
+    setGeneratedId(processedRequest);
+
+    QList<individual_t*> termIndividuals;
+
+    if (preferenceTerm != nullptr) {
+        // TODO: may be the sslog is able to automatically insert non-root individuals?
+        QList<individual_t*> termIndividuals = preferenceTerm->convertToSslogIndividuals();
+        for (individual_t* term : termIndividuals) {
+           sslog_ss_insert_individual(term);
+        }
+
+        Q_ASSERT(!termIndividuals.isEmpty());
+
+        individual_t* rootTerm = termIndividuals.first();
+
+        sslog_add_property(processedRequest, PROPERTY_RESULTSIN, rootTerm);
+    }
+
+    sslog_add_property(processedRequest, PROPERTY_ISASSOCIATEDWITH, userRequest.getUserRequestIndividual());
+    sslog_add_property(m_selfIndividual, PROPERTY_GENERATES, processedRequest);
+
+    sslog_ss_insert_individual(processedRequest);
+
+    for (individual_t* term : termIndividuals) {
+        sslog_free_individual(term);
+    }
+
+    sslog_free_individual(processedRequest);
 }
 
 void CAPTGenerator::initializeSmartspace() {

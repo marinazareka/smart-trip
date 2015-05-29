@@ -39,6 +39,8 @@ void RestaurantGenerator::processNewRequest(UserRequest userRequest) {
     if (age < 18) {
         LessThanPreferenceTerm* term = new LessThanPreferenceTerm("age-limit", 18);
         m_captGenerator->publishProcessedRequest(userRequest, term);
+    } else {
+         m_captGenerator->publishProcessedRequest(userRequest, nullptr);
     }
 }
 
