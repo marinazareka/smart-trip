@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+#include <userrequest.h>
+
 class CAPTGenerator;
 
 
@@ -14,6 +16,7 @@ typedef individual_s individual_t;
 
 class property_s;
 typedef property_s property_t;
+
 
 class RestaurantGenerator : public QObject
 {
@@ -29,7 +32,7 @@ signals:
 
 public slots:
     void run();
-    void processNewRequest(QString, QString, QString, QString);
+    void processNewRequest(UserRequest userRequest);
     void shutdown();
 
 private:

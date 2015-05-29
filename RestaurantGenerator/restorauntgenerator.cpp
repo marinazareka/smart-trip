@@ -10,6 +10,8 @@
 
 #include <captgenerator.h>
 
+#include <terms/lessthanpreferenceterm.h>
+
 RestaurantGenerator::RestaurantGenerator(QObject *parent) : QObject(parent) {
 
 }
@@ -19,7 +21,7 @@ void RestaurantGenerator::run() {
     m_captGenerator = new CAPTGenerator("RestorauntGenerator", "restaurant");
     m_captGenerator->setParent(this);
 
-    connect(m_captGenerator, &CAPTGenerator::subscriptionChanged,
+    connect(m_captGenerator, &CAPTGenerator::userRequestReceived,
             this, &RestaurantGenerator::processNewRequest);
 
     m_captGenerator->initializeSmartspace();
@@ -27,31 +29,17 @@ void RestaurantGenerator::run() {
     m_captGenerator->subscribe();
 }
 
-void RestaurantGenerator::processNewRequest(QString userUuid, QString dynamicContextUuid,
-                                            QString staticContextUuid, QString userRequestUuid) {
-    qDebug() << "UserRequest received with uuid " << userRequestUuid;
-
-    individual_t* userRequest = sslog_new_individual(CLASS_USERREQUEST);
-    sslog_set_individual_uuid(userRequest, userRequestUuid.toStdString().c_str());
-
-    individual_t* dynamicContext = sslog_new_individual(CLASS_USERCONTEXT);
-    sslog_set_individual_uuid(dynamicContext, dynamicContextUuid.toStdString().c_str());
-
-    individual_t* staticContext = sslog_new_individual(CLASS_USERCONTEXT);
-    sslog_set_individual_uuid(staticContext, staticContextUuid.toStdString().c_str());
-
-    float latitude = 0.0;
-    float longitude = 0.0;
-    float age = 0.0;
-
-    latitude = getFloatProperty(dynamicContext, PROPERTY_LAT);
-    longitude = getFloatProperty(dynamicContext, PROPERTY_LON);
-    age = getFloatProperty(staticContext, PROPERTY_AGE);
-
-    sslog_free_individual(userRequest);
-    sslog_free_individual(dynamicContext);
+void RestaurantGenerator::processNewRequest(UserRequest userRequest) {
+    float latitude = userRequest.getDynamicContextProperty(PROPERTY_LAT->name).toFloat();
+    float longitude = userRequest.getDynamicContextProperty(PROPERTY_LON->name).toFloat();
+    float age = userRequest.getStaticContextProperty(PROPERTY_AGE->name).toFloat();
 
     qDebug() << "Dynamic context lat = " << latitude << " lon = " << longitude << " age = " << age;
+
+    if (age < 18) {
+        LessThanPreferenceTerm* term = new LessThanPreferenceTerm("age-limit", 18);
+        m_captGenerator->publishProcessedRequest(userRequest, term);
+    }
 }
 
 void RestaurantGenerator::shutdown() {
@@ -70,6 +58,7 @@ QString RestaurantGenerator::getStringProperty(individual_t *individual, propert
             return propertyValueStr;
         }
     }
+    sslog_free_data_property_value_struct(propValue);
 
     return QString();
 }

@@ -7,12 +7,15 @@
 #include <QMap>
 #include <QMutex>
 
+#include "userrequest.h"
 
 class individual_s;
 typedef individual_s individual_t;
 
 class subscription_s {};
 typedef subscription_s subscription_t;
+
+class PreferenceTerm;
 
 class CAPTGENERATORSHARED_EXPORT CAPTGenerator : public QObject
 {
@@ -36,6 +39,9 @@ class CAPTGENERATORSHARED_EXPORT CAPTGenerator : public QObject
 public:
     CAPTGenerator(QString name, QString objectType);
 
+    QString generateId();
+    void setGeneratedId(individual_t* individual);
+
 public slots:
     void publish();
     void unpublish();
@@ -43,17 +49,18 @@ public slots:
     void unsubscribe();
 
     void processSubscriptionChange(subscription_t* subscription);
+    void publishProcessedRequest(UserRequest userRequest, PreferenceTerm* preferenceTerm);
 
     void initializeSmartspace();
     void shutdownSmartspace();
 
 signals:
-    void subscriptionChanged(QString userUuid, QString dynamicContextUuid, QString staticContextUuid, QString userRequestUuid);
+    void userRequestReceived(UserRequest userRequest);
 
 private:
     void randomize();
-    QString generateId();
-    void setGeneratedId(individual_t* individual);
+
+
     bool checkRequestProcessed();
 
 

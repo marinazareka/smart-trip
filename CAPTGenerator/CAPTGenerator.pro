@@ -21,17 +21,36 @@ TEMPLATE = lib
 
 DEFINES += CAPTGENERATOR_LIBRARY
 
-SOURCES += captgenerator.cpp
+SOURCES += captgenerator.cpp \
+    userrequest.cpp \
+    terms/preferenceterm.cpp \
+    terms/paretocomposition.cpp \
+    terms/prioritizedcomposition.cpp \
+    terms/attributepreferenceterm.cpp \
+    terms/pospreferenceterm.cpp \
+    terms/betweenpreferenceterm.cpp \
+    terms/lowestpreferenceterm.cpp \
+    terms/lessthanpreferenceterm.cpp
 SOURCES += ontology/ontology.c
 
 
 
 HEADERS += captgenerator.h \
         captgenerator_global.h \
-        ontology/ontology.h
+        ontology/ontology.h \
+    userrequest.h \
+    terms/preferenceterm.h \
+    terms/paretocomposition.h \
+    terms/prioritizedcomposition.h \
+    terms/attributepreferenceterm.h \
+    terms/pospreferenceterm.h \
+    terms/betweenpreferenceterm.h \
+    terms/lowestpreferenceterm.h \
+    terms/lessthanpreferenceterm.h
 
 
-headers.files = captgenerator.h captgenerator_global.h
+headers.files = captgenerator.h captgenerator_global.h userrequest.h
+headers.files +=  terms
 
 QMAKE_PKGCONFIG_NAME = capt-generator
 QMAKE_PKGCONFIG_DESCRIPTION = CAPTGenerator

@@ -10,6 +10,9 @@
 
 #include <smartslog/generic.h>
 
+#include "userrequest.h"
+#include "terms/preferenceterm.h"
+
 QMap<subscription_t*, CAPTGenerator*> CAPTGenerator::s_generators;
 QMutex CAPTGenerator::s_generatorsLock;
 
@@ -96,39 +99,17 @@ void CAPTGenerator::processSubscriptionChange(subscription_t *subscription) {
     list_for_each(listHead, &changes->links) {
         const char* uuid = (const char*) (list_entry(listHead, list_t, links)->data);
 
-        individual_t* userRequest = sslog_new_individual(CLASS_USERREQUEST);
-        sslog_set_individual_uuid(userRequest, uuid);
+        UserRequest userRequest(uuid);
 
-        prop_val_t* dynamicContextValue = sslog_ss_get_property(userRequest, PROPERTY_CONTAINSDYNAMICCONTEXT);
-        individual_t* dynamicContext = reinterpret_cast<individual_t*>(dynamicContextValue->prop_value);
-
-        prop_val_t* relatesToValue = sslog_ss_get_property(userRequest, PROPERTY_RELATESTO);
-        individual_t* user = reinterpret_cast<individual_t*>(relatesToValue->prop_value);
-
-        prop_val_t* staticUserContextValue = sslog_ss_get_property(user, PROPERTY_HASSTATICUSERCONTEXT);
-        individual_t* staticUserContext = reinterpret_cast<individual_t*>(staticUserContextValue->prop_value);
-
-        QString userUuid = user->uuid;
-        QString dynamicContextUuid = dynamicContext->uuid;
-        QString userRequestUuid = uuid;
-        QString staticContextUuid = staticUserContext->uuid;
-
-        sslog_free_data_property_value_struct(dynamicContextValue);
-        sslog_free_data_property_value_struct(staticUserContextValue);
-        sslog_free_data_property_value_struct(relatesToValue);
-
-        sslog_free_individual(dynamicContext);
-        sslog_free_individual(user);
-        sslog_free_individual(staticUserContext);
-        sslog_free_individual(userRequest);
-
-        if (userRequest != nullptr) {
-            qDebug() << "Found inserted UserRequest with uuid " << uuid;
-            emit subscriptionChanged(userUuid, dynamicContextUuid, staticContextUuid, userRequestUuid);
-        }
+        qDebug() << "Found inserted UserRequest with uuid " << uuid;
+        emit userRequestReceived(userRequest);
     }
 
     list_free_with_nodes(changes, NULL);
+}
+
+void CAPTGenerator::publishProcessedRequest(UserRequest userRequest, PreferenceTerm *preferenceTerm) {
+
 }
 
 void CAPTGenerator::initializeSmartspace() {
