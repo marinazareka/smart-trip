@@ -18,7 +18,12 @@ CONFIG += c++11
 
 TEMPLATE = app
 
-PKGCONFIG += scew smartslog ckpi CAPTGenerator
+PKGCONFIG += scew smartslog ckpi \
+#                CAPTGenerator
+
+INCLUDEPATH += ../CAPTGenerator
+
+LIBS += -L $${OUT_PWD}/../CAPTGenerator -lCAPTGenerator
 
 SOURCES += main.cpp \
     restorauntgenerator.cpp
