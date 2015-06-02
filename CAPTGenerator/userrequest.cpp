@@ -1,5 +1,7 @@
 #include "userrequest.h"
 
+#include <QDebug>
+
 #include <smartslog/generic.h>
 
 #include "ontology/ontology.h"
@@ -33,6 +35,8 @@ UserRequest::UserRequest(QString userRequestUuid) : data(new UserRequestData) {
     data->dynamicContextValue = sslog_ss_get_property(data->userRequest, PROPERTY_CONTAINSDYNAMICCONTEXT);
 
     if (data->dynamicContextValue == nullptr) {
+        qDebug() << "No dynamic context found: " << get_error_text();
+
         throw std::runtime_error("User request doesn't contains dynamic context");
     }
 
@@ -83,6 +87,10 @@ QVariant UserRequest::getDynamicContextProperty(const char *key) {
 }
 
 individual_t *UserRequest::getUserRequestIndividual() const {
+    if (!data->isInitialized) {
+        throw std::runtime_error("Invalid state exception");
+    }
+
     return data->userRequest;
 }
 

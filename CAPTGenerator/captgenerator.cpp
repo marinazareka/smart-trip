@@ -13,8 +13,8 @@
 #include "userrequest.h"
 #include "terms/preferenceterm.h"
 
-QMap<subscription_t*, CAPTGenerator*> CAPTGenerator::s_generators;
-QMutex CAPTGenerator::s_generatorsLock;
+/*QMap<subscription_t*, CAPTGenerator*> CAPTGenerator::s_generators;
+QMutex CAPTGenerator::s_generatorsLock;*/
 
 std::default_random_engine CAPTGenerator::m_randomEngine;
 std::uniform_int_distribution<int> CAPTGenerator::m_idDistribution(1, 1000000000);
@@ -66,12 +66,12 @@ void CAPTGenerator::subscribe() {
         throw std::runtime_error("Generator already subscribed");
     }
 
-    m_subscription = sslog_new_subscription(true);
+    m_subscription = sslog_new_subscription(false);
     sslog_sbcr_add_class(m_subscription, CLASS_USERREQUEST);
 
-    sslog_sbcr_set_changed_handler(m_subscription, &staticSubscriptionChangedHandler);
+    //sslog_sbcr_set_changed_handler(m_subscription, &staticSubscriptionChangedHandler);
 
-    registerStaticSubscription(m_subscription);
+    //registerStaticSubscription(m_subscription);
 
     /*connect(this, SIGNAL(subscriptionChanged(subscription_t*)),
             this, SLOT(processSubscriptionChange(subscription_t*)),
@@ -88,21 +88,34 @@ void CAPTGenerator::unsubscribe() {
 
     m_isSubscribed = false;
 
-    unregisterStaticSubsciption(m_subscription);
+    //unregisterStaticSubsciption(m_subscription);
     sslog_sbcr_stop(m_subscription);
 
     sslog_sbcr_unsubscribe(m_subscription);
     sslog_free_subscription(m_subscription);
 }
 
+void CAPTGenerator::waitSubscription() {
+
+    if (sslog_sbcr_wait(m_subscription) == 0) {
+        processSubscriptionChange(m_subscription);
+        emit userRequestProcessed();
+    }
+}
+
 void CAPTGenerator::processSubscriptionChange(subscription_t *subscription) {
     list_t* changes = sslog_sbcr_ch_get_individual_all(sslog_sbcr_get_changes_last(subscription));
+    //list_t* userRequests = sslog_ss_get_individual_by_class_all(CLASS_USERREQUEST);
 
     list_head_t* listHead = NULL;
     list_for_each(listHead, &changes->links) {
         const char* uuid = (const char*) (list_entry(listHead, list_t, links)->data);
+        //individual_t* userRequestInd = reinterpret_cast<individual_t*>(list_entry(listHead, list_t, links)->data);
+        //const char* uuid = userRequestInd->uuid;
+        qDebug() << "Found inserted UserRequest with uuid " << uuid;
 
         if (m_processedRequests.contains(uuid)) {
+            continue;
             throw std::runtime_error("Request already processed");
         }
 
@@ -110,8 +123,6 @@ void CAPTGenerator::processSubscriptionChange(subscription_t *subscription) {
 
         UserRequest userRequest(uuid);
 
-
-        qDebug() << "Found inserted UserRequest with uuid " << uuid;
         emit userRequestReceived(userRequest);
     }
 
@@ -119,16 +130,21 @@ void CAPTGenerator::processSubscriptionChange(subscription_t *subscription) {
 }
 
 void CAPTGenerator::publishProcessedRequest(UserRequest userRequest, PreferenceTerm* preferenceTerm) {
+    if (!m_isPublished) {
+        throw std::runtime_error("Generator not published");
+    }
+
     qDebug() << "Publishing processed request";
 
     individual_t* processedRequest = sslog_new_individual(CLASS_PROCESSEDREQUEST);
+    //sslog_ss_init_individual_with_uuid(processedRequest, generateId().toStdString().c_str());
     setGeneratedId(processedRequest);
 
     QList<individual_t*> termIndividuals;
 
     if (preferenceTerm != nullptr) {
         // TODO: may be the sslog is able to automatically insert non-root individuals?
-        QList<individual_t*> termIndividuals = preferenceTerm->convertToSslogIndividuals();
+        termIndividuals = preferenceTerm->convertToSslogIndividuals();
         for (individual_t* term : termIndividuals) {
            sslog_ss_insert_individual(term);
         }
@@ -141,7 +157,7 @@ void CAPTGenerator::publishProcessedRequest(UserRequest userRequest, PreferenceT
     }
 
     sslog_add_property(processedRequest, PROPERTY_ISASSOCIATEDWITH, userRequest.getUserRequestIndividual());
-    sslog_add_property(m_selfIndividual, PROPERTY_GENERATES, processedRequest);
+    //sslog_ss_add_property(m_selfIndividual, PROPERTY_GENERATES, processedRequest);
 
     sslog_ss_insert_individual(processedRequest);
 
@@ -153,7 +169,7 @@ void CAPTGenerator::publishProcessedRequest(UserRequest userRequest, PreferenceT
 }
 
 void CAPTGenerator::initializeSmartspace() {
-    sslog_ss_init_session_with_parameters("X", "127.0.0.1", 10622);
+    sslog_ss_init_session_with_parameters("X", "192.168.112.6", 10622);
     register_ontology();
 
     qDebug("Joining KP");
@@ -169,8 +185,11 @@ void CAPTGenerator::shutdownSmartspace() {
     sslog_ss_leave_session(sslog_get_ss_info());
 }
 
-void CAPTGenerator::randomize() {
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
+void CAPTGenerator::randomize(unsigned seed) {
+    if (seed == 0) {
+        seed = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
+    }
+
     m_randomEngine.seed(seed);
 }
 
@@ -184,7 +203,7 @@ void CAPTGenerator::setGeneratedId(individual_t *individual) {
     sslog_set_individual_uuid(individual, generatedId.toStdString().c_str());
 }
 
-void CAPTGenerator::registerStaticSubscription(subscription_t *subscription) {
+/*void CAPTGenerator::registerStaticSubscription(subscription_t *subscription) {
     QMutexLocker lock(&s_generatorsLock);
 
     s_generators.insert(subscription, this);
@@ -211,4 +230,4 @@ void CAPTGenerator::staticSubscriptionChangedHandler(subscription_t *subscriptio
                                   Qt::QueuedConnection,
                                   Q_ARG(subscription_t*, subscription));
     }
-}
+}*/

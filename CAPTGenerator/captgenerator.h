@@ -37,22 +37,23 @@ class CAPTGENERATORSHARED_EXPORT CAPTGenerator : public QObject
     static std::default_random_engine m_randomEngine;
     static std::uniform_int_distribution<int> m_idDistribution;
 
-
-    static QMutex s_generatorsLock;
-    static QMap<subscription_t*, CAPTGenerator*> s_generators;
+    /*static QMutex s_generatorsLock;
+    static QMap<subscription_t*, CAPTGenerator*> s_generators;*/
 
 public:
     CAPTGenerator(QString name, QString objectType);
 
     static QString generateId();
     static void setGeneratedId(individual_t* individual);
-    static void randomize();
+    static void randomize(unsigned seed = 0);
 
 public slots:
     void publish();
     void unpublish();
     void subscribe();
     void unsubscribe();
+
+    void waitSubscription();
 
     void processSubscriptionChange(subscription_t* subscription);
     void publishProcessedRequest(UserRequest userRequest, PreferenceTerm* preferenceTerm);
@@ -62,16 +63,17 @@ public slots:
 
 signals:
     void userRequestReceived(UserRequest userRequest);
+    void userRequestProcessed();
 
 private:
 
     bool checkRequestProcessed();
 
-    void registerStaticSubscription(subscription_t* subscription);
+    /*void registerStaticSubscription(subscription_t* subscription);
     static void unregisterStaticSubsciption(subscription_t* subscription);
     static CAPTGenerator *getStaticGenerator(subscription_t* subscription);
 
-    static void staticSubscriptionChangedHandler(subscription_t* subscription);
+    static void staticSubscriptionChangedHandler(subscription_t* subscription);*/
 };
 
 #endif // CAPTGENERATOR_H

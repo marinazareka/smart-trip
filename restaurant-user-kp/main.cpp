@@ -2,7 +2,7 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <unistd.h>
+#include <cstdio>
 
 #include <QCoreApplication>
 #include <QSettings>
@@ -27,14 +27,15 @@ Exception::Exception(const std::string& message) : std::runtime_error(message) {
 
 }
 
-static void randomize() {
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
+static void randomize(unsigned seed = 0) {
+    if (seed == 0)
+        seed = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
     random_engine.seed(seed);
 }
 
-static std::string generateId() {
+static std::string generateId(const char* prefix = "id") {
     std::ostringstream out;
-    out << "id" << id_distribution(random_engine);
+    out << prefix << id_distribution(random_engine);
     return out.str();
 }
 
@@ -46,14 +47,14 @@ static void initializeUserProfile() {
     // User static context has age = 25
 
     userProfile = sslog_new_individual(CLASS_USERPROFILE);
-    sslog_set_individual_uuid(userProfile, generateId().c_str());
+    sslog_set_individual_uuid(userProfile, generateId("userprofile").c_str());
 
     userStaticContext = sslog_new_individual(CLASS_USERCONTEXT);
-    sslog_set_individual_uuid(userStaticContext, generateId().c_str());
+    sslog_set_individual_uuid(userStaticContext, generateId("usercontext_s").c_str());
     sslog_add_property(userStaticContext, PROPERTY_AGE, "25");
 
     user = sslog_new_individual(CLASS_USER);
-    sslog_set_individual_uuid(user, generateId().c_str());
+    sslog_set_individual_uuid(user, generateId("user").c_str());
 
     sslog_add_property(user, PROPERTY_HASPROFILE, userProfile);
     sslog_add_property(user, PROPERTY_HASSTATICUSERCONTEXT, userStaticContext);
@@ -66,16 +67,16 @@ static void initializeUserProfile() {
 
 static individual_t* doRequest() {
     individual_t* userDynamicContext = sslog_new_individual(CLASS_USERCONTEXT);
-    sslog_set_individual_uuid(userDynamicContext, generateId().c_str());
+    sslog_set_individual_uuid(userDynamicContext, generateId("usercontext_d").c_str());
 
     sslog_add_property(userDynamicContext, PROPERTY_LAT, "61.78");
     sslog_add_property(userDynamicContext, PROPERTY_LON, "34.35");
 
     individual_t* userRequest = sslog_new_individual(CLASS_USERREQUEST);
-    sslog_set_individual_uuid(userRequest, generateId().c_str());
+    sslog_set_individual_uuid(userRequest, generateId("userrequest").c_str());
 
     individual_t* restaurantPreferenceItem = sslog_new_individual(CLASS_BETWEENPREFERENCETERM);
-    sslog_set_individual_uuid(restaurantPreferenceItem, generateId().c_str());
+    sslog_set_individual_uuid(restaurantPreferenceItem, generateId("betweenpreferenceterm").c_str());
     sslog_add_property(restaurantPreferenceItem, PROPERTY_LOWER, "2");
     sslog_add_property(restaurantPreferenceItem, PROPERTY_UPPER, "4");
     sslog_add_property(restaurantPreferenceItem, PROPERTY_PROPERTY, "rating");
@@ -102,9 +103,8 @@ static void subscribeResponse(individual_t* userRequest) {
     sslog_sbcr_add_individual(responseSubscription, userRequest, properties);
 
     if (sslog_sbcr_subscribe(responseSubscription) != 0) {
-        throw Exception("Can't subscribe exception");
+        throw Exception("Can't subscribe");
     }
-
 
     for (;;) {
         const prop_val_t* propValue = sslog_get_property(userRequest, PROPERTY_PROCESSED->name);
@@ -128,16 +128,22 @@ static void subscribeResponse(individual_t* userRequest) {
 
 
 int main(int argc, char *argv[]) {
-    Q_UNUSED(argc);
-    Q_UNUSED(argv);
-
     QCoreApplication::setOrganizationName("PetrSU");
     QCoreApplication::setApplicationName("Restaurant User KP");
     QSettings settings;
 
-    randomize();
+    unsigned seed = 0;
+    if (argc > 1) {
+        int parsed = std::sscanf(argv[1], "%u", &seed);
+        if (parsed < 1) {
+            qDebug() << "Invalid seed " << argv[1];
+            return 1;
+        }
+    }
 
-    sslog_ss_init_session_with_parameters("X", "127.0.0.1", 10622);
+    randomize(seed);
+
+    sslog_ss_init_session_with_parameters("X", "192.168.112.6", 10622);
     register_ontology();
 
     qDebug("Joining KP");

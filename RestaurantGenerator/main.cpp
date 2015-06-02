@@ -2,11 +2,13 @@
 
 #include <QTimer>
 
+#include <signal.h>
+
 #include "captgenerator.h"
 #include "restorauntgenerator.h"
 
 int main(int argc, char *argv[]) {
-    CAPTGenerator::randomize();
+    CAPTGenerator::randomize(1);
 
     QCoreApplication a(argc, argv);
 

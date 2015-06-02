@@ -32,6 +32,7 @@ signals:
 
 public slots:
     void run();
+    void continueWaiting();
     void processNewRequest(UserRequest userRequest);
     void shutdown();
 
