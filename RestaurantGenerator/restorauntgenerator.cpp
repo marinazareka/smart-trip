@@ -62,33 +62,4 @@ void RestaurantGenerator::shutdown() {
     emit finished();
 }
 
-QString RestaurantGenerator::getStringProperty(individual_t *individual, property_t *property) {
-    prop_val_t* propValue = sslog_ss_get_property(individual, property);
-    if (propValue != nullptr) {
-        const char* propertyValueStr = reinterpret_cast<const char*>(propValue->prop_value);
-        if (propertyValueStr != nullptr) {
-            return propertyValueStr;
-        }
-    }
-    sslog_free_data_property_value_struct(propValue);
-
-    return QString();
-}
-
-float RestaurantGenerator::getFloatProperty(individual_t *individual, property_t *property) {
-    QString stringProperty = getStringProperty(individual, property);
-
-    if (stringProperty.isEmpty() || stringProperty.isNull()) {
-        return 0.0;
-    } else {
-        bool ok;
-        float res = stringProperty.toFloat(&ok);
-
-        if (!ok) {
-            return 0.0;
-        } else {
-            return res;
-        }
-    }
-}
 

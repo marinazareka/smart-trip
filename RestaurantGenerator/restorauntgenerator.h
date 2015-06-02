@@ -35,12 +35,6 @@ public slots:
     void continueWaiting();
     void processNewRequest(UserRequest userRequest);
     void shutdown();
-
-private:
-
-
-    QString getStringProperty(individual_t* individual, property_t* property);
-    float getFloatProperty(individual_t* individual, property_t* property);
 };
 
 #endif // RESTORAUNTGENERATOR_H
