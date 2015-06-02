@@ -42,6 +42,8 @@ void CAPTGenerator::publish() {
     sslog_ss_insert_individual(m_selfIndividual);
 
     m_isPublished = true;
+
+    qDebug() << "Published CAPTGenerator uuid = " << m_selfIndividual->uuid;
 }
 
 void CAPTGenerator::unpublish() {
@@ -194,12 +196,12 @@ void CAPTGenerator::randomize(unsigned seed) {
 }
 
 QString CAPTGenerator::generateId() {
-    QString ret = QStringLiteral("id") + m_idDistribution(m_randomEngine);
-    return ret;
+    return QStringLiteral("id%1").arg(m_idDistribution(m_randomEngine));
 }
 
 void CAPTGenerator::setGeneratedId(individual_t *individual) {
     QString generatedId = generateId();
+    qDebug() << "Setting generated uuid " << generatedId;
     sslog_set_individual_uuid(individual, generatedId.toStdString().c_str());
 }
 

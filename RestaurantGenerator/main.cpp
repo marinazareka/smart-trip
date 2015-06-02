@@ -8,7 +8,7 @@
 #include "restorauntgenerator.h"
 
 int main(int argc, char *argv[]) {
-    CAPTGenerator::randomize(1);
+    CAPTGenerator::randomize();
 
     QCoreApplication a(argc, argv);
 
