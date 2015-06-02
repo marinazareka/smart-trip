@@ -52,7 +52,7 @@ void Pqe::subscribe() {
 
     // Subscribe to User requests
     m_userRequestSubscription = sslog_new_subscription(true);
-    sslog_sbcr_add_class(m_captGeneratorSubscription, CLASS_USERREQUEST);
+    sslog_sbcr_add_class(m_userRequestSubscription, CLASS_USERREQUEST);
     SubWrapper::wrap(m_userRequestSubscription, std::bind(&Pqe::processAsyncUserRequestSubscription, this, _1));
     sslog_sbcr_set_changed_handler(m_userRequestSubscription, &SubWrapper::handler);
 
@@ -73,7 +73,7 @@ void Pqe::removeCaptGenerator(QString uuid) {
 }
 
 void Pqe::processUserRequest(QString uuid) {
-
+    qDebug() << "UserRequest added: " << uuid;
 }
 
 void Pqe::processAsyncCaptGeneratorSubscription(subscription_t* subscription) {
@@ -120,7 +120,7 @@ void Pqe::refreshProcessedRequest() {
 }
 
 QString Pqe::generateId() {
-    return QStringLiteral("id%1").arg(m_idDistribution(m_randomEngine))
+    return QStringLiteral("id%1").arg(m_idDistribution(m_randomEngine));
 }
 
 void Pqe::setGeneratedId(individual_t *individual) {

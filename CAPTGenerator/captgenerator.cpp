@@ -39,11 +39,11 @@ void CAPTGenerator::publish() {
     setGeneratedId(m_selfIndividual);
 
     sslog_add_property(m_selfIndividual, PROPERTY_OBJECTTYPE, m_objectType.toStdString().c_str());
-    sslog_ss_insert_individual(m_selfIndividual);
+    int res = sslog_ss_insert_individual(m_selfIndividual);
 
     m_isPublished = true;
 
-    qDebug() << "Published CAPTGenerator uuid = " << m_selfIndividual->uuid;
+    qDebug() << "Published CAPTGenerator uuid = " << m_selfIndividual->uuid << " res = " << res;
 }
 
 void CAPTGenerator::unpublish() {
