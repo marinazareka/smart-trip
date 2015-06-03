@@ -9,12 +9,7 @@
 #include <QSet>
 
 #include "userrequest.h"
-
-class individual_s;
-typedef individual_s individual_t;
-
-class subscription_s {};
-typedef subscription_s subscription_t;
+#include "common.h"
 
 class PreferenceTerm;
 
@@ -34,18 +29,13 @@ class CAPTGENERATORSHARED_EXPORT CAPTGenerator : public QObject
     bool m_isSubscribed;
     bool m_isPublished;
 
-    static std::default_random_engine m_randomEngine;
-    static std::uniform_int_distribution<int> m_idDistribution;
+
 
     /*static QMutex s_generatorsLock;
     static QMap<subscription_t*, CAPTGenerator*> s_generators;*/
 
 public:
     CAPTGenerator(QString name, QString objectType);
-
-    static QString generateId();
-    static void setGeneratedId(individual_t* individual);
-    static void randomize(unsigned seed = 0);
 
 public slots:
     void publish();
@@ -58,8 +48,6 @@ public slots:
     void processSubscriptionChange(subscription_t* subscription);
     void publishProcessedRequest(UserRequest userRequest, PreferenceTerm* preferenceTerm);
 
-    void initializeSmartspace();
-    void shutdownSmartspace();
 
 signals:
     void userRequestReceived(UserRequest userRequest);

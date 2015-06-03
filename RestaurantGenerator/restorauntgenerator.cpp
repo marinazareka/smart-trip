@@ -26,7 +26,7 @@ void RestaurantGenerator::run() {
     connect(m_captGenerator, &CAPTGenerator::userRequestProcessed,
             this, &RestaurantGenerator::continueWaiting);
 
-    m_captGenerator->initializeSmartspace();
+    Common::initializeSmartspace("RestorauntGenerator");
     m_captGenerator->publish();
     m_captGenerator->subscribe();
 
@@ -57,9 +57,7 @@ void RestaurantGenerator::shutdown() {
 
     m_captGenerator->unsubscribe();
     m_captGenerator->unpublish();
-    m_captGenerator->shutdownSmartspace();
+    Common::shutdownSmartspace();
 
     emit finished();
 }
-
-

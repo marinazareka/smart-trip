@@ -13,12 +13,6 @@
 #include "userrequest.h"
 #include "terms/preferenceterm.h"
 
-/*QMap<subscription_t*, CAPTGenerator*> CAPTGenerator::s_generators;
-QMutex CAPTGenerator::s_generatorsLock;*/
-
-std::default_random_engine CAPTGenerator::m_randomEngine;
-std::uniform_int_distribution<int> CAPTGenerator::m_idDistribution(1, 1000000000);
-
 Q_DECLARE_METATYPE(subscription_t*)
 Q_DECLARE_METATYPE(individual_t*)
 
@@ -36,7 +30,7 @@ void CAPTGenerator::publish() {
     }
 
     m_selfIndividual = sslog_new_individual(CLASS_CONTEXTAWAREGENERATOR);
-    setGeneratedId(m_selfIndividual);
+    Common::setGeneratedId(m_selfIndividual);
 
     sslog_add_property(m_selfIndividual, PROPERTY_OBJECTTYPE, m_objectType.toStdString().c_str());
     int res = sslog_ss_insert_individual(m_selfIndividual);
@@ -140,7 +134,7 @@ void CAPTGenerator::publishProcessedRequest(UserRequest userRequest, PreferenceT
 
     individual_t* processedRequest = sslog_new_individual(CLASS_PROCESSEDREQUEST);
     //sslog_ss_init_individual_with_uuid(processedRequest, generateId().toStdString().c_str());
-    setGeneratedId(processedRequest);
+    Common::setGeneratedId(processedRequest);
 
     QList<individual_t*> termIndividuals;
 
@@ -170,66 +164,3 @@ void CAPTGenerator::publishProcessedRequest(UserRequest userRequest, PreferenceT
     sslog_free_individual(processedRequest);
 }
 
-void CAPTGenerator::initializeSmartspace() {
-    sslog_ss_init_session_with_parameters("X", "192.168.112.6", 10622);
-    register_ontology();
-
-    qDebug("Joining KP");
-    if (ss_join(sslog_get_ss_info(), const_cast<char*>(m_name.toStdString().c_str())) == -1) {
-        qDebug("Can't join SS");
-        throw std::runtime_error("Can't join SS");
-    }
-}
-
-void CAPTGenerator::shutdownSmartspace() {
-    qDebug("Shutting down KP");
-    sslog_repo_clean_all();
-    sslog_ss_leave_session(sslog_get_ss_info());
-}
-
-void CAPTGenerator::randomize(unsigned seed) {
-    if (seed == 0) {
-        seed = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
-    }
-
-    m_randomEngine.seed(seed);
-}
-
-QString CAPTGenerator::generateId() {
-    return QStringLiteral("id%1").arg(m_idDistribution(m_randomEngine));
-}
-
-void CAPTGenerator::setGeneratedId(individual_t *individual) {
-    QString generatedId = generateId();
-    qDebug() << "Setting generated uuid " << generatedId;
-    sslog_set_individual_uuid(individual, generatedId.toStdString().c_str());
-}
-
-/*void CAPTGenerator::registerStaticSubscription(subscription_t *subscription) {
-    QMutexLocker lock(&s_generatorsLock);
-
-    s_generators.insert(subscription, this);
-}
-
-// static
-void CAPTGenerator::unregisterStaticSubsciption(subscription_t *subscription) {
-    QMutexLocker lock(&s_generatorsLock);
-    s_generators.remove(subscription);
-}
-
-// static
-CAPTGenerator* CAPTGenerator::getStaticGenerator(subscription_t *subscription) {
-    QMutexLocker lock(&s_generatorsLock);
-    return s_generators.value(subscription, nullptr);
-}
-
-// static
-void CAPTGenerator::staticSubscriptionChangedHandler(subscription_t *subscription){
-    CAPTGenerator* generator = getStaticGenerator(subscription);
-    if (generator != nullptr) {
-        QMetaObject::invokeMethod(generator,
-                                  "processSubscriptionChange",
-                                  Qt::QueuedConnection,
-                                  Q_ARG(subscription_t*, subscription));
-    }
-}*/

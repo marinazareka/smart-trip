@@ -19,6 +19,9 @@ TEMPLATE = app
 
 PKGCONFIG += scew smartslog ckpi
 
+INCLUDEPATH += ../CAPTGenerator
+LIBS += -L $${OUT_PWD}/../CAPTGenerator -lCAPTGenerator
+
 SOURCES += main.cpp \
     pqe.cpp \
     generatorsubscriptionhandler.cpp
@@ -27,6 +30,5 @@ SOURCES += ontology/ontology.c
 
 HEADERS += \
     pqe.h \
-    generatorsubscriptionhandler.h \
-    cfunction.hpp
+    generatorsubscriptionhandler.h
 

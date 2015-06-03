@@ -7,6 +7,7 @@
 
 #include "pqe.h"
 #include "cfunction.hpp"
+#include "common.h"
 
 static void test(int a) {
      qDebug() << "test: " << a;
@@ -35,7 +36,7 @@ int main(int argc, char *argv[]) {
     return 0;
 */
 
-    Pqe::randomize();
+    Common::randomize();
 
     QCoreApplication a(argc, argv);
 

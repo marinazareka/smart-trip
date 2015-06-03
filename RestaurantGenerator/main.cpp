@@ -6,9 +6,10 @@
 
 #include "captgenerator.h"
 #include "restorauntgenerator.h"
+#include "common.h"
 
 int main(int argc, char *argv[]) {
-    CAPTGenerator::randomize();
+    Common::randomize();
 
     QCoreApplication a(argc, argv);
 

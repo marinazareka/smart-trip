@@ -30,7 +30,8 @@ SOURCES += captgenerator.cpp \
     terms/pospreferenceterm.cpp \
     terms/betweenpreferenceterm.cpp \
     terms/lowestpreferenceterm.cpp \
-    terms/lessthanpreferenceterm.cpp
+    terms/lessthanpreferenceterm.cpp \
+    common.cpp
 SOURCES += ontology/ontology.c
 
 
@@ -46,7 +47,9 @@ HEADERS += captgenerator.h \
     terms/pospreferenceterm.h \
     terms/betweenpreferenceterm.h \
     terms/lowestpreferenceterm.h \
-    terms/lessthanpreferenceterm.h
+    terms/lessthanpreferenceterm.h \
+    common.h \
+    cfunction.hpp
 
 
 headers.files = captgenerator.h captgenerator_global.h userrequest.h

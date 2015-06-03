@@ -8,10 +8,8 @@
 #include "ontology/ontology.h"
 #include <smartslog/generic.h>
 
+#include "captgenerator.h"
 #include "cfunction.hpp"
-
-std::default_random_engine Pqe::m_randomEngine;
-std::uniform_int_distribution<int> Pqe::m_idDistribution(1, 1000000000);
 
 typedef CFunction<subscription_t*> SubWrapper;
 
@@ -20,25 +18,8 @@ Pqe::Pqe(QObject *parent) : QObject(parent) {
 }
 
 void Pqe::run() {
-    initializeSmartspace();
+    Common::initializeSmartspace("Preference query executor");
     subscribe();
-}
-
-void Pqe::initializeSmartspace() {
-    sslog_ss_init_session_with_parameters("X", "192.168.112.6", 10622);
-    register_ontology();
-
-    qDebug("Joining KP");
-    if (ss_join(sslog_get_ss_info(), const_cast<char*>("Preference query executor")) == -1) {
-        qDebug("Can't join SS");
-        throw std::runtime_error("Can't join SS");
-    }
-}
-
-void Pqe::shutdownSmartspace(){
-    qDebug("Shutting down KP");
-    sslog_repo_clean_all();
-    sslog_ss_leave_session(sslog_get_ss_info());
 }
 
 void Pqe::subscribe() {
@@ -105,25 +86,4 @@ void Pqe::processAsyncUserRequestSubscription(subscription_t* subscription){
             emit userRequestAdded(uuid);
         }
     }
-}
-
-void Pqe::randomize(unsigned seed) {
-    if (seed == 0) {
-        seed = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
-    }
-
-    m_randomEngine.seed(seed);
-}
-
-void Pqe::refreshProcessedRequest() {
-
-}
-
-QString Pqe::generateId() {
-    return QStringLiteral("id%1").arg(m_idDistribution(m_randomEngine));
-}
-
-void Pqe::setGeneratedId(individual_t *individual) {
-    QString generatedId = generateId();
-    sslog_set_individual_uuid(individual, generatedId.toStdString().c_str());
 }
