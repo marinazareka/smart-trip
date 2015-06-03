@@ -33,7 +33,6 @@ public:
     }
 
     static void handler(T key) {
-
         QMutexLocker lock(&m_mutex);
         auto iter = m_wrappers.find(key);
         if (iter != m_wrappers.end()) {

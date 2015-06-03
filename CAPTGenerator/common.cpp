@@ -20,13 +20,16 @@ void randomize(unsigned seed) {
     m_randomEngine.seed(seed);
 }
 
-QString generateId() {
-    return QStringLiteral("id%1").arg(m_idDistribution(m_randomEngine));
+QString generateId(const char* prefix) {
+    if (prefix != nullptr) {
+        return QString("%1%2").arg(prefix).arg(m_idDistribution(m_randomEngine));
+    } else {
+        return QString("id%1").arg(m_idDistribution(m_randomEngine));
+    }
 }
 
-void setGeneratedId(individual_t *individual) {
-    QString generatedId = generateId();
-    qDebug() << "Setting generated uuid " << generatedId;
+void setGeneratedId(individual_t *individual, const char* prefix) {
+    QString generatedId = generateId(prefix);
     sslog_set_individual_uuid(individual, generatedId.toStdString().c_str());
 }
 
@@ -55,6 +58,15 @@ QVariant getProperty(individual_t* individual, const char* key) {
 
     const char* strValue = reinterpret_cast<const char*>(value->prop_value);
     return strValue;
+}
+
+individual_t* getIndividualProperty(individual_t* individual, const char* key) {
+    const prop_val_t* value = sslog_get_property(individual, key);
+    if (value == nullptr) {
+        return nullptr;
+    }
+
+    return reinterpret_cast<individual_t*>(value->prop_value);
 }
 
 }

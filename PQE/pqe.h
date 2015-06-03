@@ -8,6 +8,7 @@
 #include <random>
 
 #include "common.h"
+#include "captgeneratordesc.h"
 
 class Pqe : public QObject {
     Q_OBJECT
@@ -16,12 +17,13 @@ class Pqe : public QObject {
     subscription_t* m_userRequestSubscription;
     subscription_t* m_processedRequestSubscription;
 
-    QMap<QString, individual_t*> captGenerator;
+    QMultiMap<QString /*objectType*/, QString /*uuid*/> m_objectTypes;
+    QMap<QString /*uuid*/, CaptGeneratorDesc> m_captGenerators;
 
 public:
     explicit Pqe(QObject* parent = 0);
 
-    void refreshProcessedRequest();
+    void refreshProcessedRequestSubscription();
 
 signals:
     void finished();
@@ -31,7 +33,7 @@ signals:
 
     void userRequestAdded(QString uuid);
 
-    void processedRequestGenerated(QString uuid, individual_t* captGenerator);
+    void processedRequestAdded(QString uuid);
 
 public slots:
     void run();
@@ -41,10 +43,12 @@ public slots:
     void addCaptGenerator(QString uuid);
     void removeCaptGenerator(QString uuid);
     void processUserRequest(QString uuid);
+    void processProcessedRequest(QString uuid);
 
 private:
     void processAsyncCaptGeneratorSubscription(subscription_t* subscription);
     void processAsyncUserRequestSubscription(subscription_t* subscription);
+    void processAsyncProcessedRequestSubscription(subscription_t* subscription);
 };
 
 #endif // PQE_H

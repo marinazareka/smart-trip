@@ -130,11 +130,8 @@ void CAPTGenerator::publishProcessedRequest(UserRequest userRequest, PreferenceT
         throw std::runtime_error("Generator not published");
     }
 
-    qDebug() << "Publishing processed request";
-
     individual_t* processedRequest = sslog_new_individual(CLASS_PROCESSEDREQUEST);
-    //sslog_ss_init_individual_with_uuid(processedRequest, generateId().toStdString().c_str());
-    Common::setGeneratedId(processedRequest);
+    Common::setGeneratedId(processedRequest, "processedrequest");
 
     QList<individual_t*> termIndividuals;
 
@@ -153,9 +150,11 @@ void CAPTGenerator::publishProcessedRequest(UserRequest userRequest, PreferenceT
     }
 
     sslog_add_property(processedRequest, PROPERTY_ISASSOCIATEDWITH, userRequest.getUserRequestIndividual());
-    //sslog_ss_add_property(m_selfIndividual, PROPERTY_GENERATES, processedRequest);
 
+    qDebug() << "Publishing processed request: " << processedRequest->uuid;
     sslog_ss_insert_individual(processedRequest);
+
+    sslog_ss_add_property(m_selfIndividual, PROPERTY_GENERATES, processedRequest);
 
     for (individual_t* term : termIndividuals) {
         sslog_free_individual(term);
@@ -163,4 +162,3 @@ void CAPTGenerator::publishProcessedRequest(UserRequest userRequest, PreferenceT
 
     sslog_free_individual(processedRequest);
 }
-

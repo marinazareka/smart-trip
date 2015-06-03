@@ -17,14 +17,15 @@ namespace Common {
     extern std::default_random_engine m_randomEngine;
     extern std::uniform_int_distribution<int> m_idDistribution;
 
-    QString generateId();
-    void setGeneratedId(individual_t* individual);
+    QString generateId(const char* prefix = nullptr);
+    void setGeneratedId(individual_t* individual, const char* prefix = nullptr);
     void randomize(unsigned seed = 0);
 
     void initializeSmartspace(const char* kpName);
     void shutdownSmartspace();
 
     QVariant getProperty(individual_t* individual, const char* key);
+    individual_t* getIndividualProperty(individual_t* individual, const char* key);
 }
 
 #endif // COMMON_H

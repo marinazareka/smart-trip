@@ -24,11 +24,15 @@ LIBS += -L $${OUT_PWD}/../CAPTGenerator -lCAPTGenerator
 
 SOURCES += main.cpp \
     pqe.cpp \
-    generatorsubscriptionhandler.cpp
+    generatorsubscriptionhandler.cpp \
+    captgeneratordesc.cpp \
+    pendingrequest.cpp
 
 SOURCES += ontology/ontology.c
 
 HEADERS += \
     pqe.h \
-    generatorsubscriptionhandler.h
+    generatorsubscriptionhandler.h \
+    captgeneratordesc.h \
+    pendingrequest.h
 
