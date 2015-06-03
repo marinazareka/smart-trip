@@ -48,6 +48,10 @@ void Pqe::refreshProcessedRequestSubscription() {
     }
 }
 
+void Pqe::executePreferenceQuery(PendingRequest pendingRequest) {
+    qDebug() << "Executing preference query: " << pendingRequest.getUserRequest()->uuid;
+}
+
 
 void Pqe::run() {
     Common::initializeSmartspace("Preference query executor");
@@ -95,7 +99,7 @@ void Pqe::addCaptGenerator(QString uuid) {
     sslog_set_individual_uuid(captGenerator, uuid.toStdString().c_str());
     sslog_ss_populate_individual(captGenerator);
 
-    QString objectType = Common::getProperty(captGenerator, PROPERTY_OBJECTTYPE->name).toString();
+    QString objectType = Common::getProperty(captGenerator, PROPERTY_OBJECTTYPE).toString();
 
     if (m_captGenerators.contains(objectType)) {
         qDebug() << "CAPTGenerator with uuid " << uuid << " already exists";
@@ -108,7 +112,7 @@ void Pqe::addCaptGenerator(QString uuid) {
 
     refreshProcessedRequestSubscription();
 
-    qDebug() << "CAPTGenerator added: " << uuid << " objectType = " << objectType;
+    qDebug() << "CAPTGenerator added: " << uuid << " objectType: " << objectType;
 }
 
 void Pqe::removeCaptGenerator(QString uuid) {
@@ -119,12 +123,64 @@ void Pqe::removeCaptGenerator(QString uuid) {
     m_objectTypes.remove(captGenerator.getObjectType(), uuid);
 }
 
-void Pqe::processUserRequest(QString uuid) {
-    qDebug() << "UserRequest added: " << uuid;
+void Pqe::processUserRequest(QString userRequuestUuid) {
+    individual_t* userRequest = sslog_new_individual(CLASS_USERREQUEST);
+    sslog_set_individual_uuid(userRequest, userRequuestUuid.toStdString().c_str());
+    sslog_ss_populate_individual(userRequest);
+
+    QString objectType = Common::getProperty(userRequest, PROPERTY_OBJECTTYPE).toString();
+
+    qDebug() << "UserRequest added: " << userRequuestUuid << " objectType: " << objectType;
+
+
+    QSet<QString> pendingCaptGeneratorIds = m_objectTypes.values(objectType).toSet();
+
+    if (pendingCaptGeneratorIds.isEmpty()) {
+        qDebug() << "No generators for this object type";
+    }
+
+    for (QString str : pendingCaptGeneratorIds) {
+        qDebug() << "Waiting generator: " << str;
+    }
+
+    PendingRequest pendingRequest(userRequest, objectType, pendingCaptGeneratorIds);
+
+    m_pendingRequests.insert(userRequuestUuid, pendingRequest);
 }
 
-void Pqe::processProcessedRequest(QString uuid){
-    qDebug() << "ProcessedRequest added: " << uuid;
+void Pqe::processProcessedRequest(QString captGeneratorUuid, QString processedRequestUuid) {
+    qDebug() << "ProcessedRequest added: " << captGeneratorUuid << processedRequestUuid;
+
+    individual_t* processedRequestIndividual = sslog_new_individual(CLASS_PROCESSEDREQUEST);
+    sslog_set_individual_uuid(processedRequestIndividual, processedRequestUuid.toStdString().c_str());
+    sslog_ss_populate_individual(processedRequestIndividual);
+
+    individual_t* userRequestIndividual = Common::getIndividualProperty(processedRequestIndividual,
+                                                                        PROPERTY_ISASSOCIATEDWITH);
+
+    QString userRequestUuid = userRequestIndividual->uuid;
+
+    if (m_pendingRequests.contains(userRequestUuid)) {
+        // User request already received
+        PendingRequest pendingRequest = m_pendingRequests.value(userRequestUuid);
+        if (!pendingRequest.removePendingCaptGenerator(captGeneratorUuid)) {
+            qDebug() << "Received processed request from not registered CAPTGenerator: " << captGeneratorUuid;
+            throw std::runtime_error("Received processed request from not registered CAPTGenerator");
+        }
+
+        if (!pendingRequest.hasPendingCaptGenerators()) {
+            m_pendingRequests.remove(userRequestUuid);
+            executePreferenceQuery(pendingRequest);
+        }
+    } else {
+        // User request has not yet received
+        throw std::runtime_error("NIY: User request has not yet received");
+    }
+
+    sslog_free_individual(userRequestIndividual);
+    sslog_free_individual(processedRequestIndividual);
+   // if (m_pendingRequests.contains())
+
 }
 
 void Pqe::processAsyncCaptGeneratorSubscription(subscription_t* subscription) {
@@ -161,14 +217,14 @@ void Pqe::processAsyncProcessedRequestSubscription(subscription_t* subscription)
     qDebug() << "processAsyncProcessedRequestSubscription";
 
     auto changes = sslog_sbcr_get_changes_last(subscription);
-    auto individuals = sslog_sbcr_ch_get_individual_all(changes);
+    auto properties = sslog_sbcr_ch_get_property_by_action(changes, ACTION_INSERT);
 
     list_head_t* listHead = NULL;
-    list_for_each(listHead, &individuals->links) {
-        const char* uuid = (const char*) (list_entry(listHead, list_t, links)->data);
+    list_for_each(listHead, &properties->links) {
+        property_changes_data_s* propertyChange = (property_changes_data_s*) (list_entry(listHead, list_t, links)->data);
 
-        if (sslog_ss_exists_uuid(const_cast<char*>(uuid))) {
-            emit processedRequestAdded(uuid);
-        }
+        const char* captGeneratorUuid = propertyChange->owner_uuid;
+        const char* processedRequestUuid = propertyChange->current_value;
+        emit processedRequestAdded(captGeneratorUuid, processedRequestUuid);
     }
 }

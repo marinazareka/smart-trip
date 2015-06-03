@@ -83,6 +83,7 @@ static individual_t* doRequest() {
 
     sslog_add_property(userRequest, PROPERTY_CONSISTSIN, restaurantPreferenceItem);
     sslog_add_property(userRequest, PROPERTY_CONTAINSDYNAMICCONTEXT, userDynamicContext);
+    sslog_add_property(userRequest, PROPERTY_OBJECTTYPE, "restaurant");
 
     sslog_add_property(userRequest, PROPERTY_RELATESTO, user);
 

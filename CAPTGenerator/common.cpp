@@ -50,8 +50,10 @@ void shutdownSmartspace() {
     sslog_ss_leave_session(sslog_get_ss_info());
 }
 
-QVariant getProperty(individual_t* individual, const char* key) {
-    const prop_val_t* value = sslog_get_property(individual, key);
+QVariant getProperty(individual_t* individual, property_t* property, bool load) {
+    const prop_val_t* value = load
+            ? sslog_ss_get_property(individual, property)
+            : sslog_get_property(individual, property->name);
     if (value == nullptr) {
         return QVariant();
     }
@@ -60,8 +62,8 @@ QVariant getProperty(individual_t* individual, const char* key) {
     return strValue;
 }
 
-individual_t* getIndividualProperty(individual_t* individual, const char* key) {
-    const prop_val_t* value = sslog_get_property(individual, key);
+individual_t* getIndividualProperty(individual_t* individual, property_t* property) {
+    const prop_val_t* value = sslog_get_property(individual, property->name);
     if (value == nullptr) {
         return nullptr;
     }

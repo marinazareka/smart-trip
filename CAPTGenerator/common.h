@@ -10,6 +10,9 @@
 class individual_s;
 typedef individual_s individual_t;
 
+class property_s;
+typedef property_s property_t;
+
 class subscription_s {};
 typedef subscription_s subscription_t;
 
@@ -24,8 +27,8 @@ namespace Common {
     void initializeSmartspace(const char* kpName);
     void shutdownSmartspace();
 
-    QVariant getProperty(individual_t* individual, const char* key);
-    individual_t* getIndividualProperty(individual_t* individual, const char* key);
+    QVariant getProperty(individual_t* individual, property_t*, bool load = false);
+    individual_t* getIndividualProperty(individual_t* individual, property_t* property);
 }
 
 #endif // COMMON_H

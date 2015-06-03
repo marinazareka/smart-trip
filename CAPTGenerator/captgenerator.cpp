@@ -106,9 +106,7 @@ void CAPTGenerator::processSubscriptionChange(subscription_t *subscription) {
     list_head_t* listHead = NULL;
     list_for_each(listHead, &changes->links) {
         const char* uuid = (const char*) (list_entry(listHead, list_t, links)->data);
-        //individual_t* userRequestInd = reinterpret_cast<individual_t*>(list_entry(listHead, list_t, links)->data);
-        //const char* uuid = userRequestInd->uuid;
-        qDebug() << "Found inserted UserRequest with uuid " << uuid;
+
 
         if (m_processedRequests.contains(uuid)) {
             continue;
@@ -119,7 +117,12 @@ void CAPTGenerator::processSubscriptionChange(subscription_t *subscription) {
 
         UserRequest userRequest(uuid);
 
-        emit userRequestReceived(userRequest);
+        if (userRequest.getObjectType() == m_objectType) {
+            qDebug() << "Found inserted UserRequest with uuid " << uuid;
+            emit userRequestReceived(userRequest);
+        } else {
+            qDebug() << "Request objectType not equials generator objectType: " << userRequest.getObjectType() << m_objectType;
+        }
     }
 
     list_free_with_nodes(changes, NULL);

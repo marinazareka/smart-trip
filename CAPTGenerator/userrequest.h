@@ -23,6 +23,7 @@ public:
 
     QVariant getStaticContextProperty(const char *key);
     QVariant getDynamicContextProperty(const char *key);
+    QString getObjectType() const;
 
 private:
     individual_t* getUserRequestIndividual() const;

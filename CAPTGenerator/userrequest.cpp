@@ -5,6 +5,7 @@
 #include <smartslog/generic.h>
 
 #include "ontology/ontology.h"
+#include "common.h"
 
 class UserRequestData : public QSharedData {
 public:
@@ -20,12 +21,14 @@ public:
     prop_val_t* relatesToValue;
     prop_val_t* staticUserContextValue;
 
+    QString objectType;
+
     bool isInitialized;
     bool isFreed;
 };
 
 UserRequest::UserRequest() {
-    data->userRequest = sslog_new_individual(CLASS_USERREQUEST);
+    //data->userRequest = sslog_new_individual(CLASS_USERREQUEST);
 }
 
 UserRequest::UserRequest(QString userRequestUuid) : data(new UserRequestData) {
@@ -47,6 +50,8 @@ UserRequest::UserRequest(QString userRequestUuid) : data(new UserRequestData) {
 
     data->staticUserContextValue = sslog_ss_get_property(data->user, PROPERTY_HASSTATICUSERCONTEXT);
     data->staticUserContext = reinterpret_cast<individual_t*>(data->staticUserContextValue->prop_value);
+
+    data->objectType = Common::getProperty(data->userRequest, PROPERTY_OBJECTTYPE, true).toString();
 
     sslog_ss_populate_individual(data->staticUserContext);
     sslog_ss_populate_individual(data->dynamicContext);
@@ -84,6 +89,10 @@ QVariant UserRequest::getDynamicContextProperty(const char *key) {
 
     const char* strValue = reinterpret_cast<const char*>(value->prop_value);
     return strValue;
+}
+
+QString UserRequest::getObjectType() const {
+    return data->objectType;
 }
 
 individual_t *UserRequest::getUserRequestIndividual() const {

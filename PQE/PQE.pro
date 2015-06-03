@@ -26,7 +26,8 @@ SOURCES += main.cpp \
     pqe.cpp \
     generatorsubscriptionhandler.cpp \
     captgeneratordesc.cpp \
-    pendingrequest.cpp
+    pendingrequest.cpp \
+    processedrequest.cpp
 
 SOURCES += ontology/ontology.c
 
@@ -34,5 +35,6 @@ HEADERS += \
     pqe.h \
     generatorsubscriptionhandler.h \
     captgeneratordesc.h \
-    pendingrequest.h
+    pendingrequest.h \
+    processedrequest.h
 

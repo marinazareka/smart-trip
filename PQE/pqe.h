@@ -9,6 +9,7 @@
 
 #include "common.h"
 #include "captgeneratordesc.h"
+#include "pendingrequest.h"
 
 class Pqe : public QObject {
     Q_OBJECT
@@ -20,10 +21,17 @@ class Pqe : public QObject {
     QMultiMap<QString /*objectType*/, QString /*uuid*/> m_objectTypes;
     QMap<QString /*uuid*/, CaptGeneratorDesc> m_captGenerators;
 
+    // Processed requests for UserRequests than has not been received by PQE
+    QList<QString> m_receivedProcessedRequests;
+
+    QMap<QString /* userRequest */, PendingRequest> m_pendingRequests;
+
+
 public:
     explicit Pqe(QObject* parent = 0);
 
     void refreshProcessedRequestSubscription();
+    void executePreferenceQuery(PendingRequest pendingRequest);
 
 signals:
     void finished();
@@ -33,7 +41,7 @@ signals:
 
     void userRequestAdded(QString uuid);
 
-    void processedRequestAdded(QString uuid);
+    void processedRequestAdded(QString captGenerator, QString processedRequestUuid);
 
 public slots:
     void run();
@@ -43,7 +51,8 @@ public slots:
     void addCaptGenerator(QString uuid);
     void removeCaptGenerator(QString uuid);
     void processUserRequest(QString uuid);
-    void processProcessedRequest(QString uuid);
+
+    void processProcessedRequest(QString captGenerator, QString processedRequestUuid);
 
 private:
     void processAsyncCaptGeneratorSubscription(subscription_t* subscription);
