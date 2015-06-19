@@ -11,6 +11,7 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -27,4 +28,8 @@ dependencies {
     }
 
     compile 'org.mapsforge:mapsforge-map-android:0.5.1'
+
+    compile 'com.google.android.gms:play-services-location:7.5.0'
+
+compile 'de.greenrobot:eventbus:2.4.0'
 }

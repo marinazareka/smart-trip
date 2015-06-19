@@ -7,6 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+
+import org.fruct.oss.smarttrip.layers.LocationLayer;
 import org.mapsforge.core.model.LatLong;
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
 import org.mapsforge.map.android.util.AndroidUtil;
@@ -18,7 +22,9 @@ import org.mapsforge.map.layer.download.tilesource.OpenStreetMapMapnik;
 public class MapFragment extends Fragment {
 	private MapView mapView;
 	private TileCache tileCache;
+
 	private TileDownloadLayer layer;
+	private LocationLayer locationLayer;
 
 	public static MapFragment newInstance() {
 		return new MapFragment();
@@ -27,6 +33,8 @@ public class MapFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+
 	}
 
 	@Nullable
@@ -45,7 +53,8 @@ public class MapFragment extends Fragment {
 		// create a tile cache of suitable size
 		this.tileCache = AndroidUtil.createTileCache(getActivity(), "mapcache",
 				mapView.getModel().displayModel.getTileSize(), 1f,
-				this.mapView.getModel().frameBufferModel.getOverdrawFactor());
+				this.mapView.getModel().frameBufferModel.getOverdrawFactor(), false, 0, true);
+
 
 		return mapView;
 	}
@@ -65,6 +74,9 @@ public class MapFragment extends Fragment {
 
 		// only once a layer is associated with a mapView the rendering starts
 		this.mapView.getLayerManager().getLayers().add(layer);
+
+		this.locationLayer = new LocationLayer(getActivity());
+		this.mapView.getLayerManager().getLayers().add(this.locationLayer);
 	}
 
 	@Override
@@ -83,6 +95,8 @@ public class MapFragment extends Fragment {
 	@Override
 	public void onStop() {
 		this.mapView.getLayerManager().getLayers().remove(layer);
+		this.mapView.getLayerManager().getLayers().remove(locationLayer);
+
 		this.layer.onDestroy();
 
 		super.onStop();
