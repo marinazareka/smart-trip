@@ -15,3 +15,12 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+-dontwarn org.xmlpull.v1.**
+-dontwarn com.caverock.androidsvg.**
+
+-keepclassmembers class ** {
+    public void onEvent*(**);
+}
+
+-dontobfuscate
