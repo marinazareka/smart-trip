@@ -35,5 +35,7 @@ dependencies {
 
     compile 'com.google.android.gms:play-services-location:7.5.0'
 
-compile 'de.greenrobot:eventbus:2.4.0'
+    compile 'de.greenrobot:eventbus:2.4.0'
+
+    compile 'com.afollestad:material-dialogs:0.7.6.0'
 }

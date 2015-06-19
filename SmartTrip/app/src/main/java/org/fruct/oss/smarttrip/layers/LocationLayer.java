@@ -36,7 +36,7 @@ public class LocationLayer extends Layer {
 		circleFill = createPaint(GRAPHIC_FACTORY.createColor(127, 255, 0, 255), 0, Style.FILL);
 		circleStroke = createPaint(GRAPHIC_FACTORY.createColor(127, 255, 125, 255), 2, Style.STROKE);
 
-		circle = new FixedPixelCircle(null, Utils.getDP(8), circleFill, circleStroke);
+		circle = new FixedPixelCircle(null, Utils.getDP(5), circleFill, circleStroke);
 	}
 
 	@Override
