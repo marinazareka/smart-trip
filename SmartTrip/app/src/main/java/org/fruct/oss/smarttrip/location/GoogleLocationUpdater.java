@@ -23,16 +23,20 @@ public class GoogleLocationUpdater
 
 	@Override
 	public void start() {
-		LocationRequest locationRequest = new LocationRequest();
-		locationRequest.setInterval(1000);
-		locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+		if (client.isConnected()) {
+			LocationRequest locationRequest = new LocationRequest();
+			locationRequest.setInterval(1000);
+			locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-		LocationServices.FusedLocationApi.requestLocationUpdates(client, locationRequest, this);
+			LocationServices.FusedLocationApi.requestLocationUpdates(client, locationRequest, this);
+		}
 	}
 
 	@Override
 	public void stop() {
-		LocationServices.FusedLocationApi.removeLocationUpdates(client, this);
+		if (client.isConnected()) {
+			LocationServices.FusedLocationApi.removeLocationUpdates(client, this);
+		}
 	}
 
 	@Override

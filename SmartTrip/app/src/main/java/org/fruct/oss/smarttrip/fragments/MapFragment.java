@@ -53,7 +53,7 @@ public class MapFragment extends Fragment {
 		// create a tile cache of suitable size
 		this.tileCache = AndroidUtil.createTileCache(getActivity(), "mapcache",
 				mapView.getModel().displayModel.getTileSize(), 1f,
-				this.mapView.getModel().frameBufferModel.getOverdrawFactor(), false, 0, true);
+				mapView.getModel().frameBufferModel.getOverdrawFactor(), false, 0, true);
 
 
 		return mapView;
