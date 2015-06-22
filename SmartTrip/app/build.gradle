@@ -27,15 +27,24 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.2.0'
+
+    // Material design navigation drawer
     compile('com.mikepenz:materialdrawer:3.0.7@aar') {
         transitive = true
     }
 
+    // Material design dialogs
+    compile 'com.afollestad:material-dialogs:0.7.6.0'
+
+    // Map library
     compile 'org.mapsforge:mapsforge-map-android:0.5.1'
 
+    // Location library
     compile 'com.google.android.gms:play-services-location:7.5.0'
 
+    // Event bus
     compile 'de.greenrobot:eventbus:2.4.0'
 
-    compile 'com.afollestad:material-dialogs:0.7.6.0'
+    // Asynchronous job library
+    compile 'com.birbit:android-priority-jobqueue:1.3'
 }

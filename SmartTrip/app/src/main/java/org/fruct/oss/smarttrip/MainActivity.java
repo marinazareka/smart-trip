@@ -34,6 +34,8 @@ import org.fruct.oss.smarttrip.fragments.PlaceHolderFragment;
 import org.fruct.oss.smarttrip.location.GoogleLocationUpdater;
 import org.fruct.oss.smarttrip.location.LocationListener;
 import org.fruct.oss.smarttrip.location.LocationUpdater;
+import org.fruct.oss.smarttrip.points.PointsJob;
+import org.fruct.oss.smarttrip.points.TestPointsLoader;
 
 import de.greenrobot.event.EventBus;
 
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 	private boolean isResolvingGoogleClientError;
 
 	private LocationUpdater locationUpdater;
+	private Location lastLocation;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +101,31 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 		}
 
 		setupGoogleClient();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.menu_main, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_search:
+			actionSearch();
+			return true;
+
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	private void actionSearch() {
+		if (lastLocation != null) {
+			App.getJobManager().addJobInBackground(new PointsJob(new TestPointsLoader(),
+					lastLocation.getLatitude(), lastLocation.getLongitude(), 10000));
+		}
 	}
 
 	private void setupGoogleClient() {
@@ -201,6 +229,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
 	@Override
 	public void onNewLocation(Location location) {
+		lastLocation = location;
+
 		EventBus.getDefault().postSticky(new LocationEvent(location));
 	}
 

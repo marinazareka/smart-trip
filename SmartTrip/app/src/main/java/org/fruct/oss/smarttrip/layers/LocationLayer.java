@@ -33,8 +33,8 @@ public class LocationLayer extends Layer {
 	public LocationLayer(Context context) {
 		this.context = context;
 
-		circleFill = createPaint(GRAPHIC_FACTORY.createColor(127, 255, 0, 255), 0, Style.FILL);
-		circleStroke = createPaint(GRAPHIC_FACTORY.createColor(127, 255, 125, 255), 2, Style.STROKE);
+		circleFill = Utils.createPaint(GRAPHIC_FACTORY.createColor(127, 255, 0, 255), 0, Style.FILL);
+		circleStroke = Utils.createPaint(GRAPHIC_FACTORY.createColor(127, 255, 125, 255), 2, Style.STROKE);
 
 		circle = new FixedPixelCircle(null, Utils.getDP(5), circleFill, circleStroke);
 	}
@@ -65,13 +65,5 @@ public class LocationLayer extends Layer {
 		circle.setLatLong(new LatLong(location.getLatitude(), location.getLongitude()));
 
 		requestRedraw();
-	}
-
-	private Paint createPaint(int color, int width, Style style) {
-		Paint paint = GRAPHIC_FACTORY.createPaint();
-		paint.setColor(color);
-		paint.setStrokeWidth(width);
-		paint.setStyle(style);
-		return paint;
 	}
 }

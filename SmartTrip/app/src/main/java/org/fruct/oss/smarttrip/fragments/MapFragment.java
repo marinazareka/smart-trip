@@ -10,7 +10,9 @@ import android.view.ViewGroup;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
+import org.fruct.oss.smarttrip.App;
 import org.fruct.oss.smarttrip.layers.LocationLayer;
+import org.fruct.oss.smarttrip.layers.PointsLayer;
 import org.mapsforge.core.model.LatLong;
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
 import org.mapsforge.map.android.util.AndroidUtil;
@@ -25,6 +27,7 @@ public class MapFragment extends Fragment {
 
 	private TileDownloadLayer layer;
 	private LocationLayer locationLayer;
+	private PointsLayer pointsLayer;
 
 	public static MapFragment newInstance() {
 		return new MapFragment();
@@ -33,8 +36,6 @@ public class MapFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-
 	}
 
 	@Nullable
@@ -43,8 +44,8 @@ public class MapFragment extends Fragment {
 		mapView = new MapView(getActivity());
 
 		this.mapView.setClickable(true);
-		this.mapView.getMapScaleBar().setVisible(true);
-		this.mapView.setBuiltInZoomControls(true);
+		this.mapView.getMapScaleBar().setVisible(false);
+		this.mapView.setBuiltInZoomControls(false);
 		this.mapView.getMapZoomControls().setZoomLevelMin((byte) 10);
 		this.mapView.getMapZoomControls().setZoomLevelMax((byte) 20);
 
@@ -54,7 +55,6 @@ public class MapFragment extends Fragment {
 		this.tileCache = AndroidUtil.createTileCache(getActivity(), "mapcache",
 				mapView.getModel().displayModel.getTileSize(), 1f,
 				mapView.getModel().frameBufferModel.getOverdrawFactor(), false, 0, true);
-
 
 		return mapView;
 	}
@@ -77,6 +77,9 @@ public class MapFragment extends Fragment {
 
 		this.locationLayer = new LocationLayer(getActivity());
 		this.mapView.getLayerManager().getLayers().add(this.locationLayer);
+
+		this.pointsLayer = new PointsLayer(getActivity());
+		this.mapView.getLayerManager().getLayers().add(this.pointsLayer);
 	}
 
 	@Override
@@ -88,7 +91,6 @@ public class MapFragment extends Fragment {
 	@Override
 	public void onPause() {
 		this.layer.onPause();
-
 		super.onPause();
 	}
 
@@ -96,6 +98,7 @@ public class MapFragment extends Fragment {
 	public void onStop() {
 		this.mapView.getLayerManager().getLayers().remove(layer);
 		this.mapView.getLayerManager().getLayers().remove(locationLayer);
+		this.mapView.getLayerManager().getLayers().remove(pointsLayer);
 
 		this.layer.onDestroy();
 

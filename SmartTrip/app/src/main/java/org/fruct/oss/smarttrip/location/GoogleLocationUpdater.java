@@ -22,6 +22,15 @@ public class GoogleLocationUpdater
 	}
 
 	@Override
+	public Location getLastLocation() {
+		if (client.isConnected()) {
+			return LocationServices.FusedLocationApi.getLastLocation(client);
+		} else {
+			return null;
+		}
+	}
+
+	@Override
 	public void start() {
 		if (client.isConnected()) {
 			LocationRequest locationRequest = new LocationRequest();
