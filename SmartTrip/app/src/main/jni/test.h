@@ -3,9 +3,7 @@
 
 
 
-extern "C" {
-    int test(int a);
-}
+extern bool test(const char* smartspace, const char* ip_address, int port);
 
 #endif
 

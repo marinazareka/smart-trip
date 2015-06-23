@@ -4,4 +4,4 @@
     #include "test.h"
 %}
 
-int test(int a);
+bool test(const char* smartspace, const char* ip_address, int port);

@@ -36,6 +36,7 @@ import org.fruct.oss.smarttrip.location.LocationListener;
 import org.fruct.oss.smarttrip.location.LocationUpdater;
 import org.fruct.oss.smarttrip.points.PointsJob;
 import org.fruct.oss.smarttrip.points.TestPointsLoader;
+import org.fruct.oss.smarttrip.util.Test;
 
 import de.greenrobot.event.EventBus;
 
@@ -125,6 +126,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 		if (lastLocation != null) {
 			App.getJobManager().addJobInBackground(new PointsJob(new TestPointsLoader(),
 					lastLocation.getLatitude(), lastLocation.getLongitude(), 10000));
+
+			if (Test.test()) {
+				Toast.makeText(this, "test successful", Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(this, "test failed", Toast.LENGTH_SHORT).show();
+			}
 		}
 	}
 
