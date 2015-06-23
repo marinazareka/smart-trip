@@ -11,3 +11,5 @@
 
 app/src/main/java/org/fruct/oss/smarttrip/jni/
 app/src/main/jni/TestLib_wrap.cxx
+app/src/main/libs/                                                                                                                  
+app/src/main/obj/
