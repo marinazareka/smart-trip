@@ -8,3 +8,6 @@
 
 /.idea
 *.iml
+
+app/src/main/java/org/fruct/oss/smarttrip/jni/
+app/src/main/jni/TestLib_wrap.cxx

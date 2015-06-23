@@ -10,6 +10,12 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
+
+        ndk {
+            moduleName "TestLib" // Name of C++ module (i.e. libSeePlusPlus)
+            cFlags "-std=c++11 -fexceptions" // Add provisions to allow C++11 functionality
+            stl "gnustl_shared" // Which STL library to use: gnustl or stlport
+        }
     }
 
     buildTypes {
@@ -47,4 +53,15 @@ dependencies {
 
     // Asynchronous job library
     compile 'com.birbit:android-priority-jobqueue:1.3'
+}
+
+def coreWrapperDir = new File("${projectDir}/src/main/java/org/fruct/oss/smarttrip/jni")
+
+task createCoreWrapperDir {
+    coreWrapperDir.mkdirs()
+}
+
+task runSwig(type:Exec, dependsOn: ['createCoreWrapperDir']) {
+    commandLine 'swig'
+    args '-c++', '-java', '-package', 'org.fruct.oss.smarttrip.jni', '-outdir', coreWrapperDir.absolutePath, "${projectDir}/src/main/jni/TestLib.i"
 }
