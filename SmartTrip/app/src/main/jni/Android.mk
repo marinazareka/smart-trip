@@ -44,8 +44,6 @@ LOCAL_SRC_FILES := \
     smart/smartslog/ss_func.c \
     smart/smartslog/property_changes.c \
     smart/smartslog/properties.c \
-    smart/smartslog/doxyinternal \
-    smart/smartslog/doxyapi \
     smart/smartslog/ss_properties.c \
     smart/smartslog/ss_populate.c \
     smart/smartslog/patterns.c \
