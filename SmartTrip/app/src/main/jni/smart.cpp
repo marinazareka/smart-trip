@@ -1,11 +1,13 @@
 extern "C" {
 #include "smartslog/generic.h"
+#include "ontology/ontology.h"
 }
 
 #include "smart.h"
 
 bool connect(const char* smartspace, const char* ip_address, int port) {
     sslog_ss_init_session_with_parameters(smartspace, ip_address, port);
+    register_ontology();
 
     if (ss_join(sslog_get_ss_info(), const_cast<char*>("Smart Trip Android KP")) == -1) {
         return false;

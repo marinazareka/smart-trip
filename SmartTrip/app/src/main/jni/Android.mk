@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_C_INCLUDES := $(LOCAL_PATH)//smart $(LOCAL_PATH)//smart/expat
+LOCAL_C_INCLUDES := $(LOCAL_PATH)//smart $(LOCAL_PATH)/smart/expat
 
 LOCAL_CFLAGS := -DMTENABLE -DHAVE_MEMMOVE -fexceptions
 
@@ -62,6 +62,7 @@ LOCAL_SRC_FILES := \
     smart/expat/xmlparse.c \
     smart/expat/xmltok.c \
     \
+    ontology/ontology.c \
     \
     smart.cpp \
 
