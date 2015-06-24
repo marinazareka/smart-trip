@@ -19,4 +19,7 @@ namespace std {
 
 bool connect(const char* smartspace, const char* ip_address, int port);
 bool disconnect();
+
+bool publishUserContext(double lat, double lon);
+
 std::vector<Point> loadPoints(double lat, double lon, double radius);

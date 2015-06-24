@@ -12,7 +12,9 @@ struct Point {
 
 extern bool connect(const char* smartspace, const char* ip_address, int port);
 extern bool disconnect();
-std::vector<Point> loadPoints(double lat, double lon, double radius);
+extern bool publishUserContext(double lat, double lon);
+
+extern std::vector<Point> loadPoints(double lat, double lon, double radius);
 
 
 #endif

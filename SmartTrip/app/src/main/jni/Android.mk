@@ -65,6 +65,7 @@ LOCAL_SRC_FILES := \
     ontology/ontology.c \
     \
     smart.cpp \
+    util.c \
 
 
 include $(BUILD_SHARED_LIBRARY)
