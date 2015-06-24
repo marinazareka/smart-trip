@@ -9,12 +9,10 @@ LOCAL_CFLAGS := -DMTENABLE -DHAVE_MEMMOVE
 LOCAL_CONLYFLAGS := -std=gnu99
 LOCAL_CPPFLAGS := -std=c++11
 
-LOCAL_MODULE = TestLib
+LOCAL_MODULE = Smart
 
 LOCAL_SRC_FILES := \
-    TestLib.i \
-    TestLib_wrap.cxx \
-    test.cpp \
+    Smart_wrap.cxx \
     smart/scew/writer.c \
     smart/scew/attribute.c \
     smart/scew/reader.c \
@@ -53,7 +51,6 @@ LOCAL_SRC_FILES := \
     smart/smartslog/patterns.c \
     smart/smartslog/utils/check_func.c \
     smart/smartslog/utils/kp_error.c \
-    smart/smartslog/utils/kp_errors_define_decl.txt \
     smart/smartslog/utils/list.c \
     smart/smartslog/utils/util_func.c \
     smart/ckpi/ckpi.c \
@@ -62,14 +59,13 @@ LOCAL_SRC_FILES := \
     smart/ckpi/process_ssap_cnf.c \
     smart/ckpi/sib_access_tcp.c \
     smart/ckpi/sskp_errno.c \
-    smart/ckpi/sib_access_nota.c.bak \
-    smart/ckpi/sib_access_nota.h.bak \
     smart/expat/xmltok_ns.c \
     smart/expat/xmlrole.c \
     smart/expat/xmlparse.c \
     smart/expat/xmltok.c \
-    smart/expat/xmltok_impl.c \
-
+    \
+    \
+    smart.cpp \
 
 
 include $(BUILD_SHARED_LIBRARY)

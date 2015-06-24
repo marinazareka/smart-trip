@@ -107,5 +107,5 @@ task createCoreWrapperDir {
 
 task runSwig(type:Exec, dependsOn: ['createCoreWrapperDir']) {
     commandLine 'swig'
-    args '-c++', '-java', '-package', 'org.fruct.oss.smarttrip.jni', '-outdir', coreWrapperDir.absolutePath, "${projectDir}/src/main/jni/TestLib.i"
+    args '-c++', '-java', '-package', 'org.fruct.oss.smarttrip.jni', '-outdir', coreWrapperDir.absolutePath, "${projectDir}/src/main/jni/Smart.i"
 }
