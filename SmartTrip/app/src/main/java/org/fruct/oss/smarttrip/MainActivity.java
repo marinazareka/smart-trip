@@ -35,11 +35,11 @@ import org.fruct.oss.smarttrip.location.GoogleLocationUpdater;
 import org.fruct.oss.smarttrip.location.LocationListener;
 import org.fruct.oss.smarttrip.location.LocationUpdater;
 import org.fruct.oss.smarttrip.points.PointsJob;
+import org.fruct.oss.smarttrip.points.SmartPointsLoader;
 import org.fruct.oss.smarttrip.points.TestPointsLoader;
 import org.fruct.oss.smarttrip.util.Test;
 
 import de.greenrobot.event.EventBus;
-
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 	private static int REQUEST_RESOLVE_GOOGLE_ERROR = 101;
@@ -124,14 +124,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
 	private void actionSearch() {
 		if (lastLocation != null) {
-			App.getJobManager().addJobInBackground(new PointsJob(new TestPointsLoader(),
+			App.getJobManager().addJobInBackground(new PointsJob(new SmartPointsLoader(),
 					lastLocation.getLatitude(), lastLocation.getLongitude(), 10000));
-
-			if (Test.test()) {
-				Toast.makeText(this, "test successful", Toast.LENGTH_SHORT).show();
-			} else {
-				Toast.makeText(this, "test failed", Toast.LENGTH_SHORT).show();
-			}
 		}
 	}
 

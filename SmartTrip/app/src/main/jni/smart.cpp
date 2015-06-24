@@ -7,7 +7,7 @@ extern "C" {
 bool connect(const char* smartspace, const char* ip_address, int port) {
     sslog_ss_init_session_with_parameters(smartspace, ip_address, port);
 
-    if (ss_join(sslog_get_ss_info(), const_cast<char*>("Test KP")) == -1) {
+    if (ss_join(sslog_get_ss_info(), const_cast<char*>("Smart Trip Android KP")) == -1) {
         return false;
     }
 
