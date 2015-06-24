@@ -18,3 +18,14 @@ bool disconnect() {
     sslog_repo_clean_all();
     sslog_ss_leave_session(sslog_get_ss_info());
 }
+
+std::vector<Point> loadPoints(double lat, double lon, double radius) {
+    std::vector<Point> ret;
+
+    ret.push_back({61.78, 34.35, "Hello world"});
+    ret.push_back({61.781, 34.351, "Hello world 1"});
+    ret.push_back({61.782, 34.352, "Hello world 2"});
+    ret.push_back({61.783, 34.353, "Hello world 3"});
+
+    return ret;
+}

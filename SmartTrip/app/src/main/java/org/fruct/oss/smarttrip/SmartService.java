@@ -11,6 +11,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 
+import org.fruct.oss.smarttrip.jni.PointList;
 import org.fruct.oss.smarttrip.jni.Smart;
 import org.fruct.oss.smarttrip.points.Point;
 import org.fruct.oss.smarttrip.points.PointsLoader;
@@ -83,9 +84,19 @@ public class SmartService extends Service {
 	}
 
 	private void doActionQueryPoints(double lat, double lon, double radius, Messenger messenger) {
-		PointsLoader testPointsLoader = new TestPointsLoader();
-		List<Point> points = testPointsLoader.loadPoints(lat, lon, radius);
-		sendPointsResponse(points, messenger);
+		PointList pointList = Smart.loadPoints(lat, lon, radius);
+
+		List<Point> retPoints = new ArrayList<>();
+
+		for (int i = 0; i < pointList.size(); i++) {
+			org.fruct.oss.smarttrip.jni.Point swigPoint = pointList.get(i);
+			retPoints.add(new Point(swigPoint.getLat(), swigPoint.getLon(), swigPoint.getName()));
+		}
+
+		// TODO: need delete points also?
+		pointList.delete();
+
+		sendPointsResponse(retPoints, messenger);
 	}
 
 	private void sendPointsResponse(List<Point> points, Messenger messenger) {

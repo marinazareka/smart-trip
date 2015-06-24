@@ -211,12 +211,324 @@ static void SWIGUNUSED SWIG_JavaThrowException(JNIEnv *jenv, SWIG_JavaExceptionC
 #define SWIG_contract_assert(nullreturn, expr, msg) if (!(expr)) {SWIG_JavaThrowException(jenv, SWIG_JavaIllegalArgumentException, msg); return nullreturn; } else
 
 
+#include <string>
+
+
+#include <stdexcept>
+
+
+#include <vector>
+#include <stdexcept>
+
+
     #include "smart.h"
 
+SWIGINTERN std::vector< Point >::const_reference std_vector_Sl_Point_Sg__get(std::vector< Point > *self,int i){
+                int size = int(self->size());
+                if (i>=0 && i<size)
+                    return (*self)[i];
+                else
+                    throw std::out_of_range("vector index out of range");
+            }
+SWIGINTERN void std_vector_Sl_Point_Sg__set(std::vector< Point > *self,int i,std::vector< Point >::value_type const &val){
+                int size = int(self->size());
+                if (i>=0 && i<size)
+                    (*self)[i] = val;
+                else
+                    throw std::out_of_range("vector index out of range");
+            }
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+SWIGEXPORT void JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_Point_1lat_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jdouble jarg2) {
+  Point *arg1 = (Point *) 0 ;
+  double arg2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(Point **)&jarg1; 
+  arg2 = (double)jarg2; 
+  if (arg1) (arg1)->lat = arg2;
+}
+
+
+SWIGEXPORT jdouble JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_Point_1lat_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jdouble jresult = 0 ;
+  Point *arg1 = (Point *) 0 ;
+  double result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(Point **)&jarg1; 
+  result = (double) ((arg1)->lat);
+  jresult = (jdouble)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_Point_1lon_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jdouble jarg2) {
+  Point *arg1 = (Point *) 0 ;
+  double arg2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(Point **)&jarg1; 
+  arg2 = (double)jarg2; 
+  if (arg1) (arg1)->lon = arg2;
+}
+
+
+SWIGEXPORT jdouble JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_Point_1lon_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jdouble jresult = 0 ;
+  Point *arg1 = (Point *) 0 ;
+  double result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(Point **)&jarg1; 
+  result = (double) ((arg1)->lon);
+  jresult = (jdouble)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_Point_1name_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2) {
+  Point *arg1 = (Point *) 0 ;
+  std::string *arg2 = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(Point **)&jarg1; 
+  if(!jarg2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return ;
+  }
+  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
+  if (!arg2_pstr) return ;
+  std::string arg2_str(arg2_pstr);
+  arg2 = &arg2_str;
+  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
+  if (arg1) (arg1)->name = *arg2;
+}
+
+
+SWIGEXPORT jstring JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_Point_1name_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jstring jresult = 0 ;
+  Point *arg1 = (Point *) 0 ;
+  std::string *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(Point **)&jarg1; 
+  result = (std::string *) & ((arg1)->name);
+  jresult = jenv->NewStringUTF(result->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_new_1Point(JNIEnv *jenv, jclass jcls) {
+  jlong jresult = 0 ;
+  Point *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  result = (Point *)new Point();
+  *(Point **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_delete_1Point(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  Point *arg1 = (Point *) 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(Point **)&jarg1; 
+  delete arg1;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_new_1PointList_1_1SWIG_10(JNIEnv *jenv, jclass jcls) {
+  jlong jresult = 0 ;
+  std::vector< Point > *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  result = (std::vector< Point > *)new std::vector< Point >();
+  *(std::vector< Point > **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_new_1PointList_1_1SWIG_11(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  jlong jresult = 0 ;
+  std::vector< Point >::size_type arg1 ;
+  std::vector< Point > *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = (std::vector< Point >::size_type)jarg1; 
+  result = (std::vector< Point > *)new std::vector< Point >(arg1);
+  *(std::vector< Point > **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_PointList_1size(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  std::vector< Point > *arg1 = (std::vector< Point > *) 0 ;
+  std::vector< Point >::size_type result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(std::vector< Point > **)&jarg1; 
+  result = ((std::vector< Point > const *)arg1)->size();
+  jresult = (jlong)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_PointList_1capacity(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  std::vector< Point > *arg1 = (std::vector< Point > *) 0 ;
+  std::vector< Point >::size_type result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(std::vector< Point > **)&jarg1; 
+  result = ((std::vector< Point > const *)arg1)->capacity();
+  jresult = (jlong)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_PointList_1reserve(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+  std::vector< Point > *arg1 = (std::vector< Point > *) 0 ;
+  std::vector< Point >::size_type arg2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(std::vector< Point > **)&jarg1; 
+  arg2 = (std::vector< Point >::size_type)jarg2; 
+  (arg1)->reserve(arg2);
+}
+
+
+SWIGEXPORT jboolean JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_PointList_1isEmpty(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jboolean jresult = 0 ;
+  std::vector< Point > *arg1 = (std::vector< Point > *) 0 ;
+  bool result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(std::vector< Point > **)&jarg1; 
+  result = (bool)((std::vector< Point > const *)arg1)->empty();
+  jresult = (jboolean)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_PointList_1clear(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  std::vector< Point > *arg1 = (std::vector< Point > *) 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(std::vector< Point > **)&jarg1; 
+  (arg1)->clear();
+}
+
+
+SWIGEXPORT void JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_PointList_1add(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_) {
+  std::vector< Point > *arg1 = (std::vector< Point > *) 0 ;
+  std::vector< Point >::value_type *arg2 = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  (void)jarg2_;
+  arg1 = *(std::vector< Point > **)&jarg1; 
+  arg2 = *(std::vector< Point >::value_type **)&jarg2;
+  if (!arg2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "std::vector< Point >::value_type const & reference is null");
+    return ;
+  } 
+  (arg1)->push_back((std::vector< Point >::value_type const &)*arg2);
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_PointList_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
+  jlong jresult = 0 ;
+  std::vector< Point > *arg1 = (std::vector< Point > *) 0 ;
+  int arg2 ;
+  std::vector< Point >::value_type *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(std::vector< Point > **)&jarg1; 
+  arg2 = (int)jarg2; 
+  try {
+    result = (std::vector< Point >::value_type *) &std_vector_Sl_Point_Sg__get(arg1,arg2);
+  }
+  catch(std::out_of_range &_e) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaIndexOutOfBoundsException, (&_e)->what());
+    return 0;
+  }
+  
+  *(std::vector< Point >::value_type **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_PointList_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2, jlong jarg3, jobject jarg3_) {
+  std::vector< Point > *arg1 = (std::vector< Point > *) 0 ;
+  int arg2 ;
+  std::vector< Point >::value_type *arg3 = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  (void)jarg3_;
+  arg1 = *(std::vector< Point > **)&jarg1; 
+  arg2 = (int)jarg2; 
+  arg3 = *(std::vector< Point >::value_type **)&jarg3;
+  if (!arg3) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "std::vector< Point >::value_type const & reference is null");
+    return ;
+  } 
+  try {
+    std_vector_Sl_Point_Sg__set(arg1,arg2,(Point const &)*arg3);
+  }
+  catch(std::out_of_range &_e) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaIndexOutOfBoundsException, (&_e)->what());
+    return ;
+  }
+  
+}
+
+
+SWIGEXPORT void JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_delete_1PointList(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  std::vector< Point > *arg1 = (std::vector< Point > *) 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(std::vector< Point > **)&jarg1; 
+  delete arg1;
+}
+
 
 SWIGEXPORT jboolean JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_connect(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2, jint jarg3) {
   jboolean jresult = 0 ;
@@ -254,6 +566,24 @@ SWIGEXPORT jboolean JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_disconnect
   (void)jcls;
   result = (bool)disconnect();
   jresult = (jboolean)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_org_fruct_oss_smarttrip_jni_SmartJNI_loadPoints(JNIEnv *jenv, jclass jcls, jdouble jarg1, jdouble jarg2, jdouble jarg3) {
+  jlong jresult = 0 ;
+  double arg1 ;
+  double arg2 ;
+  double arg3 ;
+  std::vector< Point > result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = (double)jarg1; 
+  arg2 = (double)jarg2; 
+  arg3 = (double)jarg3; 
+  result = loadPoints(arg1,arg2,arg3);
+  *(std::vector< Point > **)&jresult = new std::vector< Point >((const std::vector< Point > &)result); 
   return jresult;
 }
 

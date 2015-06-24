@@ -67,6 +67,8 @@ public class SmartPointsLoader implements PointsLoader {
 		@Override
 		public void handleMessage(Message msg) {
 			if (msg.what == SmartService.RESPONSE_POINTS) {
+				msg.getData().setClassLoader(getClass().getClassLoader());
+
 				List<Point> points = msg.getData().getParcelableArrayList(SmartService.RESPONSE_EXTRA_POINTS);
 				onPointsLoaded(points);
 			}

@@ -28,6 +28,7 @@
             android:name=".SmartService"
             android:enabled="true"
             android:exported="false"
+            android:process=":IsolatedNativeSmart"
             >
         </service>
     </application>
