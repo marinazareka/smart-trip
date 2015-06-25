@@ -10,13 +10,17 @@
 #include "common.h"
 #include "captgeneratordesc.h"
 #include "pendingrequest.h"
+#include "placemark.h"
 
 class Pqe : public QObject {
     Q_OBJECT
 
+    static constexpr int PAGE_SIZE = 10;
+
     subscription_t* m_captGeneratorSubscription;
     subscription_t* m_userRequestSubscription;
     subscription_t* m_processedRequestSubscription;
+    subscription_t* m_pageRequestSubscription;
 
     QMultiMap<QString /*objectType*/, QString /*uuid*/> m_objectTypes;
     QMap<QString /*uuid*/, CaptGeneratorDesc> m_captGenerators;
@@ -24,14 +28,17 @@ class Pqe : public QObject {
     // Processed requests for UserRequests than has not been received by PQE
     QList<QString> m_receivedProcessedRequests;
 
-    QMap<QString /* userRequest */, PendingRequest> m_pendingRequests;
+    // Results for userRequest awaiting page requests
+    // TODO: results should be cleared sometime
+    QMap<QString /* userRequest */, QList<Placemark>> m_results;
 
+    QMap<QString /* userRequest */, PendingRequest> m_pendingRequests;
 
 public:
     explicit Pqe(QObject* parent = 0);
 
     void refreshProcessedRequestSubscription();
-    void executePreferenceQuery(PendingRequest pendingRequest);
+    void executePreferenceQuery(individual_t* userRequest);
 
 signals:
     void finished();
@@ -40,6 +47,7 @@ signals:
     void captGeneratorRemoved(QString uuid);
 
     void userRequestAdded(QString uuid);
+    void pageRequestAdded(QString uuid);
 
     void processedRequestAdded(QString captGenerator, QString processedRequestUuid);
 
@@ -51,6 +59,7 @@ public slots:
     void addCaptGenerator(QString uuid);
     void removeCaptGenerator(QString uuid);
     void processUserRequest(QString uuid);
+    void processPageRequest(QString uuid);
 
     void processProcessedRequest(QString captGenerator, QString processedRequestUuid);
 
@@ -58,6 +67,9 @@ private:
     void processAsyncCaptGeneratorSubscription(subscription_t* subscription);
     void processAsyncUserRequestSubscription(subscription_t* subscription);
     void processAsyncProcessedRequestSubscription(subscription_t* subscription);
+    void processAsyncPageRequestSubscription(subscription_t* subscription);
+
+    QList<Placemark> generatRandomPlacemarks(double lat, double lon, int n);
 };
 
 #endif // PQE_H

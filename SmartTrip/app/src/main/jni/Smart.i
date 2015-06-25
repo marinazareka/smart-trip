@@ -2,6 +2,7 @@
 
 %include "std_string.i"
 %include "std_vector.i"
+%include exception.i
 
 %{
     #include "smart.h"
@@ -17,9 +18,17 @@ namespace std {
     %template(PointList) vector<Point>;
 }
 
-bool connect(const char* smartspace, const char* ip_address, int port);
-bool disconnect();
+%include exception.i
 
-bool publishUserContext(double lat, double lon);
+%exception {
+	try {
+		$function
+	} catch(...) {
+		SWIG_exception(SWIG_RuntimeError, "Unknown exception");
+	}
+}
+
+void connect(const char* smartspace, const char* ip_address, int port);
+void disconnect();
 
 std::vector<Point> loadPoints(double lat, double lon, double radius);

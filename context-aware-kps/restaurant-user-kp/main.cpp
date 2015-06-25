@@ -124,6 +124,7 @@ static void subscribeResponse(individual_t* userRequest) {
     }
 
     sslog_sbcr_unsubscribe(responseSubscription);
+
 }
 
 
@@ -144,7 +145,7 @@ int main(int argc, char *argv[]) {
 
     randomize(seed);
 
-    sslog_ss_init_session_with_parameters("X", "192.168.112.6", 10622);
+    sslog_ss_init_session_with_parameters("X", "172.20.2.240", 10622);
     register_ontology();
 
     qDebug("Joining KP");

@@ -4,7 +4,8 @@ include $(CLEAR_VARS)
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)//smart $(LOCAL_PATH)/smart/expat
 
-LOCAL_CFLAGS := -DMTENABLE -DHAVE_MEMMOVE -fexceptions
+LOCAL_LDLIBS := -llog
+LOCAL_CFLAGS := -DMTENABLE -DHAVE_MEMMOVE -fexceptions -Wall -Wextra
 
 LOCAL_CONLYFLAGS := -std=gnu99
 LOCAL_CPPFLAGS := -std=c++11

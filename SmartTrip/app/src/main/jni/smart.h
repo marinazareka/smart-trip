@@ -10,10 +10,22 @@ struct Point {
     std::string name;
 };
 
-extern bool connect(const char* smartspace, const char* ip_address, int port);
-extern bool disconnect();
-extern bool publishUserContext(double lat, double lon);
+class Exception {
+public:
+    Exception(std::string message_) {
+        message = message_;
+    }
 
+    std::string getMessage() {
+        return message;
+    }
+
+private:
+    std::string message;
+};
+
+extern void connect(const char* smartspace, const char* ip_address, int port);
+extern void disconnect();
 extern std::vector<Point> loadPoints(double lat, double lon, double radius);
 
 

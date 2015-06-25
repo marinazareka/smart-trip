@@ -96,6 +96,7 @@ public class SmartService extends Service {
 		// TODO: need delete points also?
 		pointList.delete();
 
+		Log.d(TAG, "Points received. Count = " + retPoints.size());
 		sendPointsResponse(retPoints, messenger);
 	}
 
@@ -120,7 +121,8 @@ public class SmartService extends Service {
 		executor.execute(new Runnable() {
 			@Override
 			public void run() {
-				isSmartSpaceConnected = Smart.connect("X", "172.20.2.240", 10622);
+				Smart.connect("X", "172.20.2.240", 10622);
+				Log.w(TAG, "Can't connect to smartspace");
 			}
 		});
 	}

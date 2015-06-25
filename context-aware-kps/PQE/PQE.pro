@@ -27,7 +27,8 @@ SOURCES += main.cpp \
     generatorsubscriptionhandler.cpp \
     captgeneratordesc.cpp \
     pendingrequest.cpp \
-    processedrequest.cpp
+    processedrequest.cpp \
+    placemark.cpp
 
 SOURCES += ontology/ontology.c
 
@@ -36,5 +37,6 @@ HEADERS += \
     generatorsubscriptionhandler.h \
     captgeneratordesc.h \
     pendingrequest.h \
-    processedrequest.h
+    processedrequest.h \
+    placemark.h
 

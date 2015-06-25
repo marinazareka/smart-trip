@@ -8,6 +8,7 @@ public class Test {
 	}
 
 	public static boolean test() {
-		return Smart.connect("X", "192.168.1.20", 10622);
+		Smart.connect("X", "192.168.1.20", 10622);
+		return true;
 	}
 }

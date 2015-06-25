@@ -17,8 +17,8 @@ class subscription_s {};
 typedef subscription_s subscription_t;
 
 namespace Common {
-    extern std::default_random_engine m_randomEngine;
-    extern std::uniform_int_distribution<int> m_idDistribution;
+    extern std::default_random_engine randomEngine;
+    extern std::uniform_int_distribution<int> idDistribution;
 
     QString generateId(const char* prefix = nullptr);
     void setGeneratedId(individual_t* individual, const char* prefix = nullptr);
@@ -26,6 +26,8 @@ namespace Common {
 
     void initializeSmartspace(const char* kpName);
     void shutdownSmartspace();
+
+    void setProperty(individual_t* individual, property_t* property, QVariant variant);
 
     QVariant getProperty(individual_t* individual, property_t*, bool load = false);
     individual_t* getIndividualProperty(individual_t* individual, property_t* property);

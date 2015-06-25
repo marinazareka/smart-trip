@@ -9,22 +9,22 @@
 
 namespace Common {
 
-std::default_random_engine m_randomEngine;
-std::uniform_int_distribution<int> m_idDistribution(1, 1000000000);
+std::default_random_engine randomEngine;
+std::uniform_int_distribution<int> idDistribution(1, 1000000000);
 
 void randomize(unsigned seed) {
     if (seed == 0) {
         seed = std::chrono::system_clock::now().time_since_epoch() / std::chrono::milliseconds(1);
     }
 
-    m_randomEngine.seed(seed);
+    randomEngine.seed(seed);
 }
 
 QString generateId(const char* prefix) {
     if (prefix != nullptr) {
-        return QString("%1%2").arg(prefix).arg(m_idDistribution(m_randomEngine));
+        return QString("%1%2").arg(prefix).arg(idDistribution(randomEngine));
     } else {
-        return QString("id%1").arg(m_idDistribution(m_randomEngine));
+        return QString("id%1").arg(idDistribution(randomEngine));
     }
 }
 
@@ -34,7 +34,7 @@ void setGeneratedId(individual_t *individual, const char* prefix) {
 }
 
 void initializeSmartspace(const char* kpName) {
-    sslog_ss_init_session_with_parameters("X", "192.168.112.6", 10622);
+    sslog_ss_init_session_with_parameters("X", "172.20.2.240", 10622);
     register_ontology();
 
     qDebug("Joining KP");
@@ -69,6 +69,11 @@ individual_t* getIndividualProperty(individual_t* individual, property_t* proper
     }
 
     return reinterpret_cast<individual_t*>(value->prop_value);
+}
+
+void setProperty(individual_t* individual, property_t* property, QVariant variant) {
+    QString stringValue = variant.toString();
+    sslog_add_property(individual, property, stringValue.toStdString().c_str());
 }
 
 }
