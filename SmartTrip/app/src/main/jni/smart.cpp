@@ -2,6 +2,7 @@ extern "C" {
 #include "smartslog/generic.h"
 #include "ontology/ontology.h"
 #include "util.h"
+#include "unistd.h"
 }
 
 #include <cstring>
@@ -198,10 +199,6 @@ static bool readPageResponseAndRemove(individual_t* pageRequest, std::vector<Poi
     // FIXME: May be smartslog deletes all individuals, references by pageRequest?
     // sslog_ss_remove_individual(pageRequest);
 
-    // It seems that smartslog deletes all individuals referenced by removing individual
-    //sslog_ss_remove_property_all(pageRequest, PROPERTY_RELATESTO);
-    //sslog_ss_remove_individual(pageRequest);
-
     return hasPlacemarks;
 }
 
@@ -217,6 +214,7 @@ std::vector<Point> loadPoints(double lat, double lon, double radius) {
 
     std::vector<Point> ret;
 
+    std::vector<individual_t*> pageRequests;
     bool hasPlacemarks = true;
     int page = 0;
     do {
@@ -225,8 +223,13 @@ std::vector<Point> loadPoints(double lat, double lon, double radius) {
         waitProcessedRequest(pageRequest);
         sslog_ss_populate_individual(pageRequest);
         hasPlacemarks = readPageResponseAndRemove(pageRequest, &ret);
-        pageRequest = NULL;
+        pageRequests.push_back(pageRequest);
     } while (hasPlacemarks);
+
+    // FIXME: Workaround for error described above
+    for (individual_t* pageRequest : pageRequests) {
+        sslog_ss_remove_individual(pageRequest);
+    }
 
     sslog_ss_remove_individual(userRequest);
     sslog_ss_remove_individual(userDynamicContext);

@@ -264,7 +264,6 @@ void Pqe::processProcessedRequest(QString captGeneratorUuid, QString processedRe
     sslog_free_individual(userRequestIndividual);
     sslog_free_individual(processedRequestIndividual);
    // if (m_pendingRequests.contains())
-
 }
 
 void Pqe::processAsyncCaptGeneratorSubscription(subscription_t* subscription) {
@@ -296,6 +295,7 @@ void Pqe::processAsyncUserRequestSubscription(subscription_t* subscription) {
         const char* uuid = (const char*) (list_entry(listHead, list_t, links)->data);
 
         if (sslog_ss_exists_uuid(const_cast<char*>(uuid))) {
+            qDebug() << "User request added " << uuid;
             emit userRequestAdded(uuid);
         }
     }
@@ -315,8 +315,6 @@ void Pqe::processAsyncProcessedRequestSubscription(subscription_t* subscription)
         const char* processedRequestUuid = propertyChange->current_value;
         emit processedRequestAdded(captGeneratorUuid, processedRequestUuid);
     }
-
-
 }
 
 void Pqe::processAsyncPageRequestSubscription(subscription_t* subscription) {
@@ -330,6 +328,7 @@ void Pqe::processAsyncPageRequestSubscription(subscription_t* subscription) {
         const char* uuid = (const char*) (list_entry(listHead, list_t, links)->data);
 
         if (sslog_ss_exists_uuid(const_cast<char*>(uuid))) {
+            qDebug() << "Page request added " << uuid;
             emit pageRequestAdded(uuid);
         }
     }
