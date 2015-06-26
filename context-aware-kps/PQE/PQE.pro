@@ -5,10 +5,12 @@
 #-------------------------------------------------
 
 QT       += core
+QT       += network
 
 QT       -= gui
 
 TARGET = PQE
+
 CONFIG   += console
 CONFIG   -= app_bundle
 
@@ -28,7 +30,8 @@ SOURCES += main.cpp \
     captgeneratordesc.cpp \
     pendingrequest.cpp \
     processedrequest.cpp \
-    placemark.cpp
+    placemark.cpp \
+    gets.cpp
 
 SOURCES += ontology/ontology.c
 
@@ -38,5 +41,6 @@ HEADERS += \
     captgeneratordesc.h \
     pendingrequest.h \
     processedrequest.h \
-    placemark.h
+    placemark.h \
+    gets.h
 

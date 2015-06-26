@@ -8,6 +8,8 @@ class PlacemarkData;
 class Placemark {
 public:
     Placemark(double lat, double lon);
+    Placemark(QString coordinatesString);
+
     Placemark(const Placemark &);
     Placemark &operator=(const Placemark &);
     ~Placemark();

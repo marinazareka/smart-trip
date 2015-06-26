@@ -11,6 +11,7 @@
 #include "captgeneratordesc.h"
 #include "pendingrequest.h"
 #include "placemark.h"
+#include "gets.h"
 
 class Pqe : public QObject {
     Q_OBJECT
@@ -21,6 +22,8 @@ class Pqe : public QObject {
     subscription_t* m_userRequestSubscription;
     subscription_t* m_processedRequestSubscription;
     subscription_t* m_pageRequestSubscription;
+
+    Gets* m_gets;
 
     QMultiMap<QString /*objectType*/, QString /*uuid*/> m_objectTypes;
     QMap<QString /*uuid*/, CaptGeneratorDesc> m_captGenerators;
@@ -63,6 +66,8 @@ public slots:
 
     void processProcessedRequest(QString captGenerator, QString processedRequestUuid);
 
+    void onPointsLoaded(QList<Placemark> points);
+
 private:
     void processAsyncCaptGeneratorSubscription(subscription_t* subscription);
     void processAsyncUserRequestSubscription(subscription_t* subscription);
@@ -70,6 +75,7 @@ private:
     void processAsyncPageRequestSubscription(subscription_t* subscription);
 
     QList<Placemark> generatRandomPlacemarks(double lat, double lon, int n);
+    QList<Placemark> loadPlacemarks(double lat, double lon, double radius);
 };
 
 #endif // PQE_H
