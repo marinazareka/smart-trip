@@ -98,12 +98,13 @@ void disconnect() {
 /**
  * Create dynamic context and add it to userRequest without publishing request's property.
  */
-static void publishUserContext(individual_t* userRequest, double lat, double lon) {
+static individual_t* publishUserContext(individual_t* userRequest, double lat, double lon) {
     individual_t* userDynamicContext = createIndividual(CLASS_USERCONTEXT);
     setDoubleProperty(userDynamicContext, PROPERTY_LAT, lat);
     setDoubleProperty(userDynamicContext, PROPERTY_LON, lon);
     sslog_ss_insert_individual(userDynamicContext);
     sslog_add_property(userRequest, PROPERTY_CONTAINSDYNAMICCONTEXT, userDynamicContext);
+    return userDynamicContext;
 }
 
 static individual_t* requestPage(individual_t* userRequest, int pageNumber) {
@@ -193,9 +194,13 @@ static bool readPageResponseAndRemove(individual_t* pageRequest, std::vector<Poi
     sslog_free_value_struct(propVal);
     sslog_ss_remove_individual(page);
 
-    // FIXME: trying to delete pageRequest causes strange notifications about user request
+    // FIXME: trying to delete pageRequest causes strange notifications to subscribers about _user request_
     // FIXME: May be smartslog deletes all individuals, references by pageRequest?
     // sslog_ss_remove_individual(pageRequest);
+
+    // It seems that smartslog deletes all individuals referenced by removing individual
+    //sslog_ss_remove_property_all(pageRequest, PROPERTY_RELATESTO);
+    //sslog_ss_remove_individual(pageRequest);
 
     return hasPlacemarks;
 }
@@ -203,7 +208,7 @@ static bool readPageResponseAndRemove(individual_t* pageRequest, std::vector<Poi
 std::vector<Point> loadPoints(double lat, double lon, double radius) {
     userRequest = createIndividual(CLASS_USERREQUEST);
 
-    publishUserContext(userRequest, lat, lon);
+    individual_t* userDynamicContext = publishUserContext(userRequest, lat, lon);
     sslog_add_property(userRequest, PROPERTY_OBJECTTYPE, "any");
     sslog_add_property(userRequest, PROPERTY_RELATESTO, user);
 
@@ -222,6 +227,9 @@ std::vector<Point> loadPoints(double lat, double lon, double radius) {
         hasPlacemarks = readPageResponseAndRemove(pageRequest, &ret);
         pageRequest = NULL;
     } while (hasPlacemarks);
+
+    sslog_ss_remove_individual(userRequest);
+    sslog_ss_remove_individual(userDynamicContext);
 
     return ret;
 }

@@ -1,6 +1,7 @@
 package org.fruct.oss.smarttrip.layers;
 
 import android.content.Context;
+import android.os.Looper;
 import android.util.Log;
 
 import org.fruct.oss.smarttrip.EventReceiver;
@@ -60,8 +61,8 @@ public class PointsLayer extends Layer {
 	}
 
 	private void updatePoints(List<org.fruct.oss.smarttrip.points.Point> points) {
-		// This is main thread, so it is safe to clear array
-		pointHolders.clear();
+		// This is not main thread, so update PointHolders list atomically
+		List<PointHolder> newPointHolders = new ArrayList<>();
 		for (org.fruct.oss.smarttrip.points.Point point : points) {
 			LatLong latLong = new LatLong(point.getLatitude(), point.getLongitude());
 
@@ -69,13 +70,18 @@ public class PointsLayer extends Layer {
 					new FixedPixelCircle(latLong, Utils.getDP(8), circleFill, circleStroke), point);
 			pointHolder.circle.setDisplayModel(displayModel);
 
-			pointHolders.add(pointHolder);
+			newPointHolders.add(pointHolder);
 		}
+
+		synchronized (PointsLayer.this) {
+			pointHolders = newPointHolders;
+		}
+
 		requestRedraw();
 	}
 
 	@Override
-	public void draw(BoundingBox boundingBox, byte zoomLevel, Canvas canvas, Point topLeftPoint) {
+	public synchronized void draw(BoundingBox boundingBox, byte zoomLevel, Canvas canvas, Point topLeftPoint) {
 		for (PointHolder pointHolder : pointHolders) {
 			pointHolder.circle.draw(boundingBox, zoomLevel, canvas, topLeftPoint);
 		}

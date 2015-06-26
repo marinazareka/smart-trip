@@ -315,6 +315,8 @@ void Pqe::processAsyncProcessedRequestSubscription(subscription_t* subscription)
         const char* processedRequestUuid = propertyChange->current_value;
         emit processedRequestAdded(captGeneratorUuid, processedRequestUuid);
     }
+
+
 }
 
 void Pqe::processAsyncPageRequestSubscription(subscription_t* subscription) {
