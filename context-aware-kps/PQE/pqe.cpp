@@ -17,13 +17,15 @@
 
 #include "unistd.h"
 
+Q_DECLARE_METATYPE(individual_t*)
+
 typedef CFunction<subscription_t*> SubWrapper;
 
 Pqe::Pqe(QObject *parent) : QObject(parent),
       m_captGeneratorSubscription(nullptr), m_userRequestSubscription(nullptr),
       m_processedRequestSubscription(nullptr), m_pageRequestSubscription(nullptr) {
     m_gets = new Gets(this);
-    connect(m_gets, SIGNAL(pointsLoaded(QList<Placemark>)), this, SLOT(onPointsLoaded(QList<Placemark>)));
+    connect(m_gets, SIGNAL(pointsLoaded(QVariant, QList<Placemark>)), this, SLOT(onPointsLoaded(QVariant, QList<Placemark>)));
 }
 
 void Pqe::refreshProcessedRequestSubscription() {
@@ -63,14 +65,8 @@ void Pqe::executePreferenceQuery(individual_t* userRequest) {
     double lat = Common::getProperty(dynamicContext, PROPERTY_LAT, false).toDouble();
     double lon = Common::getProperty(dynamicContext, PROPERTY_LON, false).toDouble();
 
-    QList<Placemark> resultList = loadPlacemarks(lat, lon, 10);
+    requestPlacemarks(QVariant::fromValue(userRequest), lat, lon, 10);
 
-    m_results.insert(userRequest->uuid, resultList);
-
-    qDebug() << "Context coordinates: " << lat << lon;
-    sslog_ss_add_property(userRequest, PROPERTY_PROCESSED, const_cast<char*>("true"));
-
-    m_gets->requestPoints(lat, lon, 10);
 }
 
 void Pqe::run() {
@@ -271,9 +267,12 @@ void Pqe::processProcessedRequest(QString captGeneratorUuid, QString processedRe
     // if (m_pendingRequests.contains())
 }
 
-void Pqe::onPointsLoaded(QList<Placemark> points)
-{
+void Pqe::onPointsLoaded(QVariant userRequestVar, QList<Placemark> points) {
+    individual_t* userRequest = userRequestVar.value<individual_t*>();
 
+    m_results.insert(userRequest->uuid, points);
+
+    sslog_ss_add_property(userRequest, PROPERTY_PROCESSED, const_cast<char*>("true"));
 }
 
 void Pqe::processAsyncCaptGeneratorSubscription(subscription_t* subscription) {
@@ -357,8 +356,6 @@ QList<Placemark> Pqe::generatRandomPlacemarks(double lat, double lon, int n) {
     return result;
 }
 
-QList<Placemark> Pqe::loadPlacemarks(double lat, double lon, double radius) {
-    m_gets->requestPoints(lat, lon, radius);
-
-
+void Pqe::requestPlacemarks(QVariant userRequest, double lat, double lon, double radius) {
+    m_gets->requestPoints(userRequest, lat, lon, radius);
 }

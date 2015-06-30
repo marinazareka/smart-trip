@@ -33,4 +33,5 @@ namespace Common {
     individual_t* getIndividualProperty(individual_t* individual, property_t* property);
 }
 
+
 #endif // COMMON_H

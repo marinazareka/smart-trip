@@ -66,7 +66,7 @@ public slots:
 
     void processProcessedRequest(QString captGenerator, QString processedRequestUuid);
 
-    void onPointsLoaded(QList<Placemark> points);
+    void onPointsLoaded(QVariant userRequest, QList<Placemark> points);
 
 private:
     void processAsyncCaptGeneratorSubscription(subscription_t* subscription);
@@ -75,7 +75,7 @@ private:
     void processAsyncPageRequestSubscription(subscription_t* subscription);
 
     QList<Placemark> generatRandomPlacemarks(double lat, double lon, int n);
-    QList<Placemark> loadPlacemarks(double lat, double lon, double radius);
+    void requestPlacemarks(QVariant userRequest, double lat, double lon, double radius);
 };
 
 #endif // PQE_H

@@ -14,10 +14,10 @@ Placemark::Placemark(double lat, double lon) : data(new PlacemarkData) {
     data->lon = lon;
 }
 
-Placemark::Placemark(QString coordinatesString) {
-    QStringList parts = coordinatesString.split(';', QString::SplitBehavior::SkipEmptyParts);
-    data->lat = parts.at(0).toDouble();
-    data->lon = parts.at(1).toDouble();
+Placemark::Placemark(QString coordinatesString) : data(new PlacemarkData) {
+    QStringList parts = coordinatesString.split(',', QString::SplitBehavior::SkipEmptyParts);
+    data->lat = parts.at(1).toDouble();
+    data->lon = parts.at(0).toDouble();
 }
 
 Placemark::Placemark(const Placemark &rhs) : data(rhs.data) {

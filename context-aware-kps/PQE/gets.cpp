@@ -14,7 +14,7 @@ Gets::Gets(QObject *parent) : QObject(parent) {
     connect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(onRequestFinished(QNetworkReply*)));
 }
 
-void Gets::requestPoints(double lat, double lon, double radius) {
+void Gets::requestPoints(QVariant tag, double lat, double lon, double radius) {
     QString postRequest = QString("<request><params>"
             "<latitude>%1</latitude>"
             "<longitude>%2</longitude>"
@@ -22,15 +22,17 @@ void Gets::requestPoints(double lat, double lon, double radius) {
             "</params></request>").arg(lat).arg(lon).arg(radius);
 
     QNetworkRequest request(QUrl(GETS_SERVER + "/loadPoints.php"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "text/xml");
     qDebug() << "Sending request";
-    m_networkManager->post(request, postRequest.toUtf8());
+    QNetworkReply* reply = m_networkManager->post(request, postRequest.toUtf8());
+    m_pendingRequests.insert(reply, tag);
 }
 
 void Gets::onRequestFinished(QNetworkReply* reply) {
     QByteArray resultByteArray = reply->readAll();
     QString result = resultByteArray;
 
-    qDebug() << "Received " << result;
+    //qDebug() << "Received " << result;
 
     QXmlStreamReader xml(result);
 
@@ -40,29 +42,37 @@ void Gets::onRequestFinished(QNetworkReply* reply) {
         if (xml.readNextStartElement()) {
             if (xml.name() == "Placemark") {
                 placemarks.append(readPlacemark(xml));
-            } else {
-                xml.skipCurrentElement();
             }
         }
     }
 
-    emit pointsLoaded(placemarks);
+    for (Placemark placemark : placemarks) {
+        qDebug() << "Loaded placemark" << placemark.getLat() << placemark.getLon();
+    }
+
+    QVariant pendingRequestTag = m_pendingRequests.value(reply);
+    m_pendingRequests.remove(reply);
+
+    emit pointsLoaded(pendingRequestTag, placemarks);
 }
 
 Placemark Gets::readPlacemark(QXmlStreamReader& xml) {
     Placemark placemark(0, 0);
     while (xml.readNextStartElement()) {
+        qDebug() << "Elem: " << xml.name();
         if (xml.name() == "Point") {
             xml.readNextStartElement();
             if (xml.name() != "coordinates")
                 throw std::runtime_error("Incorrect XML");
 
             QString coordinates = xml.readElementText();
-            placemark = Placemark(coordinates);
 
-            xml.skipCurrentElement();
+            placemark = Placemark(coordinates);
         }
+
+        xml.skipCurrentElement();
     }
+
     return placemark;
 }
 
