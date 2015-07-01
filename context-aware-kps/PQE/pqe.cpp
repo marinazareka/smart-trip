@@ -14,6 +14,7 @@
 #include "cfunction.hpp"
 #include "captgeneratordesc.h"
 #include "gets.h"
+#include "requesthandler.h"
 
 #include "unistd.h"
 
@@ -24,8 +25,6 @@ typedef CFunction<subscription_t*> SubWrapper;
 Pqe::Pqe(QObject *parent) : QObject(parent),
       m_captGeneratorSubscription(nullptr), m_userRequestSubscription(nullptr),
       m_processedRequestSubscription(nullptr), m_pageRequestSubscription(nullptr) {
-    m_gets = new Gets(this);
-    connect(m_gets, SIGNAL(pointsLoaded(QVariant, QList<Placemark>)), this, SLOT(onPointsLoaded(QVariant, QList<Placemark>)));
 }
 
 void Pqe::refreshProcessedRequestSubscription() {
@@ -54,19 +53,6 @@ void Pqe::refreshProcessedRequestSubscription() {
     if (sslog_sbcr_subscribe(m_processedRequestSubscription) != 0) {
         throw std::runtime_error(get_error_text());
     }
-}
-
-void Pqe::executePreferenceQuery(individual_t* userRequest) {
-    qDebug() << "Executing preference query: " << userRequest->uuid;
-
-    individual_t* dynamicContext = Common::getIndividualProperty(userRequest, PROPERTY_CONTAINSDYNAMICCONTEXT);
-
-    sslog_ss_populate_individual(dynamicContext);
-    double lat = Common::getProperty(dynamicContext, PROPERTY_LAT, false).toDouble();
-    double lon = Common::getProperty(dynamicContext, PROPERTY_LON, false).toDouble();
-
-    requestPlacemarks(QVariant::fromValue(userRequest), lat, lon, 10);
-
 }
 
 void Pqe::run() {
@@ -152,29 +138,13 @@ void Pqe::removeCaptGenerator(QString uuid) {
 }
 
 void Pqe::processUserRequest(QString userRequuestUuid) {
-    individual_t* userRequest = sslog_new_individual(CLASS_USERREQUEST);
-    sslog_set_individual_uuid(userRequest, userRequuestUuid.toStdString().c_str());
-    sslog_ss_populate_individual(userRequest);
+    RequestHandler* requestHandler = new RequestHandler(userRequuestUuid, m_objectTypes, this);
 
-    QString objectType = Common::getProperty(userRequest, PROPERTY_OBJECTTYPE).toString();
+    m_requestHandlers.insert(userRequuestUuid, requestHandler);
 
-    qDebug() << "UserRequest added: " << userRequuestUuid << " objectType: " << objectType;
-
-    QSet<QString> pendingCaptGeneratorIds = m_objectTypes.values(objectType).toSet();
-
-    if (pendingCaptGeneratorIds.isEmpty()) {
-        qDebug() << "No generators for this object type, executing immediately";
-        executePreferenceQuery(userRequest);
-        return;
+    if (requestHandler->isReadyToExecute()) {
+        requestHandler->execute();
     }
-
-    for (QString str : pendingCaptGeneratorIds) {
-        qDebug() << "Waiting generator: " << str;
-    }
-
-    PendingRequest pendingRequest(userRequest, objectType, pendingCaptGeneratorIds);
-
-    m_pendingRequests.insert(userRequuestUuid, pendingRequest);
 }
 
 void Pqe::processPageRequest(QString uuid) {
@@ -183,58 +153,21 @@ void Pqe::processPageRequest(QString uuid) {
     sslog_ss_populate_individual(pageRequest);
 
     // TODO: all incorrect requests must be handled without crash
-    individual_t* userRequest = Common::getIndividualProperty(pageRequest, PROPERTY_RELATESTO);
-    QString userRequestUuid = userRequest->uuid;
+    QString userRequestUuid = Common::getUuidProperty(pageRequest, PROPERTY_RELATESTO);
 
-    bool convertOk;
-    int pageNumber = Common::getProperty(pageRequest, PROPERTY_PAGE, false).toInt(&convertOk);
-
-    QList<Placemark> placemarks = m_results.value(userRequestUuid);
-
-    if (!placemarks.isEmpty() && convertOk) {
-        int fromIdx = PAGE_SIZE * pageNumber;
-        int toIdx = qMin(PAGE_SIZE * (pageNumber + 1), placemarks.size());
-
-        individual_t* page = sslog_new_individual(CLASS_PAGE);
-        Common::setGeneratedId(page, "page");
-
-        qDebug() << "Sending page " << pageNumber << "[" << fromIdx << ":" << toIdx << "]";
-        for (int i = fromIdx; i < toIdx ; i++) {
-            Placemark placemark = placemarks.at(i);
-
-            individual_t* placemarkIndividual = sslog_new_individual(CLASS_PLACEMARK);
-            Common::setGeneratedId(placemarkIndividual);
-            Common::setProperty(placemarkIndividual, PROPERTY_LAT, placemark.getLat());
-            Common::setProperty(placemarkIndividual, PROPERTY_LON, placemark.getLon());
-
-            qDebug() << "Sending placemark "
-                     << placemark.getLat() << placemark.getLon() << placemarkIndividual->uuid;
-
-
-            int code = sslog_ss_insert_individual(placemarkIndividual);
-            if (code != 0) {
-                qDebug() << "sslog_ss_insert_individual" << code << get_error_text();
-            }
-
-
-            code = sslog_add_property(page, PROPERTY_CONSISTSIN, placemarkIndividual);
-            if (code != 0) {
-                qDebug() << "sslog_ss_insert_individual" << code << get_error_text();
-            }
-
-            // TODO: placemark individual must be freed
-        }
-
-        sslog_ss_insert_individual(page);
-        sslog_ss_add_property(pageRequest, PROPERTY_RESULTSIN, page);
+    RequestHandler* userRequestHandler = m_requestHandlers.value(userRequestUuid);
+    if (userRequestHandler == nullptr) {
+        qDebug() << "Received page request for wrong UserRequest";
+    } else {
+        userRequestHandler->processPageRequest(pageRequest);
     }
 
-    sslog_ss_add_property(pageRequest, PROPERTY_PROCESSED, const_cast<char*>("true"));
     sslog_free_individual(pageRequest);
 }
 
 void Pqe::processProcessedRequest(QString captGeneratorUuid, QString processedRequestUuid) {
-    qDebug() << "ProcessedRequest added: " << captGeneratorUuid << processedRequestUuid;
+    throw std::runtime_error("Not implemented: capt generatores not supported");
+    /*qDebug() << "ProcessedRequest added: " << captGeneratorUuid << processedRequestUuid;
 
     individual_t* processedRequestIndividual = sslog_new_individual(CLASS_PROCESSEDREQUEST);
     sslog_set_individual_uuid(processedRequestIndividual, processedRequestUuid.toStdString().c_str());
@@ -264,15 +197,7 @@ void Pqe::processProcessedRequest(QString captGeneratorUuid, QString processedRe
 
     sslog_free_individual(userRequestIndividual);
     sslog_free_individual(processedRequestIndividual);
-    // if (m_pendingRequests.contains())
-}
-
-void Pqe::onPointsLoaded(QVariant userRequestVar, QList<Placemark> points) {
-    individual_t* userRequest = userRequestVar.value<individual_t*>();
-
-    m_results.insert(userRequest->uuid, points);
-
-    sslog_ss_add_property(userRequest, PROPERTY_PROCESSED, const_cast<char*>("true"));
+    // if (m_pendingRequests.contains())*/
 }
 
 void Pqe::processAsyncCaptGeneratorSubscription(subscription_t* subscription) {
@@ -341,6 +266,8 @@ void Pqe::processAsyncPageRequestSubscription(subscription_t* subscription) {
             emit pageRequestAdded(uuid);
         }
     }
+
+    // sslog_sbcr_get_changes_last and sslog_sbcr_ch_get_individual_by_action doesn't require freeing
 }
 
 QList<Placemark> Pqe::generatRandomPlacemarks(double lat, double lon, int n) {
@@ -354,8 +281,4 @@ QList<Placemark> Pqe::generatRandomPlacemarks(double lat, double lon, int n) {
     }
 
     return result;
-}
-
-void Pqe::requestPlacemarks(QVariant userRequest, double lat, double lon, double radius) {
-    m_gets->requestPoints(userRequest, lat, lon, radius);
 }

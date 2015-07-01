@@ -122,7 +122,6 @@ public class SmartService extends Service {
 			@Override
 			public void run() {
 				Smart.connect("X", "172.20.2.240", 10622);
-				Log.w(TAG, "Can't connect to smartspace");
 			}
 		});
 	}

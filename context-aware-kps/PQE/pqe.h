@@ -13,35 +13,28 @@
 #include "placemark.h"
 #include "gets.h"
 
+class RequestHandler;
+
 class Pqe : public QObject {
     Q_OBJECT
-
-    static constexpr int PAGE_SIZE = 10;
 
     subscription_t* m_captGeneratorSubscription;
     subscription_t* m_userRequestSubscription;
     subscription_t* m_processedRequestSubscription;
     subscription_t* m_pageRequestSubscription;
 
-    Gets* m_gets;
-
-    QMultiMap<QString /*objectType*/, QString /*uuid*/> m_objectTypes;
+    QMultiMap<QString /*objectType*/, QString /*capt generator uuid*/> m_objectTypes;
     QMap<QString /*uuid*/, CaptGeneratorDesc> m_captGenerators;
 
     // Processed requests for UserRequests than has not been received by PQE
     QList<QString> m_receivedProcessedRequests;
 
-    // Results for userRequest awaiting page requests
-    // TODO: results should be cleared sometime
-    QMap<QString /* userRequest */, QList<Placemark>> m_results;
-
-    QMap<QString /* userRequest */, PendingRequest> m_pendingRequests;
+    QMap<QString, RequestHandler*> m_requestHandlers;
 
 public:
     explicit Pqe(QObject* parent = 0);
 
     void refreshProcessedRequestSubscription();
-    void executePreferenceQuery(individual_t* userRequest);
 
 signals:
     void finished();
@@ -66,7 +59,6 @@ public slots:
 
     void processProcessedRequest(QString captGenerator, QString processedRequestUuid);
 
-    void onPointsLoaded(QVariant userRequest, QList<Placemark> points);
 
 private:
     void processAsyncCaptGeneratorSubscription(subscription_t* subscription);
@@ -75,7 +67,6 @@ private:
     void processAsyncPageRequestSubscription(subscription_t* subscription);
 
     QList<Placemark> generatRandomPlacemarks(double lat, double lon, int n);
-    void requestPlacemarks(QVariant userRequest, double lat, double lon, double radius);
 };
 
 #endif // PQE_H

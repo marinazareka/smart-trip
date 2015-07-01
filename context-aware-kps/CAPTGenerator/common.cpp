@@ -76,4 +76,14 @@ void setProperty(individual_t* individual, property_t* property, QVariant varian
     sslog_add_property(individual, property, stringValue.toStdString().c_str());
 }
 
+QString getUuidProperty(individual_t* individual, property_t* property) {
+    const prop_val_t* value = sslog_get_property(individual, property->name);
+    if (value == nullptr) {
+        return QString();
+    }
+
+    return reinterpret_cast<individual_t*>(value->prop_value)->uuid;
+}
+
+
 }

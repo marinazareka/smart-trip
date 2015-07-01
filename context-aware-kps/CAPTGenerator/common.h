@@ -31,6 +31,7 @@ namespace Common {
 
     QVariant getProperty(individual_t* individual, property_t*, bool load = false);
     individual_t* getIndividualProperty(individual_t* individual, property_t* property);
+    QString getUuidProperty(individual_t* individual, property_t* property);
 }
 
 

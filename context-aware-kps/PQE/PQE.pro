@@ -31,7 +31,8 @@ SOURCES += main.cpp \
     pendingrequest.cpp \
     processedrequest.cpp \
     placemark.cpp \
-    gets.cpp
+    gets.cpp \
+    requesthandler.cpp
 
 SOURCES += ontology/ontology.c
 
@@ -42,5 +43,6 @@ HEADERS += \
     pendingrequest.h \
     processedrequest.h \
     placemark.h \
-    gets.h
+    gets.h \
+    requesthandler.h
 
