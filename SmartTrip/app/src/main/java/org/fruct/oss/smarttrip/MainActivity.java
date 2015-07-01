@@ -12,12 +12,16 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -51,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
 	private LocationUpdater locationUpdater;
 	private Location lastLocation;
+	private Drawer drawer;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
-		Drawer drawer = new DrawerBuilder()
+		drawer = new DrawerBuilder()
 				.withActivity(this)
 				.withToolbar(toolbar)
 				.withHeader(R.layout.drawer_header)
@@ -123,10 +128,57 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 	}
 
 	private void actionSearch() {
-		if (lastLocation != null) {
-			App.getJobManager().addJobInBackground(new PointsJob(new SmartPointsLoader(),
-					lastLocation.getLatitude(), lastLocation.getLongitude(), 100, "гоСти"));
+		if (lastLocation == null) {
+			return;
 		}
+
+		MaterialDialog dialog = new MaterialDialog.Builder(this)
+				.title("Find nearest")
+				.customView(R.layout.dialog_search, true)
+				.positiveText("Search")
+				.callback(new MaterialDialog.ButtonCallback() {
+					@Override
+					public void onPositive(MaterialDialog dialog) {
+						EditText radiusInput = (EditText) dialog.getCustomView().findViewById(R.id.radiusEditText);
+						EditText patternInput = (EditText) dialog.getCustomView().findViewById(R.id.patternEditText);
+
+						double radius = Integer.parseInt(radiusInput.getText().toString());
+						String pattern = patternInput.getText().toString();
+
+						Toast.makeText(MainActivity.this, "Searching...", Toast.LENGTH_SHORT).show();
+
+						App.getJobManager().addJobInBackground(new PointsJob(new SmartPointsLoader(),
+									lastLocation.getLatitude(), lastLocation.getLongitude(), radius, pattern));
+					}
+				}).build();
+
+		final View actionButton = dialog.getActionButton(DialogAction.POSITIVE);
+		final EditText radiusInput = (EditText) dialog.getCustomView().findViewById(R.id.radiusEditText);
+
+		radiusInput.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				try {
+					int ignored = Integer.parseInt(s.toString());
+					if (ignored <= 0)
+						throw new NumberFormatException("Radius MUST be positive");
+
+					actionButton.setEnabled(true);
+				} catch (NumberFormatException ex) {
+					actionButton.setEnabled(false);
+				}
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+			}
+		});
+
+		dialog.show();
 	}
 
 	private void setupGoogleClient() {
