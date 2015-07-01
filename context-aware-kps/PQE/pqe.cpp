@@ -99,6 +99,7 @@ void Pqe::subscribe() {
     connect(this, &Pqe::captGeneratorAdded, this, &Pqe::addCaptGenerator);
     connect(this, &Pqe::captGeneratorRemoved, this, &Pqe::removeCaptGenerator);
     connect(this, &Pqe::userRequestAdded, this, &Pqe::processUserRequest);
+    connect(this, &Pqe::userRequestRemoved, this, &Pqe::completeUserRequest);
     connect(this, &Pqe::processedRequestAdded, this, &Pqe::processProcessedRequest);
     connect(this, &Pqe::pageRequestAdded, this, &Pqe::processPageRequest);
 
@@ -144,6 +145,14 @@ void Pqe::processUserRequest(QString userRequuestUuid) {
 
     if (requestHandler->isReadyToExecute()) {
         requestHandler->execute();
+    }
+}
+
+void Pqe::completeUserRequest(QString uuid) {
+    RequestHandler* requestHandler = m_requestHandlers.value(uuid);
+    if (requestHandler) {
+        m_requestHandlers.remove(uuid);
+        requestHandler->deleteLater();
     }
 }
 
@@ -222,15 +231,26 @@ void Pqe::processAsyncUserRequestSubscription(subscription_t* subscription) {
     qDebug() << "processAsyncUserRequestSubscription";
 
     auto changes = sslog_sbcr_get_changes_last(subscription);
-    auto individuals = sslog_sbcr_ch_get_individual_by_action(changes, ACTION_INSERT);
+    auto individualsInserted = sslog_sbcr_ch_get_individual_by_action(changes, ACTION_INSERT);
+    auto individualsRemoved = sslog_sbcr_ch_get_individual_by_action(changes, ACTION_REMOVE);
 
     list_head_t* listHead = NULL;
-    list_for_each(listHead, &individuals->links) {
+    list_for_each(listHead, &individualsInserted->links) {
         const char* uuid = (const char*) (list_entry(listHead, list_t, links)->data);
 
         if (sslog_ss_exists_uuid(const_cast<char*>(uuid))) {
             qDebug() << "User request added " << uuid;
             emit userRequestAdded(uuid);
+        }
+    }
+
+    listHead = NULL;
+    list_for_each(listHead, &individualsRemoved->links) {
+        const char* uuid = (const char*) (list_entry(listHead, list_t, links)->data);
+
+        if (!sslog_ss_exists_uuid(const_cast<char*>(uuid))) {
+            qDebug() << "User request removed " << uuid;
+            emit userRequestRemoved(uuid);
         }
     }
 }
@@ -255,10 +275,10 @@ void Pqe::processAsyncPageRequestSubscription(subscription_t* subscription) {
     qDebug() << "processAsyncPageRequestSubscription";
 
     auto changes = sslog_sbcr_get_changes_last(subscription);
-    auto individuals = sslog_sbcr_ch_get_individual_by_action(changes, ACTION_INSERT);
+    auto individualsInserted = sslog_sbcr_ch_get_individual_by_action(changes, ACTION_INSERT);
 
     list_head_t* listHead = NULL;
-    list_for_each(listHead, &individuals->links) {
+    list_for_each(listHead, &individualsInserted->links) {
         const char* uuid = (const char*) (list_entry(listHead, list_t, links)->data);
 
         if (sslog_ss_exists_uuid(const_cast<char*>(uuid))) {

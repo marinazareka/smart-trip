@@ -43,6 +43,8 @@ signals:
     void captGeneratorRemoved(QString uuid);
 
     void userRequestAdded(QString uuid);
+    void userRequestRemoved(QString uuid);
+
     void pageRequestAdded(QString uuid);
 
     void processedRequestAdded(QString captGenerator, QString processedRequestUuid);
@@ -54,7 +56,10 @@ public slots:
 
     void addCaptGenerator(QString uuid);
     void removeCaptGenerator(QString uuid);
+
     void processUserRequest(QString uuid);
+    void completeUserRequest(QString uuid);
+
     void processPageRequest(QString uuid);
 
     void processProcessedRequest(QString captGenerator, QString processedRequestUuid);
