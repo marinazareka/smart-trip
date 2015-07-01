@@ -50,7 +50,7 @@ public class PointsLayer extends Layer {
 	@Override
 	protected void onAdd() {
 		super.onAdd();
-		EventBus.getDefault().register(this);
+		EventBus.getDefault().registerSticky(this);
 	}
 
 	@Override

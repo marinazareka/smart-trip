@@ -36,6 +36,7 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import org.fruct.oss.smarttrip.events.LocationEvent;
 import org.fruct.oss.smarttrip.fragments.MapFragment;
 import org.fruct.oss.smarttrip.fragments.PlaceHolderFragment;
+import org.fruct.oss.smarttrip.fragments.PointListFragment;
 import org.fruct.oss.smarttrip.fragments.functional.PointFragment;
 import org.fruct.oss.smarttrip.fragments.functional.SearchFragment;
 import org.fruct.oss.smarttrip.location.GoogleLocationUpdater;
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 				.withFireOnInitialOnClick(true)
 				.addDrawerItems(
 						new PrimaryDrawerItem().withName("Map").withIcon(R.drawable.ic_nav_map),
+						new PrimaryDrawerItem().withName("Points"),
 						new PrimaryDrawerItem().withName("Goodbye world")
 				)
 				.withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
@@ -85,6 +87,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 						switch (i) {
 						case 0:
 							fragment = MapFragment.newInstance();
+							break;
+
+						case 1:
+							fragment = new PointListFragment();
 							break;
 
 						default:

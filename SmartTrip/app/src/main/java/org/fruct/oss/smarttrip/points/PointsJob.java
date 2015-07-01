@@ -48,9 +48,10 @@ public class PointsJob extends Job {
 		if (checkJobObsolete()) {
 			return;
 		}
+
 		EventBus.getDefault().post(new PointsStartedEvent());
 		List<Point> points = pointsLoader.loadPoints(latitude, longitude, radius, pattern);
-		EventBus.getDefault().post(new PointsLoadedEvent(points));
+		EventBus.getDefault().postSticky(new PointsLoadedEvent(points));
 	}
 
 	private boolean checkJobObsolete() {
