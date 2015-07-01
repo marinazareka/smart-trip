@@ -58,23 +58,28 @@ void Gets::onRequestFinished(QNetworkReply* reply) {
     emit pointsLoaded(pendingRequestTag, placemarks);
 }
 
-Placemark Gets::readPlacemark(QXmlStreamReader& xml) {
-    Placemark placemark(0, 0);
+Placemark Gets::readPlacemark(QXmlStreamReader& xml) {    
+    QString coordinates;
+    QString name;
+    QString description;
+
     while (xml.readNextStartElement()) {
-        qDebug() << "Elem: " << xml.name();
         if (xml.name() == "Point") {
             xml.readNextStartElement();
             if (xml.name() != "coordinates")
                 throw std::runtime_error("Incorrect XML");
 
-            QString coordinates = xml.readElementText();
-
-            placemark = Placemark(coordinates);
+            coordinates = xml.readElementText();
+            xml.skipCurrentElement();
+        } else if (xml.name() == "name") {
+            name = xml.readElementText();
+        } else if (xml.name() == "description") {
+            description = xml.readElementText();
+        } else {
+            xml.skipCurrentElement();
         }
-
-        xml.skipCurrentElement();
     }
 
-    return placemark;
+    return Placemark(coordinates, name, description);
 }
 

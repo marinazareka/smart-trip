@@ -12,6 +12,7 @@ struct Point {
     double lat;
     double lon;
     std::string name;
+    std::string description;
 };
 
 namespace std {

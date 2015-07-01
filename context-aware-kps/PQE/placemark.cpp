@@ -7,6 +7,9 @@ class PlacemarkData : public QSharedData {
 public:
     double lat;
     double lon;
+
+    QString name;
+    QString description;
 };
 
 Placemark::Placemark(double lat, double lon) : data(new PlacemarkData) {
@@ -14,10 +17,13 @@ Placemark::Placemark(double lat, double lon) : data(new PlacemarkData) {
     data->lon = lon;
 }
 
-Placemark::Placemark(QString coordinatesString) : data(new PlacemarkData) {
+Placemark::Placemark(QString coordinatesString, QString name, QString description)
+    : data(new PlacemarkData) {
     QStringList parts = coordinatesString.split(',', QString::SplitBehavior::SkipEmptyParts);
     data->lat = parts.at(1).toDouble();
     data->lon = parts.at(0).toDouble();
+    data->name = name;
+    data->description = description;
 }
 
 Placemark::Placemark(const Placemark &rhs) : data(rhs.data) {
@@ -34,11 +40,19 @@ Placemark::~Placemark() {
 
 }
 
-double Placemark::getLat() {
+QString Placemark::getName() const {
+    return data->name;
+}
+
+QString Placemark::getDescription() const {
+    return data->description;
+}
+
+double Placemark::getLat() const {
     return data->lat;
 }
 
-double Placemark::getLon() {
+double Placemark::getLon() const {
     return data->lon;
 }
 

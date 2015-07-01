@@ -108,10 +108,14 @@ void RequestHandler::processPageRequest(individual_t* pageRequest) {
         Common::setGeneratedId(placemarkIndividual);
         Common::setProperty(placemarkIndividual, PROPERTY_LAT, placemark.getLat());
         Common::setProperty(placemarkIndividual, PROPERTY_LON, placemark.getLon());
+        Common::setProperty(placemarkIndividual, PROPERTY_NAME, placemark.getName());
 
-        qDebug() << "Sending placemark "
+        if (!placemark.getDescription().isEmpty()) {
+            //Common::setProperty(placemarkIndividual, PROPERTY_DESCRIPTION, placemark.getDescription());
+        }
+
+        qDebug() << "Sending placemark " << placemark.getName()
                  << placemark.getLat() << placemark.getLon() << placemarkIndividual->uuid;
-
 
         int code = sslog_ss_insert_individual(placemarkIndividual);
         if (code != 0) {
@@ -121,7 +125,7 @@ void RequestHandler::processPageRequest(individual_t* pageRequest) {
 
         code = sslog_add_property(page, PROPERTY_CONSISTSIN, placemarkIndividual);
         if (code != 0) {
-            qDebug() << "sslog_ss_insert_individual" << code << get_error_text();
+            qDebug() << "sslog_add_property" << code << get_error_text();
         }
 
         placemarkIndividuals.append(placemarkIndividual);

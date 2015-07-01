@@ -44,6 +44,16 @@ static void setStringProperty(individual_t* individual, property_t* property, co
     sslog_add_property(individual, property, value);
 }
 
+static std::string getStringProperty(individual_t* individual, property_t* property) {
+    const prop_val_t* value = sslog_get_property(individual, property->name);
+    if (value == NULL || value->prop_value == NULL) {
+        return std::string();
+    }
+
+    const char* strValue = reinterpret_cast<const char*>(value->prop_value);
+    return strValue;
+}
+
 static double getDoubleProperty(individual_t* individual, property_t* property, bool* ok) {
     const prop_val_t* value = sslog_get_property(individual, property->name);
     if (value == NULL || value->prop_value == NULL) {
@@ -199,10 +209,13 @@ static bool readPageResponseAndRemove(individual_t* pageRequest, std::vector<Poi
 
         double lat = getDoubleProperty(placemark, PROPERTY_LAT, NULL);
         double lon = getDoubleProperty(placemark, PROPERTY_LON, NULL);
+        std::string name = getStringProperty(placemark, PROPERTY_NAME);
+        std::string description = getStringProperty(placemark, PROPERTY_NAME);
+
 
         __android_log_print(ANDROID_LOG_VERBOSE, TAG, "Placemark received %f %f", lat, lon);
 
-        outVector->push_back({lat, lon, "Test"});
+        outVector->push_back({lat, lon, name, description});
         hasPlacemarks = true;
 
         sslog_ss_remove_individual(placemark);
