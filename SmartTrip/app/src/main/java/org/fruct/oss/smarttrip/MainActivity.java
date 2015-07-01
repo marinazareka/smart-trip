@@ -10,6 +10,7 @@ import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -35,6 +36,8 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import org.fruct.oss.smarttrip.events.LocationEvent;
 import org.fruct.oss.smarttrip.fragments.MapFragment;
 import org.fruct.oss.smarttrip.fragments.PlaceHolderFragment;
+import org.fruct.oss.smarttrip.fragments.functional.PointFragment;
+import org.fruct.oss.smarttrip.fragments.functional.SearchFragment;
 import org.fruct.oss.smarttrip.location.GoogleLocationUpdater;
 import org.fruct.oss.smarttrip.location.LocationListener;
 import org.fruct.oss.smarttrip.location.LocationUpdater;
@@ -107,78 +110,25 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 		}
 
 		setupGoogleClient();
+
+		setupFragments();
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.menu_main, menu);
-		return true;
-	}
+	private void setupFragments() {
+		Fragment existingSearchFragment = getSupportFragmentManager().findFragmentByTag("search-fragment");
+		Fragment existingPointFragment = getSupportFragmentManager().findFragmentByTag("point-fragment");
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.action_search:
-			actionSearch();
-			return true;
+		FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
-		default:
-			return super.onOptionsItemSelected(item);
-		}
-	}
-
-	private void actionSearch() {
-		if (lastLocation == null) {
-			return;
+		if (existingPointFragment == null) {
+			transaction.add(new PointFragment(), "point-fragment");
 		}
 
-		MaterialDialog dialog = new MaterialDialog.Builder(this)
-				.title("Find nearest")
-				.customView(R.layout.dialog_search, true)
-				.positiveText("Search")
-				.callback(new MaterialDialog.ButtonCallback() {
-					@Override
-					public void onPositive(MaterialDialog dialog) {
-						EditText radiusInput = (EditText) dialog.getCustomView().findViewById(R.id.radiusEditText);
-						EditText patternInput = (EditText) dialog.getCustomView().findViewById(R.id.patternEditText);
+		if (existingSearchFragment == null) {
+			transaction.add(new SearchFragment(), "search-fragment");
+		}
 
-						double radius = Integer.parseInt(radiusInput.getText().toString());
-						String pattern = patternInput.getText().toString();
-
-						Toast.makeText(MainActivity.this, "Searching...", Toast.LENGTH_SHORT).show();
-
-						App.getJobManager().addJobInBackground(new PointsJob(new SmartPointsLoader(),
-									lastLocation.getLatitude(), lastLocation.getLongitude(), radius, pattern));
-					}
-				}).build();
-
-		final View actionButton = dialog.getActionButton(DialogAction.POSITIVE);
-		final EditText radiusInput = (EditText) dialog.getCustomView().findViewById(R.id.radiusEditText);
-
-		radiusInput.addTextChangedListener(new TextWatcher() {
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-			}
-
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				try {
-					int ignored = Integer.parseInt(s.toString());
-					if (ignored <= 0)
-						throw new NumberFormatException("Radius MUST be positive");
-
-					actionButton.setEnabled(true);
-				} catch (NumberFormatException ex) {
-					actionButton.setEnabled(false);
-				}
-			}
-
-			@Override
-			public void afterTextChanged(Editable s) {
-			}
-		});
-
-		dialog.show();
+		transaction.commit();
 	}
 
 	private void setupGoogleClient() {
