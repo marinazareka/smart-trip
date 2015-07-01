@@ -14,12 +14,14 @@ Gets::Gets(QObject *parent) : QObject(parent) {
     connect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(onRequestFinished(QNetworkReply*)));
 }
 
-void Gets::requestPoints(QVariant tag, double lat, double lon, double radius) {
+void Gets::requestPoints(QVariant tag, double lat, double lon, QString pattern, double radius) {
     QString postRequest = QString("<request><params>"
             "<latitude>%1</latitude>"
             "<longitude>%2</longitude>"
             "<radius>%3</radius>"
-            "</params></request>").arg(lat).arg(lon).arg(radius);
+            "<pattern>%4</pattern>"
+            "</params></request>").arg(lat).arg(lon).arg(radius).arg(pattern);
+    // It is safe to pass possibly empty pattern because it will be ignored by Gets
 
     QNetworkRequest request(QUrl(GETS_SERVER + "/loadPoints.php"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "text/xml");

@@ -40,6 +40,10 @@ static void setIntProperty(individual_t* individual, property_t* property, int v
     sslog_add_property(individual, property, buffer);
 }
 
+static void setStringProperty(individual_t* individual, property_t* property, const char* value) {
+    sslog_add_property(individual, property, value);
+}
+
 static double getDoubleProperty(individual_t* individual, property_t* property, bool* ok) {
     const prop_val_t* value = sslog_get_property(individual, property->name);
     if (value == NULL || value->prop_value == NULL) {
@@ -106,6 +110,18 @@ static individual_t* publishUserContext(individual_t* userRequest, double lat, d
     sslog_ss_insert_individual(userDynamicContext);
     sslog_add_property(userRequest, PROPERTY_CONTAINSDYNAMICCONTEXT, userDynamicContext);
     return userDynamicContext;
+}
+
+static individual_t* publishRequestParameters(individual_t* userRequest, double radius, const char* pattern) {
+    individual_t* requestParameters = createIndividual(CLASS_SIMPLEREQUESTPARAMETERS);
+    setDoubleProperty(requestParameters, PROPERTY_RADIUS, radius);
+
+    if (pattern) {
+        setStringProperty(requestParameters, PROPERTY_PATTERN, pattern);
+    }
+
+    sslog_ss_insert_individual(requestParameters);
+    sslog_add_property(userRequest, PROPERTY_HASSIMPLEREQUESTPARAMETERS, requestParameters);
 }
 
 static individual_t* requestPage(individual_t* userRequest, int pageNumber) {
@@ -202,10 +218,12 @@ static bool readPageResponseAndRemove(individual_t* pageRequest, std::vector<Poi
     return hasPlacemarks;
 }
 
-std::vector<Point> loadPoints(double lat, double lon, double radius) {
+std::vector<Point> loadPoints(double lat, double lon, double radius, const char* pattern) {
     userRequest = createIndividual(CLASS_USERREQUEST);
 
     individual_t* userDynamicContext = publishUserContext(userRequest, lat, lon);
+    individual_t* requestParameters = publishRequestParameters(userRequest, radius, pattern);
+
     sslog_add_property(userRequest, PROPERTY_OBJECTTYPE, "any");
     sslog_add_property(userRequest, PROPERTY_RELATESTO, user);
 
@@ -233,6 +251,7 @@ std::vector<Point> loadPoints(double lat, double lon, double radius) {
 
     sslog_ss_remove_individual(userRequest);
     sslog_ss_remove_individual(userDynamicContext);
+    sslog_ss_remove_individual(requestParameters);
 
     return ret;
 }

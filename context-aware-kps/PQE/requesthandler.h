@@ -14,7 +14,7 @@ class RequestHandler : public QObject {
     Q_OBJECT
 
     static constexpr int PAGE_SIZE = 10;
-
+    static constexpr int DEFAULT_RADIUS = 10; // Kilometers
 
     RequestHandlerData* d;
 

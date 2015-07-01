@@ -60,6 +60,12 @@
     
 
 
+    <!-- http://oss.fruct.org/ontology/smart-trip/hasSimpleRequestParameters -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/ontology/smart-trip/hasSimpleRequestParameters"/>
+    
+
+
     <!-- http://oss.fruct.org/ontology/smart-trip/hasStaticUserContext -->
 
     <owl:ObjectProperty rdf:about="http://oss.fruct.org/ontology/smart-trip/hasStaticUserContext"/>
@@ -149,6 +155,12 @@
     
 
 
+    <!-- http://oss.fruct.org/ontology/smart-trip/pattern -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/ontology/smart-trip/pattern"/>
+    
+
+
     <!-- http://oss.fruct.org/ontology/smart-trip/processed -->
 
     <owl:DatatypeProperty rdf:about="http://oss.fruct.org/ontology/smart-trip/processed"/>
@@ -158,6 +170,12 @@
     <!-- http://oss.fruct.org/ontology/smart-trip/property -->
 
     <owl:DatatypeProperty rdf:about="http://oss.fruct.org/ontology/smart-trip/property"/>
+    
+
+
+    <!-- http://oss.fruct.org/ontology/smart-trip/radius -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/ontology/smart-trip/radius"/>
     
 
 
@@ -205,16 +223,16 @@
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/upper"/>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/property"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;float"/>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/property"/>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/upper"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
+                <owl:onDataRange rdf:resource="&xsd;float"/>
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
@@ -226,16 +244,16 @@
     <owl:Class rdf:about="http://oss.fruct.org/ontology/smart-trip/ContextAwareGenerator">
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/objectType"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/generates"/>
+                <owl:onClass rdf:resource="http://oss.fruct.org/ontology/smart-trip/ProcessedRequest"/>
+                <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/generates"/>
-                <owl:onClass rdf:resource="http://oss.fruct.org/ontology/smart-trip/ProcessedRequest"/>
-                <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/objectType"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
@@ -248,16 +266,16 @@
         <rdfs:subClassOf rdf:resource="http://oss.fruct.org/ontology/smart-trip/AttributePreferenceTerm"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/property"/>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/value"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
+                <owl:onDataRange rdf:resource="&xsd;float"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/value"/>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/property"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;float"/>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
@@ -285,14 +303,14 @@
         <rdfs:subClassOf rdf:resource="http://oss.fruct.org/ontology/smart-trip/AttributePreferenceTerm"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/value"/>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/property"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/property"/>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/value"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
@@ -326,13 +344,6 @@
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/page"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;integer"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
                 <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/relatesTo"/>
                 <owl:onClass rdf:resource="http://oss.fruct.org/ontology/smart-trip/UserRequest"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
@@ -343,6 +354,13 @@
                 <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/resultsIn"/>
                 <owl:onClass rdf:resource="http://oss.fruct.org/ontology/smart-trip/Page"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/page"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;integer"/>
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
@@ -397,14 +415,14 @@
         <rdfs:subClassOf rdf:resource="http://oss.fruct.org/ontology/smart-trip/PreferenceTerm"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/rightOperand"/>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/leftOperand"/>
                 <owl:onClass rdf:resource="http://oss.fruct.org/ontology/smart-trip/PreferenceTerm"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/leftOperand"/>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/rightOperand"/>
                 <owl:onClass rdf:resource="http://oss.fruct.org/ontology/smart-trip/PreferenceTerm"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
             </owl:Restriction>
@@ -418,15 +436,36 @@
     <owl:Class rdf:about="http://oss.fruct.org/ontology/smart-trip/ProcessedRequest">
         <rdfs:subClassOf>
             <owl:Restriction>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/resultsIn"/>
+                <owl:someValuesFrom rdf:resource="http://oss.fruct.org/ontology/smart-trip/PreferenceTerm"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
                 <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/isAssociatedWith"/>
                 <owl:onClass rdf:resource="http://oss.fruct.org/ontology/smart-trip/UserRequest"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/ontology/smart-trip/SimpleRequestParameters -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/ontology/smart-trip/SimpleRequestParameters">
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/resultsIn"/>
-                <owl:someValuesFrom rdf:resource="http://oss.fruct.org/ontology/smart-trip/PreferenceTerm"/>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/radius"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;float"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/pattern"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
@@ -438,15 +477,15 @@
     <owl:Class rdf:about="http://oss.fruct.org/ontology/smart-trip/User">
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/hasStaticUserContext"/>
-                <owl:onClass rdf:resource="http://oss.fruct.org/ontology/smart-trip/UserContext"/>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/hasProfile"/>
+                <owl:onClass rdf:resource="http://oss.fruct.org/ontology/smart-trip/UserProfile"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/hasProfile"/>
-                <owl:onClass rdf:resource="http://oss.fruct.org/ontology/smart-trip/UserProfile"/>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/hasStaticUserContext"/>
+                <owl:onClass rdf:resource="http://oss.fruct.org/ontology/smart-trip/UserContext"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
@@ -459,14 +498,14 @@
     <owl:Class rdf:about="http://oss.fruct.org/ontology/smart-trip/UserContext">
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/lat"/>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/lon"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;float"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/lon"/>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/lat"/>
                 <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
                 <owl:onDataRange rdf:resource="&xsd;float"/>
             </owl:Restriction>
@@ -501,16 +540,16 @@
     <owl:Class rdf:about="http://oss.fruct.org/ontology/smart-trip/UserProfileItem">
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/consistsIn"/>
-                <owl:onClass rdf:resource="http://oss.fruct.org/ontology/smart-trip/PreferenceTerm"/>
-                <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/objectType"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;string"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/objectType"/>
-                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;string"/>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/consistsIn"/>
+                <owl:onClass rdf:resource="http://oss.fruct.org/ontology/smart-trip/PreferenceTerm"/>
+                <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
@@ -522,15 +561,15 @@
     <owl:Class rdf:about="http://oss.fruct.org/ontology/smart-trip/UserRequest">
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/processed"/>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/consistsIn"/>
+                <owl:onClass rdf:resource="http://oss.fruct.org/ontology/smart-trip/PreferenceTerm"/>
                 <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
-                <owl:onDataRange rdf:resource="&xsd;boolean"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/consistsIn"/>
-                <owl:onClass rdf:resource="http://oss.fruct.org/ontology/smart-trip/PreferenceTerm"/>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/containsDynamicContext"/>
+                <owl:onClass rdf:resource="http://oss.fruct.org/ontology/smart-trip/UserContext"/>
                 <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
@@ -543,9 +582,15 @@
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/containsDynamicContext"/>
-                <owl:onClass rdf:resource="http://oss.fruct.org/ontology/smart-trip/UserContext"/>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/hasSimpleRequestParameters"/>
+                <owl:someValuesFrom rdf:resource="http://oss.fruct.org/ontology/smart-trip/SimpleRequestParameters"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/ontology/smart-trip/processed"/>
                 <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minQualifiedCardinality>
+                <owl:onDataRange rdf:resource="&xsd;boolean"/>
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>

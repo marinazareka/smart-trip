@@ -1,5 +1,7 @@
 package org.fruct.oss.smarttrip.points;
 
+import android.support.annotation.Nullable;
+
 import com.path.android.jobqueue.Job;
 import com.path.android.jobqueue.Params;
 
@@ -22,14 +24,17 @@ public class PointsJob extends Job {
 	private final double latitude;
 	private final double longitude;
 	private final double radius;
+	@Nullable private final String pattern;
 
-	public PointsJob(PointsLoader pointsLoader, double latitude, double longitude, double radius) {
+	public PointsJob(PointsLoader pointsLoader,
+					 double latitude, double longitude, double radius, @Nullable String pattern) {
 		super(new Params(1000).requireNetwork().groupBy("points-job"));
 
 		this.pointsLoader = pointsLoader;
 		this.latitude = latitude;
 		this.longitude = longitude;
 		this.radius = radius;
+		this.pattern = pattern;
 
 		this.jobId = jobIncrement.incrementAndGet();
 	}
@@ -44,7 +49,7 @@ public class PointsJob extends Job {
 			return;
 		}
 		EventBus.getDefault().post(new PointsStartedEvent());
-		List<Point> points = pointsLoader.loadPoints(latitude, longitude, radius);
+		List<Point> points = pointsLoader.loadPoints(latitude, longitude, radius, pattern);
 		EventBus.getDefault().post(new PointsLoadedEvent(points));
 	}
 

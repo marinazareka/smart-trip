@@ -26,7 +26,7 @@ private:
 
 extern void connect(const char* smartspace, const char* ip_address, int port);
 extern void disconnect();
-extern std::vector<Point> loadPoints(double lat, double lon, double radius);
+extern std::vector<Point> loadPoints(double lat, double lon, double radius, const char* pattern);
 
 
 #endif

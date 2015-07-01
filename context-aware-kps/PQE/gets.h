@@ -29,7 +29,7 @@ signals:
     void pointsLoaded(QVariant userRequest, QList<Placemark> points);
 
 public slots:
-    void requestPoints(QVariant userRequest, double lat, double lon, double radius);
+    void requestPoints(QVariant userRequest, double lat, double lon, QString pattern, double radius);
 
 private slots:
     void onRequestFinished(QNetworkReply* reply);

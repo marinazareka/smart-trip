@@ -35,6 +35,7 @@ public class SmartService extends Service {
 	public static final String EXTRA_LAT = "org.fruct.oss.smarttrip.EXTRA_LAT";
 	public static final String EXTRA_LON = "org.fruct.oss.smarttrip.EXTRA_LON";
 	public static final String EXTRA_RADIUS = "org.fruct.oss.smarttrip.EXTRA_RADIUS";
+	public static final String EXTRA_PATTERN = "org.fruct.oss.smarttrip.EXTRA_PATTERN";
 
 	private boolean isSmartSpaceConnected;
 
@@ -63,6 +64,7 @@ public class SmartService extends Service {
 			final double lat = intent.getDoubleExtra(EXTRA_LAT, -180);
 			final double lon = intent.getDoubleExtra(EXTRA_LON, -180);
 			final double radius = intent.getDoubleExtra(EXTRA_RADIUS, -1);
+			final String pattern = intent.getStringExtra(EXTRA_PATTERN);
 			final Messenger messenger = intent.getParcelableExtra(EXTRA_REPLY_TO);
 
 			if (lat < -180 || lon < -180 || radius < 0 || messenger == null) {
@@ -73,7 +75,7 @@ public class SmartService extends Service {
 			executor.execute(new Runnable() {
 				@Override
 				public void run() {
-					doActionQueryPoints(lat, lon, radius, messenger);
+					doActionQueryPoints(lat, lon, radius, messenger, pattern);
 				}
 			});
 
@@ -83,8 +85,9 @@ public class SmartService extends Service {
 		return START_NOT_STICKY;
 	}
 
-	private void doActionQueryPoints(double lat, double lon, double radius, Messenger messenger) {
-		PointList pointList = Smart.loadPoints(lat, lon, radius);
+	private void doActionQueryPoints(double lat, double lon, double radius, Messenger messenger, String pattern) {
+		Log.d(TAG, "Loading point from native lib with pattern " + pattern);
+		PointList pointList = Smart.loadPoints(lat, lon, radius, pattern);
 
 		List<Point> retPoints = new ArrayList<>();
 

@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 	private void actionSearch() {
 		if (lastLocation != null) {
 			App.getJobManager().addJobInBackground(new PointsJob(new SmartPointsLoader(),
-					lastLocation.getLatitude(), lastLocation.getLongitude(), 10000));
+					lastLocation.getLatitude(), lastLocation.getLongitude(), 100, "гоСти"));
 		}
 	}
 

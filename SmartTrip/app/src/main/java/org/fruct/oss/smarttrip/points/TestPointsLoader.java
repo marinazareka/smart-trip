@@ -11,7 +11,7 @@ public class TestPointsLoader implements PointsLoader {
 	private static final String TEST_NAME = "Test point";
 
 	@Override
-	public List<Point> loadPoints(double latCenter, double lonCenter, double radius) {
+	public List<Point> loadPoints(double latCenter, double lonCenter, double radius, String pattern) {
 		ArrayList<Point> ret = new ArrayList<>();
 
 		float[] dist = new float[1];

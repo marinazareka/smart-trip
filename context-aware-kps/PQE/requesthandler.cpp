@@ -57,12 +57,23 @@ bool RequestHandler::isReadyToExecute() const {
 void RequestHandler::execute() {
     individual_t* dynamicContext = Common::getIndividualProperty(d->individual,
                                                                  PROPERTY_CONTAINSDYNAMICCONTEXT);
-
     sslog_ss_populate_individual(dynamicContext);
     double lat = Common::getProperty(dynamicContext, PROPERTY_LAT, false).toDouble();
     double lon = Common::getProperty(dynamicContext, PROPERTY_LON, false).toDouble();
 
-    d->gets->requestPoints(QVariant(), lat, lon, 10);
+
+    individual_t* parameters = Common::getIndividualProperty(d->individual,
+                                                             PROPERTY_HASSIMPLEREQUESTPARAMETERS);
+    sslog_ss_populate_individual(parameters);
+    bool radiusOk;
+    QString pattern = Common::getProperty(parameters, PROPERTY_PATTERN, false).toString();
+    double radius = Common::getProperty(parameters, PROPERTY_RADIUS, false).toDouble(&radiusOk);
+
+    if (!radiusOk) {
+        radius = DEFAULT_RADIUS;
+    }
+
+    d->gets->requestPoints(QVariant(), lat, lon, pattern, radius);
 
     // TODO: is dynamic context must be cleared?
 }

@@ -31,4 +31,4 @@ namespace std {
 void connect(const char* smartspace, const char* ip_address, int port);
 void disconnect();
 
-std::vector<Point> loadPoints(double lat, double lon, double radius);
+std::vector<Point> loadPoints(double lat, double lon, double radius, const char* pattern);
