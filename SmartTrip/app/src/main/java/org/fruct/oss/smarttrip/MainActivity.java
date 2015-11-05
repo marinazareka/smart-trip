@@ -81,15 +81,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 				)
 				.withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
 					@Override
-					public boolean onItemClick(AdapterView<?> adapterView, View view, int i, long l, IDrawerItem iDrawerItem) {
+					public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
 						Fragment fragment;
 
-						switch (i) {
-						case 0:
+						switch (position) {
+						case 1:
 							fragment = MapFragment.newInstance();
 							break;
 
-						case 1:
+						case 2:
 							fragment = new PointListFragment();
 							break;
 
