@@ -1,0 +1,36 @@
+1)
+//культурная информация по местоположению
+
+select * where { ?url 
+geo:lat "48.858223"^^xsd:float; 
+geo:long "2.294500"^^xsd:float; 
+rdfs:label ?POItitle;
+rdfs:comment ?CulturalInfo.
+filter langMatches( lang(?CulturalInfo), "EN"). 
+filter langMatches( lang(?POItitle), "EN").} 
+LIMIT 10
+
+// архитектор Эйфелевой башни
+SELECT * WHERE {
+    ?url dbo:significantBuilding dbr:Eiffel_Tower;
+         foaf:name ?architect.
+filter langMatches( lang(?architect), "EN").}
+
+2)
+// узнаем что-нибудь про Диснейленд
+SELECT * WHERE {
+    ?url foaf:isPrimaryTopicOf <http://en.wikipedia.org/wiki/Disneyland>;
+         rdfs:label ?POItitle;
+         rdfs:comment ?CulturalInfo;
+         dbp:openingDate ?creationDate.
+filter langMatches( lang(?CulturalInfo), "EN").
+filter langMatches( lang(?POItitle), "EN").}
+
+//аттракционы в Диснейленде
+SELECT * WHERE {
+    ?url dbo:location dbr:Disneyland;
+         rdfs:label ?POItitle;
+         rdfs:comment ?CulturalInfo.
+filter langMatches( lang(?POItitle), "EN").
+filter langMatches( lang(?CulturalInfo), "EN").}
+
