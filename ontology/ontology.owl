@@ -9,13 +9,13 @@
 ]>
 
 
-<rdf:RDF xmlns="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#"
-     xml:base="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist"
-     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+<rdf:RDF xmlns="http://oss.fruct.org/etourism#"
+     xml:base="http://oss.fruct.org/etourism"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
      xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
-    <owl:Ontology rdf:about="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist"/>
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <owl:Ontology rdf:about="http://oss.fruct.org/etourism"/>
     
 
 
@@ -30,38 +30,214 @@
     
 
 
-    <!-- http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#createdBy -->
+    <!-- http://oss.fruct.org/etourism#hasAction -->
 
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#createdBy">
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#SearchRequest"/>
-        <rdfs:range rdf:resource="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#User"/>
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasAction">
+        <rdfs:comment>Историческое событие</rdfs:comment>
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Action"/>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#CulturalInfo"/>
     </owl:ObjectProperty>
     
 
 
-    <!-- http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#hasLocation -->
+    <!-- http://oss.fruct.org/etourism#hasClimateRestriction -->
 
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#hasLocation">
-        <rdfs:range rdf:resource="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#Point"/>
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#User"/>
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasClimateRestriction">
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Climate"/>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#POI"/>
     </owl:ObjectProperty>
     
 
 
-    <!-- http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#hasPoint -->
+    <!-- http://oss.fruct.org/etourism#hasCulturalInfo -->
 
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#hasPoint">
-        <rdfs:range rdf:resource="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#Point"/>
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#Schedule"/>
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasCulturalInfo">
+        <rdfs:comment>Исторические данные об объекте</rdfs:comment>
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#CulturalInfo"/>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#POI"/>
     </owl:ObjectProperty>
     
 
 
-    <!-- http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#resultsIn -->
+    <!-- http://oss.fruct.org/etourism#hasFavoritePoint -->
 
-    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#resultsIn">
-        <rdfs:range rdf:resource="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#Point"/>
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#SearchRequest"/>
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasFavoritePoint">
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Point"/>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#User"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#hasImage -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasImage">
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Image"/>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#POI"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#hasLocation -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasLocation">
+        <rdfs:comment>Определение местоположение для объекта или события</rdfs:comment>
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Location"/>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Action"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Image"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Point"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Region"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#User"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#hasMovement -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasMovement">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:comment>Маршрут состоит из передвижений</rdfs:comment>
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Movement"/>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Route"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#hasPoint -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasPoint">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:comment>Маршрут состоит из точек</rdfs:comment>
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Point"/>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Route"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#hasPreferencesPOI -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasPreferencesPOI">
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#User"/>
+        <rdfs:range>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://oss.fruct.org/etourism#POICategory"/>
+                <owl:someValuesFrom rdf:resource="&xsd;anyURI"/>
+            </owl:Restriction>
+        </rdfs:range>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#hasRoute -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasRoute">
+        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+        <rdfs:comment>Расписание строится по маршруту</rdfs:comment>
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Route"/>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Schedule"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#hasVisitPoint -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasVisitPoint">
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Point"/>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#User"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#hasVisitTimeRestrictions -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasVisitTimeRestrictions">
+        <rdfs:comment>описание различных временных интервалов для посещения/использования</rdfs:comment>
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#VisitTime"/>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Action"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Point"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#inRegion -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#inRegion">
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Region"/>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#SearchRequest"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#isEndPoint -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#isEndPoint">
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Movement"/>
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Point"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#isStartPoint -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#isStartPoint">
+        <rdfs:comment>точка начала передвижения</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Movement"/>
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Point"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#relatedWithPerson -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#relatedWithPerson">
+        <rdfs:comment>Связь исторического события с персоной</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#CulturalInfo"/>
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Person"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#useCulturalInfo -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#useCulturalInfo">
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#CulturalInfo"/>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#SearchRequest"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#useRoad -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#useRoad">
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Movement"/>
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Road"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#useTripType -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#useTripType">
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#TripType"/>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#SearchRequest"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#User"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
     </owl:ObjectProperty>
     
 
@@ -77,29 +253,323 @@
     
 
 
-    <!-- http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#latitude -->
+    <!-- http://oss.fruct.org/etourism#DateOfBirth -->
 
-    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#latitude">
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#Point"/>
-        <rdfs:range rdf:resource="&xsd;float"/>
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#DateOfBirth">
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Person"/>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
     </owl:DatatypeProperty>
     
 
 
-    <!-- http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#longitude -->
+    <!-- http://oss.fruct.org/etourism#POICategory -->
 
-    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#longitude">
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#Point"/>
-        <rdfs:range rdf:resource="&xsd;float"/>
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#POICategory">
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#POI"/>
     </owl:DatatypeProperty>
     
 
 
-    <!-- http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#processedAt -->
+    <!-- http://oss.fruct.org/etourism#address -->
 
-    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#processedAt">
-        <rdfs:domain rdf:resource="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#SearchRequest"/>
-        <rdfs:range rdf:resource="&xsd;long"/>
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#address">
+        <rdfs:comment>Почтовый адрес</rdfs:comment>
+        <rdfs:seeAlso>Возможно стоит сделать в виде набора объектов</rdfs:seeAlso>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Location"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#architecturalStyle -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#architecturalStyle">
+        <rdfs:comment>Архитектурный стиль</rdfs:comment>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#CulturalInfo"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#User"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#author -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#author">
+        <rdfs:comment>Автор</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#CulturalInfo"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#creationDate -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#creationDate">
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#CulturalInfo"/>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#description -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#description">
+        <rdfs:comment>Описание (Вдовенко)</rdfs:comment>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Action"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#CulturalInfo"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Image"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#POI"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#endTime -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#endTime">
+        <rdfs:comment>Время окончания передвижения или осмотра объекта</rdfs:comment>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Action"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Era"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Movement"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#errorCode -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#errorCode">
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Error"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#errorDescription -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#errorDescription">
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Error"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#errorMessage -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#errorMessage">
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Error"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#height -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#height">
+        <rdfs:comment>Высота прямоугольника для региона поиска</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#RectangularRegion"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#hometown -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#hometown">
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Person"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#length -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#length">
+        <rdfs:comment>Расстояние (маршрут)</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Movement"/>
+        <rdfs:range rdf:resource="&xsd;double"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#login -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#login">
+        <rdfs:comment>Логин для идентификации туриста в системе</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#User"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#meteoConditions -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#meteoConditions">
+        <rdfs:comment>Различные условия (дождь, солнце и т.п.)</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Climate"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#name -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#name">
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Person"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#password -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#password">
+        <rdfs:comment>Пароль для идентификации в системе</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#User"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#profession -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#profession">
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Person"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#radius -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#radius">
+        <rdfs:comment>Радиус окружности круглого региона с центром в Location</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#CircleRegion"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#rating -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#rating">
+        <rdfs:comment>Рейтинг достопримечательности</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#POI"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#startTime -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#startTime">
+        <rdfs:comment>Время начала передвижения или осмотра объекта</rdfs:comment>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Action"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Era"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Movement"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#temperature -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#temperature">
+        <rdfs:comment>Температура или диапазон температур</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Climate"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#title -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#title">
+        <rdfs:comment>Название (Вдовенко)</rdfs:comment>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Action"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Era"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Image"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Point"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Region"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#uid -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#uid">
+        <rdfs:comment>идентификатор</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Road"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#url -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#url">
+        <rdfs:comment>адрес в сети Интернет для более детальной информации или источник объекта</rdfs:comment>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Image"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Point"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#visitDuration -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#visitDuration">
+        <rdfs:comment>Длительность посещения</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#POI"/>
+        <rdfs:range rdf:resource="&xsd;dateTime"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#weatherSeason -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#weatherSeason">
+        <rdfs:comment>Сезон посещения/работы объекта</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Climate"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#width -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#width">
+        <rdfs:comment>Ширина прямоугольника для региона поиска</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#RectangularRegion"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.w3.org/2003/01/geo/wgs84_pos#point -->
+
+    <owl:DatatypeProperty rdf:about="http://www.w3.org/2003/01/geo/wgs84_pos#point">
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Location"/>
     </owl:DatatypeProperty>
     
 
@@ -115,30 +585,254 @@
     
 
 
-    <!-- http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#Point -->
+    <!-- http://oss.fruct.org/etourism#Accomodation -->
 
-    <owl:Class rdf:about="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#Point"/>
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#Accomodation">
+        <rdfs:subClassOf rdf:resource="http://oss.fruct.org/etourism#Point"/>
+        <rdfs:comment>Проживание (гостиницы, отели и т.п.)</rdfs:comment>
+    </owl:Class>
     
 
 
-    <!-- http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#Schedule -->
+    <!-- http://oss.fruct.org/etourism#Action -->
 
-    <owl:Class rdf:about="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#Schedule"/>
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#Action">
+        <rdfs:comment>Событие или мероприятие</rdfs:comment>
+    </owl:Class>
     
 
 
-    <!-- http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#SearchRequest -->
+    <!-- http://oss.fruct.org/etourism#AdministrativeRegion -->
 
-    <owl:Class rdf:about="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#SearchRequest"/>
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#AdministrativeRegion">
+        <rdfs:subClassOf rdf:resource="http://oss.fruct.org/etourism#Region"/>
+        <rdfs:comment>Административная область (страна, регион, область, край)</rdfs:comment>
+    </owl:Class>
     
 
 
-    <!-- http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#User -->
+    <!-- http://oss.fruct.org/etourism#AirRoad -->
 
-    <owl:Class rdf:about="http://www.semanticweb.org/ivashov/ontologies/2015/9/travelling-smart-tourist#User"/>
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#AirRoad">
+        <rdfs:subClassOf rdf:resource="http://oss.fruct.org/etourism#Road"/>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#BusRoad -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#BusRoad">
+        <rdfs:subClassOf rdf:resource="http://oss.fruct.org/etourism#Road"/>
+        <rdfs:comment>автобусный маршрут</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#CarRoad -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#CarRoad">
+        <rdfs:subClassOf rdf:resource="http://oss.fruct.org/etourism#Road"/>
+        <rdfs:comment>Автомобильная дорога</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#CircleRegion -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#CircleRegion">
+        <rdfs:subClassOf rdf:resource="http://oss.fruct.org/etourism#Region"/>
+        <rdfs:comment>Окружность (без учета сферической поверхности)</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#Climate -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#Climate">
+        <rdfs:comment>Климатические ограничения (температура, сезон, погода)</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#CulturalInfo -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#CulturalInfo">
+        <rdfs:comment>Исторический профиль объекта интереса. Также используется для поисковых запросов</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#Era -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#Era">
+        <rdfs:comment>Описание эпохи</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#Error -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#Error"/>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#GeographicalRegion -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#GeographicalRegion">
+        <rdfs:subClassOf rdf:resource="http://oss.fruct.org/etourism#Region"/>
+        <rdfs:comment>Географическая область (озеро, лес, поле и т.п.)</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#Image -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#Image">
+        <rdfs:comment>Разные фото с сервисов panoramio, flickr и т.п.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#Location -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#Location">
+        <rdfs:comment>Местоположение в виде координат и почтового адреса</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#Movement -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#Movement">
+        <rdfs:comment>Один переезд между двумя точками</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#POI -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#POI">
+        <rdfs:subClassOf rdf:resource="http://oss.fruct.org/etourism#Point"/>
+        <rdfs:comment>Объекты интереса</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#Person -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#Person"/>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#PitStop -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#PitStop">
+        <rdfs:subClassOf rdf:resource="http://oss.fruct.org/etourism#Point"/>
+        <rdfs:comment>Технические остановки для передвижения</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#Point -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#Point">
+        <rdfs:comment>Точка маршрута</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#RailRoad -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#RailRoad">
+        <rdfs:subClassOf rdf:resource="http://oss.fruct.org/etourism#Road"/>
+        <rdfs:comment>Железная дорога</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#RectangularRegion -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#RectangularRegion">
+        <rdfs:subClassOf rdf:resource="http://oss.fruct.org/etourism#Region"/>
+        <rdfs:comment>Прямоугольная область (без учета сферической поверхности)</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#Region -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#Region">
+        <rdfs:comment>Регион поиска</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#Road -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#Road">
+        <rdfs:comment>Тип дороги/передвижения. В зависимости от типа могут быть различные условия туристической поездки</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#Route -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#Route">
+        <rdfs:comment>Маршрут из точек и переездов</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#Schedule -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#Schedule">
+        <rdfs:comment>Расписание выдается пользователю (сценарии 2 и 3)</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#SearchRequest -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#SearchRequest">
+        <rdfs:comment>Поисковый запрос (Сценарий 1)</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#TripType -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#TripType">
+        <rdfs:comment>Тип путешествия (экотуризм, исторический туризм и т.п.)</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#User -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#User">
+        <rdfs:subClassOf rdf:resource="http://oss.fruct.org/etourism#Person"/>
+        <rdfs:comment>Наш турист</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#VisitTime -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#VisitTime">
+        <rdfs:comment>Время посещения</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#WalkRoad -->
+
+    <owl:Class rdf:about="http://oss.fruct.org/etourism#WalkRoad">
+        <rdfs:subClassOf rdf:resource="http://oss.fruct.org/etourism#Road"/>
+        <rdfs:comment>Пешеходная дорога</rdfs:comment>
+    </owl:Class>
 </rdf:RDF>
 
 
 
-<!-- Generated by the OWL API (version 3.5.1) http://owlapi.sourceforge.net -->
+<!-- Generated by the OWL API (version 3.4.2) http://owlapi.sourceforge.net -->
 
