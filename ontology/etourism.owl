@@ -100,7 +100,14 @@
     <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasLocation">
         <rdfs:comment>Определение местоположение для объекта или события</rdfs:comment>
         <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Location"/>
-        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Point"/>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Point"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#User"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
     </owl:ObjectProperty>
     
 
