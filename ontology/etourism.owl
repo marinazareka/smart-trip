@@ -128,7 +128,7 @@
 
     <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasPoint">
         <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Point"/>
-        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#SearchResult"/>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#SearchRequest"/>
     </owl:ObjectProperty>
     
 
@@ -231,15 +231,6 @@
         <rdfs:comment>Связь исторического события с персоной</rdfs:comment>
         <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#CulturalInfo"/>
         <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Person"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://oss.fruct.org/etourism#resultsIn -->
-
-    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#resultsIn">
-        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#SearchRequest"/>
-        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#SearchResult"/>
     </owl:ObjectProperty>
     
 
@@ -559,6 +550,15 @@
     <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#phone">
         <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Person"/>
         <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#processed -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#processed">
+        <rdfs:comment>Маркер обработки запроса.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Schedule"/>
     </owl:DatatypeProperty>
     
 
@@ -889,14 +889,6 @@
 
     <owl:Class rdf:about="http://oss.fruct.org/etourism#SearchRequest">
         <rdfs:comment>Поисковый запрос (Сценарий 1)</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://oss.fruct.org/etourism#SearchResult -->
-
-    <owl:Class rdf:about="http://oss.fruct.org/etourism#SearchResult">
-        <rdfs:comment>Результат поиска. Найденные точки содержаться в свойствах hasPoint</rdfs:comment>
     </owl:Class>
     
 
