@@ -79,8 +79,8 @@ static bool process_request(sslog_individual_t* request, int* out_points_count, 
 
         sslog_node_populate(node, point_individual);
 
-        const char* lat_str = sslog_get_property(point_individual, PROPERTY_LATITUDE);
-        const char* lon_str = sslog_get_property(point_individual, PROPERTY_LONGITUDE);
+        const char* lat_str = sslog_get_property(point_individual, PROPERTY_LAT);
+        const char* lon_str = sslog_get_property(point_individual, PROPERTY_LONG);
 
         double lat = parse_double(lat_str);
         double lon = parse_double(lon_str);

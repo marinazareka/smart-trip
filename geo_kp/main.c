@@ -16,22 +16,22 @@ static void publish_point(sslog_node_t* node, sslog_individual_t* request_indivi
 
     CLEANUP_INDIVIDUAL sslog_individual_t* point_individual = sslog_new_individual(CLASS_POINT, rand_uuid("point"));
 
-    sslog_insert_property(point_individual, PROPERTY_LATITUDE, double_to_string(lat));
-    sslog_insert_property(point_individual, PROPERTY_LONGITUDE, double_to_string(lon));
+    sslog_insert_property(point_individual, PROPERTY_LAT, double_to_string(lat));
+    sslog_insert_property(point_individual, PROPERTY_LONG, double_to_string(lon));
 
     sslog_node_insert_individual(node, point_individual);
 
-    sslog_node_insert_property(node, request_individual, PROPERTY_RESULTSIN, point_individual);
+    sslog_node_insert_property(node, request_individual, PROPERTY_HASPOINT, point_individual);
 }
 
 static void find_and_publish_points(sslog_node_t* node, sslog_individual_t* request_individual, double lat, double lon) {
-    publish_point(node, request_individual, 61.787351,34.354369);
-    publish_point(node, request_individual, 61.787026,34.365269);
-    publish_point(node, request_individual, 61.787859,34.375612);
-    publish_point(node, request_individual, 61.792167,34.369475);
-    publish_point(node, request_individual, 61.783023,34.360334);
+    publish_point(node, request_individual, 61.787351, 34.354369);
+    publish_point(node, request_individual, 61.787026, 34.365269);
+    publish_point(node, request_individual, 61.787859, 34.375612);
+    publish_point(node, request_individual, 61.792167, 34.369475);
+    publish_point(node, request_individual, 61.783023, 34.360334);
 
-    sslog_node_insert_property(node, request_individual, PROPERTY_PROCESSEDAT, long_to_string(time(NULL)));
+    sslog_node_insert_property(node, request_individual, PROPERTY_PROCESSED, long_to_string(time(NULL)));
 }
 
 static void process_inserted_request(sslog_node_t* node, const char* request_uuid) {
@@ -41,26 +41,16 @@ static void process_inserted_request(sslog_node_t* node, const char* request_uui
         return;
     }
 
-    CLEANUP_INDIVIDUAL sslog_individual_t* user_individual 
-        = (sslog_individual_t*) sslog_node_get_property(node, request_individual, PROPERTY_CREATEDBY);
-    if (user_individual == NULL) {
-        printf("Can't get creator user individual\n");
+    CLEANUP_INDIVIDUAL sslog_individual_t* location_individual
+        = (sslog_individual_t*) sslog_node_get_property(node, request_individual, PROPERTY_USELOCATION);
+    if (request_individual == NULL) {
+        printf("Can't get request location individual\n");
         return;
     }
 
-    printf("User id is %s\n", sslog_entity_get_uri(user_individual));
-
-    CLEANUP_INDIVIDUAL sslog_individual_t* user_location_individual = 
-        (sslog_individual_t*) sslog_node_get_property(node, user_individual, PROPERTY_HASLOCATION);
-
-    if (user_location_individual == NULL) {
-        printf("Can't get user location individual\n");
-        return;
-    }
-
-    sslog_node_populate(node, user_location_individual);
-    double lat = parse_double(sslog_get_property(user_location_individual, PROPERTY_LATITUDE));
-    double lon = parse_double(sslog_get_property(user_location_individual, PROPERTY_LONGITUDE));
+    sslog_node_populate(node, location_individual);
+    double lat = parse_double(sslog_get_property(location_individual, PROPERTY_LAT));
+    double lon = parse_double(sslog_get_property(location_individual, PROPERTY_LONG));
     printf("User location: %lf %lf\n", lat, lon);
     find_and_publish_points(node, request_individual, lat, lon);
 }

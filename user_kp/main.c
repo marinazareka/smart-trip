@@ -59,7 +59,7 @@ static sslog_individual_t* publish_search_request(sslog_node_t* node, sslog_indi
 static bool process_subscription_result(sslog_node_t* node, sslog_individual_t* request_individual) {
     sslog_individual_t* schedule_individual = sslog_new_individual(CLASS_SCHEDULE, rand_uuid("schedule"));
 
-    list_t* inserted_individuals = sslog_get_properties(request_individual, PROPERTY_RESULTSIN);
+    list_t* inserted_individuals = sslog_get_properties(request_individual, PROPERTY_HASPOINT);
 
     int counter = 0;
     list_head_t* iter;
@@ -93,7 +93,7 @@ static bool process_subscription_result(sslog_node_t* node, sslog_individual_t* 
 
 static void subscribe_response(sslog_node_t* node, sslog_individual_t* request_individual) {
     list_t* properties = list_new();
-    list_add_data(properties, PROPERTY_RESULTSIN);
+    list_add_data(properties, PROPERTY_PROCESSED);
 
     sslog_subscription_t* subscription = sslog_new_subscription(node, false);
     sslog_sbcr_add_individual(subscription, request_individual, properties);
