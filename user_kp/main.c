@@ -25,12 +25,10 @@ static void subscribe_signals() {
 
 static sslog_individual_t* update_user_location(sslog_node_t* node, sslog_individual_t* user_individual, double lat, double lon) {
     sslog_individual_t* new_location_individual = sslog_new_individual(CLASS_LOCATION, rand_uuid("user_location"));
-    sslog_individual_t* new_point_individual = sslog_new_individual(CLASS_POINT, rand_uuid("user_point"));
 
-    sslog_insert_property(new_point_individual, PROPERTY_LAT, double_to_string(lat));
-    sslog_insert_property(new_point_individual, PROPERTY_LONG, double_to_string(lon));
+    sslog_insert_property(new_location_individual, PROPERTY_LAT, double_to_string(lat));
+    sslog_insert_property(new_location_individual, PROPERTY_LONG, double_to_string(lon));
 
-    sslog_node_insert_individual(node, new_point_individual);
     sslog_node_insert_individual(node, new_location_individual);
 
     const void* existing_location = sslog_get_property(user_individual, PROPERTY_HASLOCATION);

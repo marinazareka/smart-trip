@@ -43,7 +43,7 @@ static void process_inserted_request(sslog_node_t* node, const char* request_uui
 
     CLEANUP_INDIVIDUAL sslog_individual_t* location_individual
         = (sslog_individual_t*) sslog_node_get_property(node, request_individual, PROPERTY_USELOCATION);
-    if (request_individual == NULL) {
+    if (location_individual == NULL) {
         printf("Can't get request location individual\n");
         return;
     }
