@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.model.Point;
+import org.fruct.oss.tsp.smartslognative.NativeTest;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -65,7 +66,7 @@ public class PointListFragment extends Fragment {
 			}
 
 			public void bind(Point point) {
-				textView.setText("Point " + point.getLat() + " " + point.getLon());
+				textView.setText(NativeTest.helloworld());
 			}
 		}
 

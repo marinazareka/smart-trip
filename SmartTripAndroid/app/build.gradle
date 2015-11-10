@@ -30,4 +30,6 @@ dependencies {
     compile('com.mikepenz:materialdrawer:4.4.6@aar') {
         transitive = true
     }
+
+    compile project(":smartslognative")
 }
