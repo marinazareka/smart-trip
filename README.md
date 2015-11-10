@@ -22,4 +22,10 @@ make
 ```
 
 ####Собрать Java-kp
-TODO:
+```bash
+cd TransportKP
+mkdir -p src/main/resources/linux-x86-64
+cp ../build/transport-kp-native/libtransport_kp.so src/main/resources/linux-x86-64
+./gradlew shadowJar
+```
+TransportKP-all.jar в каталоге build/libs
