@@ -33,7 +33,7 @@ public class Main {
 		setupLog();
 
 		GraphHopper graphHopper = createGraphhopper(parsedArgs.getMapFile(), parsedArgs.getGraphhopperDir());
-		SmartSpace smartSpace = createSmartspace();
+		SmartSpace smartSpace = createSmartspace(parsedArgs);
 
 		TransportKP transportKP = new TransportKP(smartSpace, graphHopper);
 		transportKP.start();
@@ -51,6 +51,25 @@ public class Main {
 				.desc("Graphhopper directory")
 				.hasArg()
 				.build());
+		options.addOption(Option.builder("a")
+				.required()
+				.longOpt("sib-address")
+				.desc("SIB address")
+				.hasArg()
+				.build());
+		options.addOption(Option.builder("p")
+				.required()
+				.longOpt("sib-port")
+				.desc("SIB port")
+				.hasArg()
+				.build());
+		options.addOption(Option.builder("n")
+				.required()
+				.longOpt("sib-name")
+				.desc("SIB name")
+				.hasArg()
+				.build());
+
 
 		CommandLineParser parser = new DefaultParser();
 		try {
@@ -58,9 +77,13 @@ public class Main {
 
 			String mapFile = commandLine.getOptionValue("f");
 			String graphhopperDir = commandLine.getOptionValue("t");
+			String sibAddress = commandLine.getOptionValue("a");
+			String sibName = commandLine.getOptionValue("n");
+			int sibPort = Integer.parseInt(commandLine.getOptionValue("p"));
 
-			return new Args(mapFile, graphhopperDir);
-		} catch (ParseException e) {
+			return new Args(mapFile, graphhopperDir, sibAddress, sibName, sibPort);
+		} catch (ParseException | NumberFormatException e) {
+
 			System.out.println(e.getMessage());
 			HelpFormatter helpFormatter = new HelpFormatter();
 			helpFormatter.printHelp("TransportKP", options);
@@ -76,8 +99,8 @@ public class Main {
 		log.error("Test error");
 	}
 
-	private static SmartSpace createSmartspace() {
-		return new JnaSmartSpace();
+	private static SmartSpace createSmartspace(Args args) {
+		return new JnaSmartSpace("TransportKP", args.getSibName(), args.getSibAddress(), args.getSibPort());
 	}
 
 	private static GraphHopper createGraphhopper(String mapFile, String graphhopperDir) {

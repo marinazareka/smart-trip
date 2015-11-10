@@ -10,6 +10,11 @@ import oss.fruct.org.smarttrip.transportkp.data.RouteRequest;
 import oss.fruct.org.smarttrip.transportkp.data.RouteResponse;
 
 public class JnaSmartSpace implements SmartSpace {
+	private final String name;
+	private final String smartspace;
+	private final String address;
+	private final int port;
+
 	interface NativeLib extends Library {
 		boolean init(String name, String smartspace, String address, int port);
 		void shutdown();
@@ -26,12 +31,16 @@ public class JnaSmartSpace implements SmartSpace {
 
 	private NativeLib lib;
 
-	public JnaSmartSpace() {
+	public JnaSmartSpace(String name, String smartspace, String address, int port) {
+		this.name = name;
+		this.smartspace = smartspace;
+		this.address = address;
+		this.port = port;
 		lib = (NativeLib) Native.loadLibrary("transport_kp", NativeLib.class);
 	}
 
 	@Override
-	public boolean init(String name, String smartspace, String address, int port) {
+	public boolean init() {
 		return lib.init(name, smartspace, address, port);
 	}
 

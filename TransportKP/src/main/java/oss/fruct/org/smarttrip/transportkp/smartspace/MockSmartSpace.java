@@ -8,7 +8,7 @@ public class MockSmartSpace implements SmartSpace {
 	private int remain = 5;
 
 	@Override
-	public boolean init(String name, String smartspace, String address, int port) {
+	public boolean init() {
 		return true;
 	}
 

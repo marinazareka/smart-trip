@@ -21,7 +21,7 @@ public class TransportKP {
 	}
 
 	public void start() {
-		smartSpace.init("Transport-kp", "X", "127.0.0.1", 10010);
+		smartSpace.init();
 		smartSpace.subscribe();
 
 		while(process())
