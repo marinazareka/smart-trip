@@ -260,6 +260,15 @@
     
 
 
+    <!-- http://oss.fruct.org/etourism#useRoad -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#useRoad">
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Movement"/>
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Road"/>
+    </owl:ObjectProperty>
+    
+
+
     <!-- http://oss.fruct.org/etourism#useTripType -->
 
     <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#useTripType">
