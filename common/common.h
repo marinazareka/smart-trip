@@ -13,5 +13,14 @@ void init_rand();
 
 double parse_double(const char* string_double);
 
+/**
+ * Create and insert new point
+ */
+sslog_individual_t* create_point_individual(sslog_node_t* node,  double lat, double lon);
+
+/**
+ * Load point lat and lon
+ */
+bool get_point_coordinates(sslog_node_t* node, sslog_individual_t* point, double* out_lat, double* out_lon);
 
 #endif

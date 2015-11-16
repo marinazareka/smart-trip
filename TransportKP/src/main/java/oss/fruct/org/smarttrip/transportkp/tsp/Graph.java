@@ -33,7 +33,7 @@ public class Graph {
 
 	private static double distanceBetween(GraphHopper graphHopper, Point p1, Point p2) {
 		GHRequest request = new GHRequest(p1.getLat(), p1.getLon(), p2.getLat(), p2.getLon())
-				.setWeighting("shortest")
+				.setWeighting("fastest")
 				.setVehicle("foot");
 
 		GHResponse response = graphHopper.route(request);

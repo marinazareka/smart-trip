@@ -108,7 +108,7 @@ public class Main {
 		graphHopper.setOSMFile(mapFile);
 		graphHopper.setGraphHopperLocation(graphhopperDir);
 		graphHopper.setEncodingManager(new EncodingManager("foot"));
-		graphHopper.setCHWeighting("shortest");
+		graphHopper.setCHWeighting("fastest");
 		graphHopper.importOrLoad();
 		return graphHopper;
 	}

@@ -12,4 +12,4 @@ link_directories(${smartslog_LIBRARY_DIRS})
 add_library(commons 
     common.c common.h)
 
-target_link_libraries(commons ${smartslog_LIBRARIES})
+target_link_libraries(commons ontology ${smartslog_LIBRARIES})

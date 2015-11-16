@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "ontology.h"
+
 #define BUFSIZE 500
 
 static unsigned short rand_state[3];
@@ -46,4 +48,33 @@ void cleanup_individual(sslog_individual_t** individual) {
     }
 
     *individual = NULL;
+}
+
+
+sslog_individual_t* create_point_individual(sslog_node_t* node, double lat, double lon) {
+    sslog_individual_t* point = sslog_new_individual(CLASS_POINT, rand_uuid("point"));
+    sslog_individual_t* location = sslog_new_individual(CLASS_LOCATION, rand_uuid("location"));
+    
+    sslog_insert_property(location, PROPERTY_LAT, double_to_string(lat));
+    sslog_insert_property(location, PROPERTY_LONG, double_to_string(lon));
+
+    sslog_insert_property(point, PROPERTY_HASLOCATION, location);
+
+    sslog_node_insert_individual(node, location);
+    sslog_node_insert_individual(node, point);
+
+    return point;
+}
+
+bool get_point_coordinates(sslog_node_t* node, sslog_individual_t* point, double* out_lat, double* out_lon) {
+   sslog_individual_t* location = (sslog_individual_t*) sslog_node_get_property(node, point, PROPERTY_HASLOCATION); 
+   if (location == NULL) {
+       return false;
+   }
+
+   sslog_node_populate(node, location);
+   *out_lat = parse_double((const char*) sslog_get_property(location, PROPERTY_LAT));
+   *out_lon = parse_double((const char*) sslog_get_property(location, PROPERTY_LONG));
+
+   return true;
 }

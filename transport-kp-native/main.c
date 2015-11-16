@@ -15,7 +15,7 @@ bool subscribe();
 void unsubscribe();
 
 bool wait_subscription(int* out_points_count, double** out_points_pairs, void** data);
-void publish(int points_count, double* points_pairs, void* data);
+void publish(int points_count, double* points_pairs, const char* roadType, void* data); 
 
 
 static sslog_node_t* node;
@@ -76,16 +76,12 @@ static bool process_request(sslog_individual_t* request, int* out_points_count, 
     list_for_each(iter, &points->links) {
         list_t* entry = list_entry(iter, list_t, links);
         sslog_individual_t* point_individual = (sslog_individual_t*) entry->data;
-
         sslog_node_populate(node, point_individual);
 
-        const char* lat_str = sslog_get_property(point_individual, PROPERTY_LAT);
-        const char* lon_str = sslog_get_property(point_individual, PROPERTY_LONG);
+        double lat, lon;
+        get_point_coordinates(node, point_individual, &lat, &lon);
 
-        double lat = parse_double(lat_str);
-        double lon = parse_double(lon_str);
-
-        fprintf(stderr, "Point %lf %lf %s %s\n", lat, lon, lat_str, lon_str);
+        fprintf(stderr, "Point %lf %lf\n", lat, lon);
 
         points_array[c] = lat;
         points_array[c + 1] = lon;
@@ -116,10 +112,12 @@ bool wait_subscription(int* out_points_count, double** out_points_pairs, void** 
         list_t* entry = list_entry(iter, list_t, links);
         const char* request_individual_id = (const char*) entry->data;
         sslog_individual_t* request_individual = sslog_new_individual(CLASS_SCHEDULE, request_individual_id);
-        sslog_node_populate(node, request_individual);
+        sslog_individual_t* route_individual 
+            = (sslog_individual_t*) sslog_node_get_property(node, request_individual, PROPERTY_HASROUTE);
+        sslog_node_populate(node, route_individual);
 
-        if (process_request(request_individual, out_points_count, out_points_pairs)) {
-            *data = (void*) request_individual;
+        if (process_request(route_individual, out_points_count, out_points_pairs)) {
+            *data = route_individual;
             return true;
         }
     }
@@ -127,6 +125,46 @@ bool wait_subscription(int* out_points_count, double** out_points_pairs, void** 
     return false;
 }
 
-void publish(int points_count, double* points_pairs, void* data) {
+void publish(int points_count, double* points_pairs, const char* roadType, void* data) {
+    int movements_count = points_count - 1;
 
+    sslog_individual_t* route_individual = data;
+
+    sslog_individual_t* point_individuals[points_count];
+    sslog_individual_t* movement_individuals[movements_count];
+
+    for (int i = 0; i < points_count; i++) {
+        double lat = points_pairs[2 * i];
+        double lon = points_pairs[2 * i + 1];
+
+        sslog_individual_t* location_individual = sslog_new_individual(CLASS_LOCATION, rand_uuid("response_location"));
+        sslog_insert_property(location_individual, PROPERTY_LAT, double_to_string(lat));
+        sslog_insert_property(location_individual, PROPERTY_LONG, double_to_string(lon));
+        sslog_node_insert_individual(node, location_individual);
+
+        point_individuals[i] = sslog_new_individual(CLASS_POINT, rand_uuid("response_point"));
+        sslog_insert_property(point_individuals[i], PROPERTY_HASLOCATION, location_individual);
+        sslog_node_insert_individual(node, point_individuals[i]);
+    }
+
+    for (int i = 1; i < points_count; i++) {
+        // These points already in smartspace
+        sslog_individual_t* point1 = point_individuals[i - 1];
+        sslog_individual_t* point2 = point_individuals[i];
+
+        sslog_individual_t* movement = sslog_new_individual(CLASS_MOVEMENT, rand_uuid("movement"));
+        sslog_insert_property(movement, PROPERTY_ISSTARTPOINT, point1);
+        sslog_insert_property(movement, PROPERTY_ISENDPOINT, point2);
+        sslog_insert_property(movement, PROPERTY_USEROAD, (void*) roadType);
+
+        sslog_node_insert_individual(node, movement);
+
+        sslog_node_insert_property(node, route_individual, PROPERTY_HASMOVEMENT, movement);
+
+        movement_individuals[i] = movement;
+    }
+
+    if (movements_count > 1) {
+        sslog_node_insert_property(node, route_individual, PROPERTY_HASSTARTMOVEMENT, movement_individuals[0]);
+    }
 }

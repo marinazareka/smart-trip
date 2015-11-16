@@ -37,7 +37,13 @@ public class TransportKP {
 		log.info("Received request {}", request.getId());
 
 		Point[] points = processRequest(request);
-		smartSpace.publish(new RouteResponse(points, request.getId()));
+
+		// TODO: handle empty request
+		for (Point point : points) {
+			log.debug("Point " + point);
+		}
+
+		smartSpace.publish(new RouteResponse(points, "foot", request.getId()));
 		return true;
 	}
 

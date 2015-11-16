@@ -13,14 +13,7 @@ static volatile bool cont = true;
 
 static void publish_point(sslog_node_t* node, sslog_individual_t* request_individual, double lat, double lon) {
     printf("Inserting point %lf %lf\n", lat, lon);
-
-    CLEANUP_INDIVIDUAL sslog_individual_t* point_individual = sslog_new_individual(CLASS_POINT, rand_uuid("point"));
-
-    sslog_insert_property(point_individual, PROPERTY_LAT, double_to_string(lat));
-    sslog_insert_property(point_individual, PROPERTY_LONG, double_to_string(lon));
-
-    sslog_node_insert_individual(node, point_individual);
-
+    sslog_individual_t* point_individual = create_point_individual(node, lat, lon);
     sslog_node_insert_property(node, request_individual, PROPERTY_HASPOINT, point_individual);
 }
 

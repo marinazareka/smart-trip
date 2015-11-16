@@ -56,6 +56,9 @@ static sslog_individual_t* publish_search_request(sslog_node_t* node, sslog_indi
 
 static bool process_subscription_result(sslog_node_t* node, sslog_individual_t* request_individual) {
     sslog_individual_t* schedule_individual = sslog_new_individual(CLASS_SCHEDULE, rand_uuid("schedule"));
+    sslog_individual_t* route_individual = sslog_new_individual(CLASS_ROUTE, rand_uuid("route"));
+
+    sslog_insert_property(schedule_individual, PROPERTY_HASROUTE, route_individual);
 
     list_t* inserted_individuals = sslog_get_properties(request_individual, PROPERTY_HASPOINT);
 
@@ -66,24 +69,26 @@ static bool process_subscription_result(sslog_node_t* node, sslog_individual_t* 
         sslog_individual_t* point_individual = (sslog_individual_t*) entry->data;
         sslog_node_populate(node, point_individual);
 
-        double lat = parse_double(sslog_get_property(point_individual, PROPERTY_LAT));
-        double lon = parse_double(sslog_get_property(point_individual, PROPERTY_LONG));
+        double lat, lon;
+        get_point_coordinates(node, point_individual, &lat, &lon); 
 
         printf("%d: Found point %lf %lf\n", counter, lat, lon);
 
-        sslog_individual_t* point2 = sslog_new_individual(CLASS_POINT, rand_uuid("route_point"));
+        /*sslog_individual_t* point2 = sslog_new_individual(CLASS_POINT, rand_uuid("route_point"));
         sslog_insert_property(point2, PROPERTY_LAT, double_to_string(lat));
         sslog_insert_property(point2, PROPERTY_LONG, double_to_string(lon));
 
         sslog_node_insert_individual(node, point2);
-
-        sslog_insert_property(schedule_individual, PROPERTY_HASPOINT, point2);
+        */
+        // Reuse previous point
+        sslog_insert_property(route_individual, PROPERTY_HASPOINT, point_individual);
 
         counter++;
     }
 
     list_free(inserted_individuals);
 
+    sslog_node_insert_individual(node, route_individual);
     sslog_node_insert_individual(node, schedule_individual);
 
     return true;

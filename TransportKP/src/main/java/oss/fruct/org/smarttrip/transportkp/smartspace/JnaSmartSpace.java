@@ -23,7 +23,7 @@ public class JnaSmartSpace implements SmartSpace {
 		void unsubscribe();
 
 		boolean wait_subscription(IntByReference out_points_count, PointerByReference out_points_pairs, PointerByReference data);
-		void publish(int points_count, double[] points_pairs, Pointer data);
+		void publish(int points_count, double[] points_pairs, String roadType, Pointer data);
 
 		// From libc
 		void free(Pointer pointer);
@@ -91,6 +91,6 @@ public class JnaSmartSpace implements SmartSpace {
 			pointPairs[c++] = point.getLon();
 		}
 
-		lib.publish(response.getRoute().length, pointPairs, (Pointer) response.getRequestTag());
+		lib.publish(response.getRoute().length, pointPairs, response.getRoadType(), (Pointer) response.getRequestTag());
 	}
 }
