@@ -117,7 +117,7 @@
     <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasMovement">
         <rdfs:comment>Маршрут состоит из передвижений</rdfs:comment>
         <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Movement"/>
-        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Schedule"/>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Route"/>
     </owl:ObjectProperty>
     
 
@@ -135,7 +135,14 @@
 
     <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasPoint">
         <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Point"/>
-        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#SearchRequest"/>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Route"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#SearchRequest"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
     </owl:ObjectProperty>
     
 
@@ -145,6 +152,15 @@
     <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasPreferencesPOI">
         <rdfs:range rdf:resource="http://oss.fruct.org/etourism#POI"/>
         <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#User"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#hasRoute -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasRoute">
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Route"/>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Schedule"/>
     </owl:ObjectProperty>
     
 
