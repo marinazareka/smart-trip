@@ -140,6 +140,7 @@ void publish(int points_count, double* points_pairs, const char* roadType, void*
         point_individuals[i] = create_point_individual(node, lat, lon);
     }
 
+    sslog_individual_t* previous_movement = NULL;
     for (int i = 1; i < points_count; i++) {
         // These points already in smartspace
         sslog_individual_t* point1 = point_individuals[i - 1];
@@ -149,12 +150,16 @@ void publish(int points_count, double* points_pairs, const char* roadType, void*
         sslog_insert_property(movement, PROPERTY_ISSTARTPOINT, point1);
         sslog_insert_property(movement, PROPERTY_ISENDPOINT, point2);
         sslog_insert_property(movement, PROPERTY_USEROAD, (void*) roadType);
+        if (previous_movement != NULL) {
+            sslog_insert_property(previous_movement, PROPERTY_HASNEXTMOVEMENT, movement);
+        }
 
         sslog_node_insert_individual(node, movement);
 
         sslog_node_insert_property(node, route_individual, PROPERTY_HASMOVEMENT, movement);
 
         movement_individuals[i - 1] = movement;
+        previous_movement = movement;
     }
 
     if (movements_count > 0) {
