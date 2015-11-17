@@ -76,7 +76,7 @@ public class JnaSmartSpace implements SmartSpace {
 			points[i] = new Point(pointPairs[i * 2], pointPairs[i * 2 + 1]);
 		}
 
-		lib.free(array.getPointer());
+		lib.free(array.getValue());
 
 		return new RouteRequest(data.getValue(), points);
 	}

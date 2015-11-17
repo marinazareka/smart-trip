@@ -87,7 +87,7 @@ static bool process_request(sslog_individual_t* request, int* out_points_count, 
         points_array[c + 1] = lon;
         c += 2;
 
-        sslog_remove_individual(point_individual);
+        //sslog_remove_individual(point_individual);
     }
 
     *out_points_count = count;
@@ -137,14 +137,7 @@ void publish(int points_count, double* points_pairs, const char* roadType, void*
         double lat = points_pairs[2 * i];
         double lon = points_pairs[2 * i + 1];
 
-        sslog_individual_t* location_individual = sslog_new_individual(CLASS_LOCATION, rand_uuid("response_location"));
-        sslog_insert_property(location_individual, PROPERTY_LAT, double_to_string(lat));
-        sslog_insert_property(location_individual, PROPERTY_LONG, double_to_string(lon));
-        sslog_node_insert_individual(node, location_individual);
-
-        point_individuals[i] = sslog_new_individual(CLASS_POINT, rand_uuid("response_point"));
-        sslog_insert_property(point_individuals[i], PROPERTY_HASLOCATION, location_individual);
-        sslog_node_insert_individual(node, point_individuals[i]);
+        point_individuals[i] = create_point_individual(node, lat, lon);
     }
 
     for (int i = 1; i < points_count; i++) {
@@ -161,10 +154,10 @@ void publish(int points_count, double* points_pairs, const char* roadType, void*
 
         sslog_node_insert_property(node, route_individual, PROPERTY_HASMOVEMENT, movement);
 
-        movement_individuals[i] = movement;
+        movement_individuals[i - 1] = movement;
     }
 
-    if (movements_count > 1) {
+    if (movements_count > 0) {
         sslog_node_insert_property(node, route_individual, PROPERTY_HASSTARTMOVEMENT, movement_individuals[0]);
     }
 }
