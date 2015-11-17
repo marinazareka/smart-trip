@@ -3,10 +3,10 @@ SmartM3 KPs for tourist route planning
 
 ## Сборка
 ### Зависимости
-JDK 8
-scew (http://www.nongnu.org/scew/)
-ckpi 0.31alpha (http://sourceforge.net/projects/smartslog/files/ANSI-C_KPI/)
-smartslog_dapi (Instruction.zip)
+* JDK 8
+* scew (http://www.nongnu.org/scew/)
+* ckpi 0.31alpha (http://sourceforge.net/projects/smartslog/files/ANSI-C_KPI/)
+* smartslog_dapi (Instruction.zip)
 
 ### Сгенерировать онтологию
 ```bash
@@ -30,4 +30,16 @@ mkdir -p src/main/resources/linux-x86-64
 cp ../build/transport-kp-native/libtransport_kp.so src/main/resources/linux-x86-64
 ./gradlew shadowJar
 ```
-TransportKP-all.jar в каталоге build/libs
+
+### Запуск TransportKP
+```bash
+cd TransportKP/build/libs
+java -jar TransportKP-all.jar -f ~/osm/RU-KR.osm.pbf -t /tmp/gh -a 127.0.0.1 -p 10010 -n X
+```
+
+Параметры:
+* f - файл карты в формате .osm.pbf
+* t - рабочая директория для graphhopper'а
+* a - ip-адрес SIB'а
+* p - порт SIB'а
+* n - id smartspace'а
