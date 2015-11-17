@@ -122,6 +122,15 @@
     
 
 
+    <!-- http://oss.fruct.org/etourism#hasNextMovement -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasNextMovement">
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Movement"/>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Movement"/>
+    </owl:ObjectProperty>
+    
+
+
     <!-- http://oss.fruct.org/etourism#hasPhoto -->
 
     <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasPhoto">
