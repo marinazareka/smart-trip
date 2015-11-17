@@ -43,3 +43,18 @@ java -jar TransportKP-all.jar -f ~/osm/RU-KR.osm.pbf -t /tmp/gh -a 127.0.0.1 -p 
 * a - ip-адрес SIB'а
 * p - порт SIB'а
 * n - id smartspace'а
+
+### Работа с TransportKP
+
+Запрос передается в следующем виде:
+* Координаты точек хранятся в объектах Location (свойства lat и long)
+* Объект Point ссылается на объект Location через свойство hasLocation
+* Запрос передается в виде объекта Schedule
+* Schedule ссылается на Route через свойство hasRoute
+* Route содержит набор точек, для которых требуется найти маршрут (свойство hasPoint)
+
+Результат запроса:
+* Отрезки пути сохраняются в виде объектов Movement со свойствами hasStartPoint и hasEndPoint
+* Movement'ы добавляются к Route в виде свойства hasMovement
+* Все Movement'ы кроме первого, имеют свойство hasNextMovement, указывающее на следующий отрезок в маршруте
+* Первый Movement добавляется к Route в виде свойства hasStartMovement
