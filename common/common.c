@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include <glib.h>
+
 #include "ontology.h"
 
 #define BUFSIZE 500
@@ -77,4 +79,25 @@ bool get_point_coordinates(sslog_node_t* node, sslog_individual_t* point, double
    *out_lon = parse_double((const char*) sslog_get_property(location, PROPERTY_LONG));
 
    return true;
+}
+
+sslog_node_t* create_node(const char* kp_name, const char* config) {
+    GKeyFile* keyfile = g_key_file_new();
+
+    if (!g_key_file_load_from_file(keyfile, config, G_KEY_FILE_NONE, NULL)) {
+       fprintf(stderr, "Can't load settings file %s\n", config);
+       return NULL;
+    }
+
+    char* address = g_key_file_get_string(keyfile, "SIB", "Address", NULL);
+    char* name = g_key_file_get_string(keyfile, "SIB", "Name", NULL);
+    int port = (int) g_key_file_get_integer(keyfile, "SIB", "Port", NULL);
+
+    sslog_node_t* ret = sslog_new_node(kp_name, name, address, port);
+
+    g_free(address);
+    g_free(name);
+    g_key_file_free(keyfile);
+
+    return ret;
 }

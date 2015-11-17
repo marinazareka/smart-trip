@@ -126,7 +126,7 @@ int main() {
 	sslog_init();
     register_ontology();
 
-	sslog_node_t* node = sslog_new_node("user_kp", "X", "127.0.0.1", 10010);
+	sslog_node_t* node = create_node("user_kp", "config.ini");
 	if (sslog_node_join(node) != SSLOG_ERROR_NO) {
 		fprintf(stderr, "Can't join node\n");
 		return 1;
