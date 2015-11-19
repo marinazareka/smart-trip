@@ -25,4 +25,16 @@ bool get_point_coordinates(sslog_node_t* node, sslog_individual_t* point, double
 
 sslog_node_t* create_node(const char* kp_name, const char* config);
 
+
+typedef struct  {
+    size_t capacity;
+    size_t size;
+    void** array;
+} PtrArray;
+
+void ptr_array_init(PtrArray* array);
+void ptr_array_insert(PtrArray* array, void* ptr);
+void* ptr_array_remove_last(PtrArray* array);
+void ptr_array_free(PtrArray* array);
+
 #endif

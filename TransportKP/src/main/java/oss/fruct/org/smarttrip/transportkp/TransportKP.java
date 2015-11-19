@@ -34,6 +34,10 @@ public class TransportKP {
 	private boolean process() {
 		log.info("Waiting subscription");
 		RouteRequest request = smartSpace.waitSubscription();
+		if (request == null) {
+			return true;
+		}
+
 		log.info("Received request {}", request.getId());
 
 		Point[] points = processRequest(request);

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <assert.h>
 
 #include <glib.h>
 
@@ -13,7 +14,16 @@
 static unsigned short rand_state[3];
 
 void init_rand() {
-    rand_state[0] = rand_state[1] = rand_state[2] = time(NULL);
+    FILE* urandom = fopen("/dev/urandom", "r");
+    if (urandom == NULL) {
+        fprintf(stderr, "Can't read random seed from /dev/urandom\n");
+        rand_state[0] = rand_state[1] = rand_state[2] = time(NULL);
+        return;
+    }
+
+    fread(rand_state, sizeof(unsigned short), 3, urandom);
+
+    fclose(urandom);
 }
 
 char* rand_uuid(const char* prefix) {
@@ -100,4 +110,31 @@ sslog_node_t* create_node(const char* kp_name, const char* config) {
     g_key_file_free(keyfile);
 
     return ret;
+}
+ 
+void ptr_array_init(PtrArray* array) {
+    array->size = 0;
+    array->capacity = 1;
+    array->array = malloc(sizeof(void*));
+}
+
+void ptr_array_insert(PtrArray* array, void* ptr) {
+    if (array->size == array->capacity) {
+        array->capacity *= 2;
+        array->array = realloc(array->array, array->capacity * sizeof(void*));
+        if (array->array == NULL) {
+            abort();
+        }
+    }
+
+    array->array[array->size++] = ptr;
+}
+
+void* ptr_array_remove_last(PtrArray* array) {
+    assert(array->size > 0);
+    return array->array[--array->size];
+}
+
+void ptr_array_free(PtrArray* array) {
+    free(array->array);
 }

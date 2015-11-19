@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <locale.h>
+#include <pthread.h>
 
 #include <smartslog.h>
 
@@ -21,6 +22,16 @@ void publish(int points_count, double* points_pairs, const char* roadType, void*
 static sslog_node_t* node;
 static sslog_subscription_t* sub;
 
+static PtrArray requests_array;
+static pthread_mutex_t requests_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t requests_cond = PTHREAD_COND_INITIALIZER;
+
+typedef struct {
+    int count;
+    double* points;
+    void* extra;
+} RequestData;
+
 // Implementations
 bool init(const char* name, const char* smartspace, const char* address, int port) {
     setlocale(LC_NUMERIC, "C");
@@ -37,41 +48,20 @@ bool init(const char* name, const char* smartspace, const char* address, int por
     }
 }
 
-
 void shutdown() {
     sslog_node_leave(node);
     sslog_shutdown();
 }
 
-bool subscribe() {
-    sub = sslog_new_subscription(node, false);
-    
-    sslog_sbcr_add_class(sub, CLASS_SCHEDULE);
-    
-    // Ignore existing data, only process new schedule requests
-    if (sslog_sbcr_subscribe(sub) != SSLOG_ERROR_NO) {
-        return false;
-    } else {
-        return true;
-    }
-}
-
-void unsubscribe() {
-    sslog_sbcr_stop(sub);
-    sslog_sbcr_unsubscribe(sub);
-    sslog_free_subscription(sub);
-    sub = NULL;
-}
-
-static bool process_request(sslog_individual_t* request, int* out_points_count, double** out_points_pairs) {
+static RequestData* process_request(sslog_individual_t* route) {
     fprintf(stderr, "process_request\n");
-    list_t* points = sslog_get_properties(request, PROPERTY_HASPOINT);
+    list_t* points = sslog_get_properties(route, PROPERTY_HASPOINT);
 
+    RequestData* request_data = malloc(sizeof(RequestData));
     int count = list_count(points);
     double* points_array = malloc(count * 2 * sizeof(double));
     
     int c = 0;
-
     list_head_t* iter;
     list_for_each(iter, &points->links) {
         list_t* entry = list_entry(iter, list_t, links);
@@ -86,27 +76,22 @@ static bool process_request(sslog_individual_t* request, int* out_points_count, 
         points_array[c] = lat;
         points_array[c + 1] = lon;
         c += 2;
-
-        //sslog_remove_individual(point_individual);
     }
 
-    *out_points_count = count;
-    *out_points_pairs = points_array;
+    request_data->extra = route;
+    request_data->points = points_array;
+    request_data->count = count;
 
-    return true;
+    return request_data;
 }
 
-// TODO: this method processes only first request
-bool wait_subscription(int* out_points_count, double** out_points_pairs, void** data) {
-    if (sslog_sbcr_wait(sub) != SSLOG_ERROR_NO) {
-        return false;
-    }
+static void subscription_handler(sslog_subscription_t* sub) {
+    fprintf(stderr, "Subscription received\n");
+    pthread_mutex_lock(&requests_mutex);
 
-    fprintf(stderr, "Wait completed\n");
     sslog_sbcr_changes_t* changes = sslog_sbcr_get_changes_last(sub);
     const list_t* inserted_list = sslog_sbcr_ch_get_individual_by_action(changes, SSLOG_ACTION_INSERT);
 
-    fprintf(stderr, "Changes loaded\n");
     list_head_t* iter;
     list_for_each(iter, &inserted_list->links) {
         list_t* entry = list_entry(iter, list_t, links);
@@ -114,15 +99,79 @@ bool wait_subscription(int* out_points_count, double** out_points_pairs, void** 
         sslog_individual_t* request_individual = sslog_new_individual(CLASS_SCHEDULE, request_individual_id);
         sslog_individual_t* route_individual 
             = (sslog_individual_t*) sslog_node_get_property(node, request_individual, PROPERTY_HASROUTE);
+
+        if (route_individual == NULL) {
+            fprintf(stderr, "Received null route individual. Skipping\n");
+        }
+
         sslog_node_populate(node, route_individual);
 
-        if (process_request(route_individual, out_points_count, out_points_pairs)) {
-            *data = route_individual;
-            return true;
+        RequestData* request_data = process_request(route_individual);
+        if (request_data == NULL) {
+            continue;
         }
+        ptr_array_insert(&requests_array, request_data);
     }
 
-    return false;
+    pthread_mutex_unlock(&requests_mutex);
+
+    pthread_cond_signal(&requests_cond);
+}
+
+bool subscribe() {
+    sub = sslog_new_subscription(node, true);
+    sslog_sbcr_set_changed_handler(sub, &subscription_handler);
+    
+    sslog_sbcr_add_class(sub, CLASS_SCHEDULE);
+    
+    ptr_array_init(&requests_array);
+    // Ignore existing data, only process new schedule requests
+    if (sslog_sbcr_subscribe(sub) != SSLOG_ERROR_NO) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+void unsubscribe() {
+    sslog_sbcr_stop(sub);
+    sslog_sbcr_unsubscribe(sub);
+    sslog_free_subscription(sub);
+    ptr_array_free(&requests_array);
+    sub = NULL;
+}
+
+static RequestData* find_last_processed() {
+    if (requests_array.size == 0)
+        return false;
+
+    RequestData* request_data = ptr_array_remove_last(&requests_array);
+    return request_data;
+}
+
+bool wait_subscription(int* out_points_count, double** out_points_pairs, void** data) {
+    pthread_mutex_lock(&requests_mutex);
+
+    RequestData* request_data = find_last_processed();
+    if (request_data == NULL) {
+        fprintf(stderr, "Waiting for request\n");
+        pthread_cond_wait(&requests_cond, &requests_mutex);
+        request_data = find_last_processed();
+    }
+
+    if (request_data == NULL) {
+        pthread_mutex_unlock(&requests_mutex);
+        return false;
+    }
+
+    *out_points_count = request_data->count;
+    *out_points_pairs = request_data->points;
+    *data = request_data->extra;
+
+    free(request_data);
+
+    pthread_mutex_unlock(&requests_mutex);
+    return true;
 }
 
 void publish(int points_count, double* points_pairs, const char* roadType, void* data) {
