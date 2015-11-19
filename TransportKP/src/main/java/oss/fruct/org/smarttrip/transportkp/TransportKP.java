@@ -40,7 +40,7 @@ public class TransportKP {
 
 		// TODO: handle empty request
 		for (Point point : points) {
-			log.debug("Point " + point);
+			log.debug(point.getLat() + " " + point.getLon());
 		}
 
 		smartSpace.publish(new RouteResponse(points, "foot", request.getId()));

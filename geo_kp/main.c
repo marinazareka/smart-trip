@@ -11,6 +11,22 @@
 
 static volatile bool cont = true;
 
+static double TEST_POINTS[] = {
+    61.78464963754708,34.34697389602661,
+    61.787351, 34.354369,
+    61.787026, 34.365269,
+    61.787859, 34.375612,
+    61.792167, 34.369475,
+    61.783023, 34.360334,
+    61.78734806396082,34.34877634048462,
+    61.78857546526346,34.3526816368103,
+    61.783696001642575,34.35381889343262,
+    61.78598873590156,34.36145782470703,
+    61.77894767194888,34.376220703125,
+    61.773589701610355,34.35892581939697,
+    61.78779439737812,34.37544822692871
+};
+
 static void publish_point(sslog_node_t* node, sslog_individual_t* request_individual, double lat, double lon) {
     printf("Inserting point %lf %lf\n", lat, lon);
     sslog_individual_t* point_individual = create_point_individual(node, lat, lon);
@@ -18,11 +34,10 @@ static void publish_point(sslog_node_t* node, sslog_individual_t* request_indivi
 }
 
 static void find_and_publish_points(sslog_node_t* node, sslog_individual_t* request_individual, double lat, double lon) {
-    publish_point(node, request_individual, 61.787351, 34.354369);
-    publish_point(node, request_individual, 61.787026, 34.365269);
-    publish_point(node, request_individual, 61.787859, 34.375612);
-    publish_point(node, request_individual, 61.792167, 34.369475);
-    publish_point(node, request_individual, 61.783023, 34.360334);
+    for (unsigned i = 0; i < (sizeof(TEST_POINTS) / sizeof(double)) / 2; i++) {
+        publish_point(node, request_individual, TEST_POINTS[2 * i], TEST_POINTS[2 * i + 1]);
+    }
+
 
     sslog_node_insert_property(node, request_individual, PROPERTY_PROCESSED, long_to_string(time(NULL)));
 }
