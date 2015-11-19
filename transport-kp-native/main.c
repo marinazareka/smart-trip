@@ -56,6 +56,11 @@ void shutdown() {
 static RequestData* process_request(sslog_individual_t* route) {
     fprintf(stderr, "process_request\n");
     list_t* points = sslog_get_properties(route, PROPERTY_HASPOINT);
+    
+    if (points == NULL) {
+        fprintf(stderr, "Route received but has no points\n");
+        return NULL;
+    }
 
     RequestData* request_data = malloc(sizeof(RequestData));
     int count = list_count(points);
