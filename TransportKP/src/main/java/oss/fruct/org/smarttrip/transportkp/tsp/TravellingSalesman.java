@@ -18,7 +18,9 @@ public class TravellingSalesman {
 	}
 
 	public Point[] findPath() {
-		Graph graph = Graph.generate(graphHopper, points);
+		long startTime = System.currentTimeMillis();
+		Graph graph = Graph.generateFast(graphHopper, points);
+		log.debug("Graph generation took " + (System.currentTimeMillis() - startTime));
 
 		double initialTemp = 1000;
 		State initialState = new State(graph, 0, points.length - 1);
@@ -33,7 +35,7 @@ public class TravellingSalesman {
 		annealing.start();
 
 		while (annealing.iter()) {
-			log.debug("Energy={}", annealing.getStateEnergy());
+			log.trace("Energy={}", annealing.getStateEnergy());
 		}
 
 		log.info("State energy {}", annealing.getStateEnergy());
