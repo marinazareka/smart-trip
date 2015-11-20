@@ -180,6 +180,7 @@ bool wait_subscription(int* out_points_count, double** out_points_pairs, void** 
 }
 
 void publish(int points_count, double* points_pairs, const char* roadType, void* data) {
+    pthread_mutex_lock(&requests_mutex);
     int movements_count = points_count - 1;
 
     sslog_individual_t* route_individual = data;
@@ -219,4 +220,6 @@ void publish(int points_count, double* points_pairs, const char* roadType, void*
     if (movements_count > 0) {
         sslog_node_insert_property(node, route_individual, PROPERTY_HASSTARTMOVEMENT, movement_individuals[0]);
     }
+
+    pthread_mutex_unlock(&requests_mutex);
 }
