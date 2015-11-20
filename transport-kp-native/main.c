@@ -41,7 +41,7 @@ bool init(const char* name, const char* smartspace, const char* address, int por
 
     node = create_node_resolve(name, smartspace, address, port);
 
-    if (sslog_node_join(node) != SSLOG_ERROR_NO) {
+    if (node == NULL || sslog_node_join(node) != SSLOG_ERROR_NO) {
         return false;
     } else {
         return true;
