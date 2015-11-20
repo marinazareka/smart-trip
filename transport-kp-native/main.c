@@ -39,7 +39,7 @@ bool init(const char* name, const char* smartspace, const char* address, int por
     sslog_init();
     register_ontology();
 
-    node = sslog_new_node(name, smartspace, address, port);
+    node = create_node_resolve(name, smartspace, address, port);
 
     if (sslog_node_join(node) != SSLOG_ERROR_NO) {
         return false;

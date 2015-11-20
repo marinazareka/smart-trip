@@ -26,7 +26,7 @@ public class TransportKP {
 		}
 
 		if (!smartSpace.subscribe()) {
-			throw new RuntimeException("Can't subscribe to schedule requestgi");
+			throw new RuntimeException("Can't subscribe to schedule request");
 		}
 
 		while(process())

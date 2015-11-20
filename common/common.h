@@ -24,7 +24,7 @@ sslog_individual_t* create_point_individual(sslog_node_t* node,  double lat, dou
 bool get_point_coordinates(sslog_node_t* node, sslog_individual_t* point, double* out_lat, double* out_lon);
 
 sslog_node_t* create_node(const char* kp_name, const char* config);
-
+sslog_node_t* create_node_resolve(const char* name, const char* smartspace, const char* address, int port);
 
 typedef struct  {
     size_t capacity;

@@ -7,6 +7,11 @@
 
 #include <glib.h>
 
+#include <netdb.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
 #include "ontology.h"
 
 #define BUFSIZE 500
@@ -103,13 +108,55 @@ sslog_node_t* create_node(const char* kp_name, const char* config) {
     char* name = g_key_file_get_string(keyfile, "SIB", "Name", NULL);
     int port = (int) g_key_file_get_integer(keyfile, "SIB", "Port", NULL);
 
-    sslog_node_t* ret = sslog_new_node(kp_name, name, address, port);
+    sslog_node_t* ret = create_node_resolve(kp_name, name, address, port);
 
     g_free(address);
     g_free(name);
     g_key_file_free(keyfile);
 
     return ret;
+}
+
+sslog_node_t* create_node_resolve(const char* name, const char* smartspace, const char* address, int port) {
+    // Check if address is already IP4 address
+    struct in_addr addr;
+    if (inet_aton(address, &addr) == 1) {
+        fprintf(stderr, "Address %s doesn't require resolving\n", address);
+        return sslog_new_node(name, smartspace, address, port);
+    }
+    
+    struct addrinfo* addrinfo = NULL;
+    
+    if (getaddrinfo(address, NULL, NULL, &addrinfo) != 0) {
+        perror("getaddrinfo");
+        return NULL;
+    }
+
+    if (addrinfo == NULL) {
+        fprintf(stderr, "Can't resolve address %s\n", address);
+        return NULL;
+    }
+
+    struct sockaddr_in* found_address = NULL;
+    struct addrinfo* addr_ptr;
+    for (addr_ptr = addrinfo; addr_ptr != NULL; addr_ptr = addr_ptr->ai_next) {
+        if (addr_ptr->ai_family == AF_INET) {
+            found_address = (struct sockaddr_in*) addr_ptr->ai_addr;
+            break;
+        }
+    }
+
+    sslog_node_t* node = NULL; 
+
+    if (found_address != NULL) {
+        char* ip_str = inet_ntoa(found_address->sin_addr);
+        node = sslog_new_node(name, smartspace, ip_str, port);
+        fprintf(stderr, "Address %s resolved to %s\n", address, ip_str);
+    }
+
+    freeaddrinfo(addrinfo);
+
+    return node;
 }
  
 void ptr_array_init(PtrArray* array) {
