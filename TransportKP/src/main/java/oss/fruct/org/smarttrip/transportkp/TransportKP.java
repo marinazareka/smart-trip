@@ -21,8 +21,13 @@ public class TransportKP {
 	}
 
 	public void start() {
-		smartSpace.init();
-		smartSpace.subscribe();
+		if (!smartSpace.init()) {
+			throw new RuntimeException("Can't connect to smartspace");
+		}
+
+		if (!smartSpace.subscribe()) {
+			throw new RuntimeException("Can't subscribe to schedule requestgi");
+		}
 
 		while(process())
 			;
