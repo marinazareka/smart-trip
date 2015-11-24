@@ -2,7 +2,7 @@ package org.fruct.oss.tsp.model;
 
 import java.util.List;
 
-public interface TripModel {
+public interface GeoModel {
 	void registerListener(Listener listener);
 	void unregisterListener(Listener listener);
 
@@ -21,7 +21,7 @@ public interface TripModel {
 		void pointsUpdated(List<PointModel> points);
 	}
 
-	public class PointModel {
+	class PointModel {
 		public boolean isChecked;
 		public Point point;
 	}

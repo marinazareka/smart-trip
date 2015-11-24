@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public abstract class AbstractTripModel implements TripModel {
+public abstract class AbstractGeoModel implements GeoModel {
 	private CopyOnWriteArraySet<Listener> listeners = new CopyOnWriteArraySet<>();
 
 	private List<PointModel> shownPoints = new ArrayList<>();

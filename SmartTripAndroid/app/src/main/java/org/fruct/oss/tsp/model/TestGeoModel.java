@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class TestTripModel extends AbstractTripModel {
+public class TestGeoModel extends AbstractGeoModel {
 	private List<Point> pointsSource = new ArrayList<>();
 	private Random random = new Random();
 
@@ -20,7 +20,7 @@ public class TestTripModel extends AbstractTripModel {
 		}
 	};
 
-	public TestTripModel() {
+	public TestGeoModel() {
 		handler = new Handler(Looper.getMainLooper());
 		refreshPoints();
 	}

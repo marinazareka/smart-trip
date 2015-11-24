@@ -13,8 +13,8 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import org.fruct.oss.tsp.R;
-import org.fruct.oss.tsp.model.TestTripModel;
-import org.fruct.oss.tsp.model.TripModel;
+import org.fruct.oss.tsp.model.TestGeoModel;
+import org.fruct.oss.tsp.model.GeoModel;
 
 import java.util.List;
 
@@ -22,13 +22,13 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 
-public class PointListFragment extends Fragment implements TripModel.Listener {
+public class PointListFragment extends Fragment implements GeoModel.Listener {
 	private static final String TAG = "PointListFragment";
 
 	@Bind(R.id.recycler_view)
 	RecyclerView recyclerView;
 
-	private TripModel tripModel;
+	private GeoModel geoModel;
 	private PointsAdapter adapter;
 
 	@Override
@@ -39,7 +39,7 @@ public class PointListFragment extends Fragment implements TripModel.Listener {
 	}
 
 	private void createTripModel() {
-		tripModel = new TestTripModel();
+		geoModel = new TestGeoModel();
 	}
 
 	@Nullable
@@ -54,14 +54,14 @@ public class PointListFragment extends Fragment implements TripModel.Listener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		tripModel.start();
-		tripModel.registerListener(this);
+		geoModel.start();
+		geoModel.registerListener(this);
 	}
 
 	@Override
 	public void onPause() {
-		tripModel.unregisterListener(this);
-		tripModel.stop();
+		geoModel.unregisterListener(this);
+		geoModel.stop();
 		super.onPause();
 	}
 
@@ -74,7 +74,7 @@ public class PointListFragment extends Fragment implements TripModel.Listener {
 	}
 
 	@Override
-	public void pointsUpdated(List<TripModel.PointModel> points) {
+	public void pointsUpdated(List<GeoModel.PointModel> points) {
 		adapter.notifyDataSetChanged();
 	}
 
@@ -87,12 +87,12 @@ public class PointListFragment extends Fragment implements TripModel.Listener {
 
 		@Override
 		public void onBindViewHolder(PointsAdapter.Holder holder, int position) {
-			holder.bind(position, tripModel.getPoints().get(position));
+			holder.bind(position, geoModel.getPoints().get(position));
 		}
 
 		@Override
 		public int getItemCount() {
-			return tripModel.getPoints().size();
+			return geoModel.getPoints().size();
 		}
 
 		class Holder extends RecyclerView.ViewHolder {
@@ -102,7 +102,7 @@ public class PointListFragment extends Fragment implements TripModel.Listener {
 			@Bind(R.id.check_box)
 			CheckBox checkBox;
 
-			TripModel.PointModel pointModel;
+			GeoModel.PointModel pointModel;
 			int position;
 
 			public Holder(View itemView) {
@@ -110,7 +110,7 @@ public class PointListFragment extends Fragment implements TripModel.Listener {
 				ButterKnife.bind(this, itemView);
 			}
 
-			public void bind(int position, TripModel.PointModel pointModel) {
+			public void bind(int position, GeoModel.PointModel pointModel) {
 				this.pointModel = pointModel;
 				this.position = position;
 				textView.setText(pointModel.point.getTitle());
@@ -120,7 +120,7 @@ public class PointListFragment extends Fragment implements TripModel.Listener {
 			@OnCheckedChanged(R.id.check_box)
 			void onCheckBoxChecked(boolean checked) {
 				Log.d(TAG, "Checked");
-				tripModel.setCheckedState(position, checked);
+				geoModel.setCheckedState(position, checked);
 			}
 		}
 	}
