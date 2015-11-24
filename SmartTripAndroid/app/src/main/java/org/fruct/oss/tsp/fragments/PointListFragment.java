@@ -12,14 +12,32 @@ import android.widget.TextView;
 
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.model.Point;
+import org.fruct.oss.tsp.model.TestTripModel;
+import org.fruct.oss.tsp.model.TripModel;
 import org.fruct.oss.tsp.smartslognative.NativeTest;
+
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class PointListFragment extends Fragment {
+public class PointListFragment extends Fragment implements TripModel.Listener {
 	@Bind(R.id.recycler_view)
 	RecyclerView recyclerView;
+
+	private TripModel tripModel;
+	private PointsAdapter adapter;
+
+	@Override
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		createTripModel();
+	}
+
+	private void createTripModel() {
+		tripModel = new TestTripModel();
+	}
 
 	@Nullable
 	@Override
@@ -30,16 +48,34 @@ public class PointListFragment extends Fragment {
 		return view;
 	}
 
+	@Override
+	public void onResume() {
+		super.onResume();
+		tripModel.start();
+		tripModel.registerListener(this);
+	}
+
+	@Override
+	public void onPause() {
+		tripModel.unregisterListener(this);
+		tripModel.stop();
+		super.onPause();
+	}
+
 	private void setupRecyclerView() {
 		recyclerView.setHasFixedSize(true);
 		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
 				LinearLayoutManager.VERTICAL, false));
 
-		recyclerView.setAdapter(new PointsAdapter());
+		recyclerView.setAdapter(adapter = new PointsAdapter());
 	}
 
+	@Override
+	public void pointsUpdated(List<Point> points) {
+		adapter.notifyDataSetChanged();
+	}
 
-	static class PointsAdapter extends RecyclerView.Adapter<PointsAdapter.Holder> {
+	class PointsAdapter extends RecyclerView.Adapter<PointsAdapter.Holder> {
 		@Override
 		public PointsAdapter.Holder onCreateViewHolder(ViewGroup parent, int viewType) {
 			return new Holder(LayoutInflater.from(parent.getContext())
@@ -48,12 +84,12 @@ public class PointListFragment extends Fragment {
 
 		@Override
 		public void onBindViewHolder(PointsAdapter.Holder holder, int position) {
-			holder.bind(new Point(Math.random(), Math.random()));
+			holder.bind(tripModel.getPoints().get(position));
 		}
 
 		@Override
 		public int getItemCount() {
-			return 100500;
+			return tripModel.getPoints().size();
 		}
 
 		class Holder extends RecyclerView.ViewHolder {
@@ -66,7 +102,7 @@ public class PointListFragment extends Fragment {
 			}
 
 			public void bind(Point point) {
-				textView.setText(NativeTest.helloworld());
+				textView.setText(point.getLat() + " " + point.getLon());
 			}
 		}
 

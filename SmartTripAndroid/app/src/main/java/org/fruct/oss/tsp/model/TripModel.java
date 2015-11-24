@@ -6,6 +6,9 @@ public interface TripModel {
 	void registerListener(Listener listener);
 	void unregisterListener(Listener listener);
 
+	void start();
+	void stop();
+
 	/**
 	 * Get local cached points
 	 * @return list of points
