@@ -37,7 +37,12 @@ public class TestTripModel extends AbstractTripModel {
 	}
 
 	private void refreshPoints() {
-		pointsSource.add(new Point("id" + random.nextLong(), random.nextFloat(), random.nextFloat()));
+		double lat = random.nextFloat();
+		double lon = random.nextFloat();
+
+		pointsSource.add(new Point("id" + random.nextLong(),
+				lat + ":" + lon,
+				random.nextFloat(), random.nextFloat()));
 		updatePoints(pointsSource);
 	}
 }

@@ -116,7 +116,7 @@ public class PointListFragment extends Fragment implements TripModel.Listener {
 			public void bind(int position, TripModel.PointModel pointModel) {
 				this.pointModel = pointModel;
 				this.position = position;
-				textView.setText(pointModel.point.getLat() + " " + pointModel.point.getLon());
+				textView.setText(pointModel.point.getTitle());
 				checkBox.setChecked(pointModel.isChecked);
 
 			}

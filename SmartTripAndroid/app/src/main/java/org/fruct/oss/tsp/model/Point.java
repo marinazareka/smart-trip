@@ -2,11 +2,13 @@ package org.fruct.oss.tsp.model;
 
 public class Point {
 	private String id;
+	private String title;
 	private double lat;
 	private double lon;
 
-	public Point(String id, double lat, double lon) {
+	public Point(String id, String title, double lat, double lon) {
 		this.id = id;
+		this.title = title;
 		this.lat = lat;
 		this.lon = lon;
 	}
@@ -21,5 +23,9 @@ public class Point {
 
 	public double getLon() {
 		return lon;
+	}
+
+	public String getTitle() {
+		return title;
 	}
 }
