@@ -6,13 +6,11 @@ import android.os.Looper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
-/**
- * Created by ivashov on 24.11.15.
- */
 public class TestTripModel extends AbstractTripModel {
 	private List<Point> pointsSource = new ArrayList<>();
-	private List<Point> points;
+	private Random random = new Random();
 
 	private final Handler handler;
 	private Runnable pointUpdater = new Runnable() {
@@ -38,14 +36,8 @@ public class TestTripModel extends AbstractTripModel {
 		handler.removeCallbacks(pointUpdater);
 	}
 
-	@Override
-	public List<Point> getPoints() {
-		return new ArrayList<>(points);
-	}
-
 	private void refreshPoints() {
-		pointsSource.add(new Point(pointsSource.size(), pointsSource.size()));
-		points = Collections.unmodifiableList(new ArrayList<>(pointsSource));
-		notifyPointsUpdated(points);
+		pointsSource.add(new Point("id" + random.nextLong(), random.nextFloat(), random.nextFloat()));
+		updatePoints(pointsSource);
 	}
 }

@@ -13,9 +13,16 @@ public interface TripModel {
 	 * Get local cached points
 	 * @return list of points
 	 */
-	List<Point> getPoints();
+	List<PointModel> getPoints();
+
+	void setCheckedState(int position, boolean checked);
 
 	interface Listener {
-		void pointsUpdated(List<Point> points);
+		void pointsUpdated(List<PointModel> points);
+	}
+
+	public class PointModel {
+		public boolean isChecked;
+		public Point point;
 	}
 }

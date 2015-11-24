@@ -5,9 +5,11 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import org.fruct.oss.tsp.R;
@@ -20,8 +22,12 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
+import butterknife.OnClick;
 
 public class PointListFragment extends Fragment implements TripModel.Listener {
+	private static final String TAG = "PointListFragment";
+
 	@Bind(R.id.recycler_view)
 	RecyclerView recyclerView;
 
@@ -71,7 +77,7 @@ public class PointListFragment extends Fragment implements TripModel.Listener {
 	}
 
 	@Override
-	public void pointsUpdated(List<Point> points) {
+	public void pointsUpdated(List<TripModel.PointModel> points) {
 		adapter.notifyDataSetChanged();
 	}
 
@@ -79,12 +85,12 @@ public class PointListFragment extends Fragment implements TripModel.Listener {
 		@Override
 		public PointsAdapter.Holder onCreateViewHolder(ViewGroup parent, int viewType) {
 			return new Holder(LayoutInflater.from(parent.getContext())
-					.inflate(android.R.layout.simple_list_item_1, parent, false));
+					.inflate(R.layout.item_list_point, parent, false));
 		}
 
 		@Override
 		public void onBindViewHolder(PointsAdapter.Holder holder, int position) {
-			holder.bind(tripModel.getPoints().get(position));
+			holder.bind(position, tripModel.getPoints().get(position));
 		}
 
 		@Override
@@ -96,16 +102,30 @@ public class PointListFragment extends Fragment implements TripModel.Listener {
 			@Bind(android.R.id.text1)
 			TextView textView;
 
+			@Bind(R.id.check_box)
+			CheckBox checkBox;
+
+			TripModel.PointModel pointModel;
+			int position;
+
 			public Holder(View itemView) {
 				super(itemView);
 				ButterKnife.bind(this, itemView);
 			}
 
-			public void bind(Point point) {
-				textView.setText(point.getLat() + " " + point.getLon());
+			public void bind(int position, TripModel.PointModel pointModel) {
+				this.pointModel = pointModel;
+				this.position = position;
+				textView.setText(pointModel.point.getLat() + " " + pointModel.point.getLon());
+				checkBox.setChecked(pointModel.isChecked);
+
+			}
+
+			@OnCheckedChanged(R.id.check_box)
+			void onCheckBoxChecked(boolean checked) {
+				Log.d(TAG, "Checked");
+				tripModel.setCheckedState(position, checked);
 			}
 		}
-
 	}
-
 }
