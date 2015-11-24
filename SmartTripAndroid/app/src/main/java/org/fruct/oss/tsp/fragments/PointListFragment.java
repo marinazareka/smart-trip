@@ -13,17 +13,14 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import org.fruct.oss.tsp.R;
-import org.fruct.oss.tsp.model.Point;
 import org.fruct.oss.tsp.model.TestTripModel;
 import org.fruct.oss.tsp.model.TripModel;
-import org.fruct.oss.tsp.smartslognative.NativeTest;
 
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
-import butterknife.OnClick;
 
 public class PointListFragment extends Fragment implements TripModel.Listener {
 	private static final String TAG = "PointListFragment";
@@ -118,7 +115,6 @@ public class PointListFragment extends Fragment implements TripModel.Listener {
 				this.position = position;
 				textView.setText(pointModel.point.getTitle());
 				checkBox.setChecked(pointModel.isChecked);
-
 			}
 
 			@OnCheckedChanged(R.id.check_box)
