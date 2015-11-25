@@ -16,7 +16,9 @@ public class TestGeoModel extends AbstractGeoModel {
 		@Override
 		public void run() {
 			refreshPoints();
-			handler.postDelayed(pointUpdater, 500);
+			if (pointsSource.size() < 10) {
+				handler.postDelayed(pointUpdater, 500);
+			}
 		}
 	};
 

@@ -7,15 +7,20 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
 import org.fruct.oss.tsp.R;
+import org.fruct.oss.tsp.model.Point;
 import org.fruct.oss.tsp.model.TestGeoModel;
 import org.fruct.oss.tsp.model.GeoModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
@@ -36,6 +41,47 @@ public class PointListFragment extends Fragment implements GeoModel.Listener {
 		super.onCreate(savedInstanceState);
 
 		createTripModel();
+		setupOptionsMenu();
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.menu_point_list_fragment, menu);
+	}
+
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		menu.findItem(R.id.action_search).setVisible(geoModel.isAnythingChecked());
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_search:
+			searchSelection();
+			break;
+
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+
+		return true;
+	}
+
+	private void searchSelection() {
+		List<Point> checkedPoints = new ArrayList<>();
+		for (GeoModel.PointModel pointModel : geoModel.getPoints()) {
+			if (pointModel.isChecked) {
+				checkedPoints.add(pointModel.point);
+			}
+		}
+		Log.d(TAG, checkedPoints.size() + " points searching");
+	}
+
+	private void setupOptionsMenu() {
+		setHasOptionsMenu(true);
 	}
 
 	private void createTripModel() {
@@ -121,6 +167,7 @@ public class PointListFragment extends Fragment implements GeoModel.Listener {
 			void onCheckBoxChecked(boolean checked) {
 				Log.d(TAG, "Checked");
 				geoModel.setCheckedState(position, checked);
+				getActivity().invalidateOptionsMenu();
 			}
 		}
 	}

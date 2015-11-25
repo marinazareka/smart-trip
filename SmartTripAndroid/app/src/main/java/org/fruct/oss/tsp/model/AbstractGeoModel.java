@@ -1,5 +1,7 @@
 package org.fruct.oss.tsp.model;
 
+import org.fruct.oss.tsp.BuildConfig;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -9,6 +11,7 @@ public abstract class AbstractGeoModel implements GeoModel {
 	private CopyOnWriteArraySet<Listener> listeners = new CopyOnWriteArraySet<>();
 
 	private List<PointModel> shownPoints = new ArrayList<>();
+	private int checkedCount;
 
 	@Override
 	public void registerListener(Listener listener) {
@@ -26,8 +29,24 @@ public abstract class AbstractGeoModel implements GeoModel {
 	}
 
 	@Override
+	public boolean isAnythingChecked() {
+		if (BuildConfig.DEBUG && checkedCount < 0) throw new AssertionError();
+		return checkedCount > 0;
+	}
+
+	@Override
 	public void setCheckedState(int position, boolean checked) {
-		shownPoints.get(position).isChecked = checked;
+		PointModel pointModel = shownPoints.get(position);
+
+		if (pointModel.isChecked != checked) {
+			if (checked) {
+				checkedCount++;
+			} else {
+				checkedCount--;
+			}
+		}
+
+		pointModel.isChecked = checked;
 	}
 
 	protected void updatePoints(List<Point> newPoints) {
@@ -46,6 +65,7 @@ public abstract class AbstractGeoModel implements GeoModel {
 			shownPoints.add(pointModel);
 		}
 
+		checkedCount = existingPointsChecked.size();
 		notifyPointsUpdated(shownPoints);
 	}
 

@@ -15,6 +15,8 @@ public interface GeoModel {
 	 */
 	List<PointModel> getPoints();
 
+	boolean isAnythingChecked();
+
 	void setCheckedState(int position, boolean checked);
 
 	interface Listener {
