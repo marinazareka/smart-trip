@@ -4,12 +4,16 @@ import android.content.Context;
 import android.location.Location;
 import android.os.Handler;
 
+import org.fruct.oss.tsp.data.Movement;
 import org.fruct.oss.tsp.data.Point;
+import org.fruct.oss.tsp.data.ScheduleRequest;
 import org.fruct.oss.tsp.data.SearchRequest;
 import org.fruct.oss.tsp.data.User;
+import org.fruct.oss.tsp.events.ScheduleEvent;
 import org.fruct.oss.tsp.events.SearchEvent;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import de.greenrobot.event.EventBus;
@@ -21,9 +25,13 @@ public class TestSmartSpace implements SmartSpace {
 
 	private double radius;
 	private String pattern;
+	private boolean isSearchFinished;
+
+	private List<Point> schedulePoints;
 
 	private Context context;
 	private Handler handler;
+
 
 	public TestSmartSpace(Context context) {
 		this.context = context.getApplicationContext();
@@ -42,7 +50,7 @@ public class TestSmartSpace implements SmartSpace {
 	}
 
 	@Override
-	public SearchRequest postRequest(double radius, String pattern) {
+	public SearchRequest postSearchRequest(double radius, String pattern) {
 		this.radius = radius;
 		this.pattern = pattern;
 
@@ -51,8 +59,21 @@ public class TestSmartSpace implements SmartSpace {
 		return new SearchRequest();
 	}
 
+	@Override
+	public ScheduleRequest postScheduleRequest(List<Point> pointList) {
+		this.schedulePoints = pointList;
+
+		schedule();
+
+		return new ScheduleRequest();
+	}
+
 	void search() {
 		if (location == null || pattern == null) {
+			return;
+		}
+
+		if (isSearchFinished) {
 			return;
 		}
 
@@ -65,6 +86,19 @@ public class TestSmartSpace implements SmartSpace {
 			points.add(new Point(id, title, lat, lon));
 		}
 
+		isSearchFinished = true;
 		EventBus.getDefault().post(new SearchEvent(points));
+	}
+
+	void schedule() {
+		if (schedulePoints == null) {
+			return;
+		}
+
+		List<Movement> movements = new ArrayList<>();
+		for (int i = 1; i < schedulePoints.size(); i++) {
+			movements.add(new Movement(schedulePoints.get(i - 1), schedulePoints.get(i)));
+		}
+		EventBus.getDefault().post(new ScheduleEvent(movements));
 	}
 }

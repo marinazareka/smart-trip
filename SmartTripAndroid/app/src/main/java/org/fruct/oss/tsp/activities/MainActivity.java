@@ -17,6 +17,7 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import org.fruct.oss.tsp.LocationTrackingService;
 import org.fruct.oss.tsp.R;
+import org.fruct.oss.tsp.fragments.CommonFragment;
 import org.fruct.oss.tsp.fragments.PointListFragment;
 
 import butterknife.Bind;
@@ -24,6 +25,9 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
 	private static final String TRANSACTION_ROOT = "TRANSACTION_ROOT";
+
+	public static final String TAG_COMMON_FRAGMENT = "TAG_COMMON_FRAGMENT";
+
 
 	@Bind(R.id.toolbar)
 	Toolbar toolbar;
@@ -34,9 +38,12 @@ public class MainActivity extends AppCompatActivity {
 	@Bind(R.id.tabbar)
 	TabLayout tabbar;
 
+	private CommonFragment commonFragment;
+
 	private Drawer drawer;
 	private TabLayout.Tab geoTab;
 	private TabLayout.Tab tripTab;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,11 +52,25 @@ public class MainActivity extends AppCompatActivity {
 
 		ButterKnife.bind(this);
 
+		setupCommonFragment();
+
 		hideTabbar();
 		setupToolbar();
 		setupDrawer();
 
 		switchGeoFragment();
+	}
+
+	private void setupCommonFragment() {
+		commonFragment = (CommonFragment) getSupportFragmentManager()
+				.findFragmentByTag(TAG_COMMON_FRAGMENT);
+		if (commonFragment == null) {
+			commonFragment = new CommonFragment();
+			getSupportFragmentManager()
+					.beginTransaction()
+					.add(commonFragment, TAG_COMMON_FRAGMENT)
+					.commit();
+		}
 	}
 
 	@Override

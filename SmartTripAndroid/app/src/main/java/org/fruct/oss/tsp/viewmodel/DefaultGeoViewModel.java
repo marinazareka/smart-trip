@@ -2,23 +2,26 @@ package org.fruct.oss.tsp.viewmodel;
 
 import android.content.Context;
 
+import org.fruct.oss.tsp.events.GeoStoreChangedEvent;
 import org.fruct.oss.tsp.events.SearchEvent;
 import org.fruct.oss.tsp.smartspace.SmartSpace;
+import org.fruct.oss.tsp.stores.GeoStore;
 
 import de.greenrobot.event.EventBus;
 
 public class DefaultGeoViewModel extends AbstractGeoViewModel {
 	private Context context;
-	private SmartSpace smartSpace;
+	private GeoStore geoStore;
 
-	public DefaultGeoViewModel(Context context, SmartSpace smartSpace) {
+	public DefaultGeoViewModel(Context context, GeoStore geoStore) {
 		this.context = context;
-		this.smartSpace = smartSpace;
+		this.geoStore = geoStore;
 	}
 
 	@Override
 	public void start() {
 		EventBus.getDefault().register(this);
+		refresh();
 	}
 
 	@Override
@@ -26,7 +29,12 @@ public class DefaultGeoViewModel extends AbstractGeoViewModel {
 		EventBus.getDefault().unregister(this);
 	}
 
-	public void onEventMainThread(SearchEvent event) {
-		updatePoints(event.getPoints());
+	public void onEventMainThread(GeoStoreChangedEvent event) {
+		refresh();
+	}
+
+	private void refresh() {
+		updatePoints(geoStore.getPoints());
+
 	}
 }

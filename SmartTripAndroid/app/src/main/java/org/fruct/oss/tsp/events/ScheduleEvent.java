@@ -1,0 +1,17 @@
+package org.fruct.oss.tsp.events;
+
+import org.fruct.oss.tsp.data.Movement;
+
+import java.util.List;
+
+public class ScheduleEvent {
+	private List<Movement> movements;
+
+	public ScheduleEvent(List<Movement> movements) {
+		this.movements = movements;
+	}
+
+	public List<Movement> getMovements() {
+		return movements;
+	}
+}
