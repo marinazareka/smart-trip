@@ -17,6 +17,10 @@ import android.widget.TextView;
 
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.data.Point;
+import org.fruct.oss.tsp.events.LocationEvent;
+import org.fruct.oss.tsp.smartspace.SmartSpace;
+import org.fruct.oss.tsp.smartspace.TestSmartSpace;
+import org.fruct.oss.tsp.viewmodel.DefaultGeoViewModel;
 import org.fruct.oss.tsp.viewmodel.TestGeoViewModel;
 import org.fruct.oss.tsp.viewmodel.GeoViewModel;
 
@@ -26,6 +30,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
+import de.greenrobot.event.EventBus;
 
 public class PointListFragment extends Fragment implements GeoViewModel.Listener {
 	private static final String TAG = "PointListFragment";
@@ -36,12 +41,19 @@ public class PointListFragment extends Fragment implements GeoViewModel.Listener
 	private GeoViewModel geoViewModel;
 	private PointsAdapter adapter;
 
+	private SmartSpace smartspace;
+
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		setupSmartspace();
 		createTripModel();
 		setupOptionsMenu();
+	}
+
+	private void setupSmartspace() {
+		smartspace = new TestSmartSpace(getActivity());
 	}
 
 	@Override
@@ -85,7 +97,7 @@ public class PointListFragment extends Fragment implements GeoViewModel.Listener
 	}
 
 	private void createTripModel() {
-		geoViewModel = new TestGeoViewModel();
+		geoViewModel = new DefaultGeoViewModel(getActivity(), smartspace);
 	}
 
 	@Nullable
@@ -100,6 +112,8 @@ public class PointListFragment extends Fragment implements GeoViewModel.Listener
 	@Override
 	public void onResume() {
 		super.onResume();
+		EventBus.getDefault().register(this);
+		smartspace.postRequest(1, "qwer");
 		geoViewModel.start();
 		geoViewModel.registerListener(this);
 	}
@@ -108,7 +122,12 @@ public class PointListFragment extends Fragment implements GeoViewModel.Listener
 	public void onPause() {
 		geoViewModel.unregisterListener(this);
 		geoViewModel.stop();
+		EventBus.getDefault().unregister(this);
 		super.onPause();
+	}
+
+	public void onEventMainThread(LocationEvent event) {
+		smartspace.updateUserLocation(event.getLocation());
 	}
 
 	private void setupRecyclerView() {

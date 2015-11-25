@@ -1,7 +1,13 @@
 package org.fruct.oss.tsp.data;
 
-/**
- * Created by ivashov on 25.11.15.
- */
 public class User {
+	private String id;
+
+	public User(String id) {
+		this.id = id;
+	}
+
+	public String getId() {
+		return id;
+	}
 }
