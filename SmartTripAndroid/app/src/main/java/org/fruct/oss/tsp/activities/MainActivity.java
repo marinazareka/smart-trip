@@ -1,4 +1,4 @@
-package org.fruct.oss.tsp;
+package org.fruct.oss.tsp.activities;
 
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -15,6 +15,7 @@ import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
+import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.fragments.PointListFragment;
 
 import butterknife.Bind;
