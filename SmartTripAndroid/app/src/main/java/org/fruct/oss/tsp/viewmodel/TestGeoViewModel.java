@@ -1,13 +1,15 @@
-package org.fruct.oss.tsp.model;
+package org.fruct.oss.tsp.viewmodel;
 
 import android.os.Handler;
 import android.os.Looper;
+
+import org.fruct.oss.tsp.data.Point;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class TestGeoModel extends AbstractGeoModel {
+public class TestGeoViewModel extends AbstractGeoViewModel {
 	private List<Point> pointsSource = new ArrayList<>();
 	private Random random = new Random();
 
@@ -22,7 +24,7 @@ public class TestGeoModel extends AbstractGeoModel {
 		}
 	};
 
-	public TestGeoModel() {
+	public TestGeoViewModel() {
 		handler = new Handler(Looper.getMainLooper());
 		refreshPoints();
 	}

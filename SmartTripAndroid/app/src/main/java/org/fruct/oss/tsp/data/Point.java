@@ -1,4 +1,4 @@
-package org.fruct.oss.tsp.model;
+package org.fruct.oss.tsp.data;
 
 public class Point {
 	private String id;

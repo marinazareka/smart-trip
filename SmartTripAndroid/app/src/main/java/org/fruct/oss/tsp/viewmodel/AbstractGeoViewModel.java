@@ -1,13 +1,14 @@
-package org.fruct.oss.tsp.model;
+package org.fruct.oss.tsp.viewmodel;
 
 import org.fruct.oss.tsp.BuildConfig;
+import org.fruct.oss.tsp.data.Point;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-public abstract class AbstractGeoModel implements GeoModel {
+public abstract class AbstractGeoViewModel implements GeoViewModel {
 	private CopyOnWriteArraySet<Listener> listeners = new CopyOnWriteArraySet<>();
 
 	private List<PointModel> shownPoints = new ArrayList<>();
@@ -30,7 +31,7 @@ public abstract class AbstractGeoModel implements GeoModel {
 
 	@Override
 	public boolean isAnythingChecked() {
-		if (BuildConfig.DEBUG && checkedCount < 0) throw new AssertionError();
+		if (BuildConfig.DEBUG && !(checkedCount >= 0)) throw new AssertionError();
 		return checkedCount > 0;
 	}
 

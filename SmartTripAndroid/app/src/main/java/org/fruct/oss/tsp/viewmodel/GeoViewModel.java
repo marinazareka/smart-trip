@@ -1,8 +1,10 @@
-package org.fruct.oss.tsp.model;
+package org.fruct.oss.tsp.viewmodel;
+
+import org.fruct.oss.tsp.data.Point;
 
 import java.util.List;
 
-public interface GeoModel {
+public interface GeoViewModel {
 	void registerListener(Listener listener);
 	void unregisterListener(Listener listener);
 

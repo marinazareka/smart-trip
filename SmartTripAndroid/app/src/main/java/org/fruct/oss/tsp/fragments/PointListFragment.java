@@ -16,9 +16,9 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import org.fruct.oss.tsp.R;
-import org.fruct.oss.tsp.model.Point;
-import org.fruct.oss.tsp.model.TestGeoModel;
-import org.fruct.oss.tsp.model.GeoModel;
+import org.fruct.oss.tsp.data.Point;
+import org.fruct.oss.tsp.viewmodel.TestGeoViewModel;
+import org.fruct.oss.tsp.viewmodel.GeoViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,13 +27,13 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 
-public class PointListFragment extends Fragment implements GeoModel.Listener {
+public class PointListFragment extends Fragment implements GeoViewModel.Listener {
 	private static final String TAG = "PointListFragment";
 
 	@Bind(R.id.recycler_view)
 	RecyclerView recyclerView;
 
-	private GeoModel geoModel;
+	private GeoViewModel geoViewModel;
 	private PointsAdapter adapter;
 
 	@Override
@@ -53,7 +53,7 @@ public class PointListFragment extends Fragment implements GeoModel.Listener {
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
-		menu.findItem(R.id.action_search).setVisible(geoModel.isAnythingChecked());
+		menu.findItem(R.id.action_search).setVisible(geoViewModel.isAnythingChecked());
 	}
 
 	@Override
@@ -72,7 +72,7 @@ public class PointListFragment extends Fragment implements GeoModel.Listener {
 
 	private void searchSelection() {
 		List<Point> checkedPoints = new ArrayList<>();
-		for (GeoModel.PointModel pointModel : geoModel.getPoints()) {
+		for (GeoViewModel.PointModel pointModel : geoViewModel.getPoints()) {
 			if (pointModel.isChecked) {
 				checkedPoints.add(pointModel.point);
 			}
@@ -85,7 +85,7 @@ public class PointListFragment extends Fragment implements GeoModel.Listener {
 	}
 
 	private void createTripModel() {
-		geoModel = new TestGeoModel();
+		geoViewModel = new TestGeoViewModel();
 	}
 
 	@Nullable
@@ -100,14 +100,14 @@ public class PointListFragment extends Fragment implements GeoModel.Listener {
 	@Override
 	public void onResume() {
 		super.onResume();
-		geoModel.start();
-		geoModel.registerListener(this);
+		geoViewModel.start();
+		geoViewModel.registerListener(this);
 	}
 
 	@Override
 	public void onPause() {
-		geoModel.unregisterListener(this);
-		geoModel.stop();
+		geoViewModel.unregisterListener(this);
+		geoViewModel.stop();
 		super.onPause();
 	}
 
@@ -120,7 +120,7 @@ public class PointListFragment extends Fragment implements GeoModel.Listener {
 	}
 
 	@Override
-	public void pointsUpdated(List<GeoModel.PointModel> points) {
+	public void pointsUpdated(List<GeoViewModel.PointModel> points) {
 		adapter.notifyDataSetChanged();
 	}
 
@@ -133,12 +133,12 @@ public class PointListFragment extends Fragment implements GeoModel.Listener {
 
 		@Override
 		public void onBindViewHolder(PointsAdapter.Holder holder, int position) {
-			holder.bind(position, geoModel.getPoints().get(position));
+			holder.bind(position, geoViewModel.getPoints().get(position));
 		}
 
 		@Override
 		public int getItemCount() {
-			return geoModel.getPoints().size();
+			return geoViewModel.getPoints().size();
 		}
 
 		class Holder extends RecyclerView.ViewHolder {
@@ -148,7 +148,7 @@ public class PointListFragment extends Fragment implements GeoModel.Listener {
 			@Bind(R.id.check_box)
 			CheckBox checkBox;
 
-			GeoModel.PointModel pointModel;
+			GeoViewModel.PointModel pointModel;
 			int position;
 
 			public Holder(View itemView) {
@@ -156,7 +156,7 @@ public class PointListFragment extends Fragment implements GeoModel.Listener {
 				ButterKnife.bind(this, itemView);
 			}
 
-			public void bind(int position, GeoModel.PointModel pointModel) {
+			public void bind(int position, GeoViewModel.PointModel pointModel) {
 				this.pointModel = pointModel;
 				this.position = position;
 				textView.setText(pointModel.point.getTitle());
@@ -166,7 +166,7 @@ public class PointListFragment extends Fragment implements GeoModel.Listener {
 			@OnCheckedChanged(R.id.check_box)
 			void onCheckBoxChecked(boolean checked) {
 				Log.d(TAG, "Checked");
-				geoModel.setCheckedState(position, checked);
+				geoViewModel.setCheckedState(position, checked);
 				getActivity().invalidateOptionsMenu();
 			}
 		}
