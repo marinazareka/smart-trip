@@ -27,7 +27,9 @@ public class LocationTrackingService extends Service
 
 	public static final String ACTION_START_TRACKING = "org.fruct.oss.tsp.LocationTrackingService.START";
 	public static final String ACTION_STOP_TRACKING = "org.fruct.oss.tsp.LocationTrackingService.STOP";
+
 	private GoogleApiClient apiClient;
+	private boolean isLocationUpdatesSubscribed;
 
 	public LocationTrackingService() {
 	}
@@ -65,7 +67,9 @@ public class LocationTrackingService extends Service
 	}
 
 	private void stopTracking() {
-		LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
+		if (isLocationUpdatesSubscribed) {
+			LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
+		}
 		apiClient.disconnect();
 	}
 
@@ -93,11 +97,12 @@ public class LocationTrackingService extends Service
 
 		Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(apiClient);
 		onLocationChanged(lastLocation);
+		isLocationUpdatesSubscribed = true;
 	}
 
 	@Override
 	public void onConnectionSuspended(int i) {
-
+		isLocationUpdatesSubscribed = false;
 	}
 
 	@Override
