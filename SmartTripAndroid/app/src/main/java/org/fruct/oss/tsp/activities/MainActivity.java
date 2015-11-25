@@ -15,6 +15,7 @@ import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
+import org.fruct.oss.tsp.LocationTrackingService;
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.fragments.PointListFragment;
 
@@ -49,6 +50,18 @@ public class MainActivity extends AppCompatActivity {
 		setupDrawer();
 
 		switchGeoFragment();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		LocationTrackingService.actionStartTracking(this);
+	}
+
+	@Override
+	protected void onPause() {
+		LocationTrackingService.actionStopTracking(this);
+		super.onPause();
 	}
 
 	@Override
