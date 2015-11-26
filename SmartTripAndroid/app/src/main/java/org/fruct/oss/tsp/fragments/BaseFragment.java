@@ -7,6 +7,7 @@ import org.fruct.oss.tsp.BuildConfig;
 import org.fruct.oss.tsp.activities.MainActivity;
 import org.fruct.oss.tsp.smartspace.SmartSpace;
 import org.fruct.oss.tsp.stores.GeoStore;
+import org.fruct.oss.tsp.stores.ScheduleStore;
 
 public class BaseFragment extends Fragment {
 	private CommonFragment commonFragment;
@@ -28,6 +29,10 @@ public class BaseFragment extends Fragment {
 
 	protected GeoStore getGeoStore() {
 		return commonFragment.getGeoStore();
+	}
+
+	protected ScheduleStore getScheduleStore() {
+		return commonFragment.getScheduleStore();
 	}
 
 	protected SmartSpace getSmartSpace() {

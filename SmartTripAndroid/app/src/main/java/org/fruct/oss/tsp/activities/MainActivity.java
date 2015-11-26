@@ -19,6 +19,7 @@ import org.fruct.oss.tsp.LocationTrackingService;
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.fragments.CommonFragment;
 import org.fruct.oss.tsp.fragments.PointListFragment;
+import org.fruct.oss.tsp.fragments.ScheduleListFragment;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -156,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
 			setupTabbar();
 			tripTab.select();
 		}
-		//switchFragment(new PointListFragment());
+		switchFragment(new ScheduleListFragment());
 	}
 
 	private void switchFragment(Fragment fragment) {
