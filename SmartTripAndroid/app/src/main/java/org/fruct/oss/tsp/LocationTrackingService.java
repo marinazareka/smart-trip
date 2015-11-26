@@ -25,9 +25,6 @@ public class LocationTrackingService extends Service
 		GoogleApiClient.OnConnectionFailedListener, LocationListener {
 	private static final String TAG = "LocationTrackingService";
 
-	public static final String ACTION_START_TRACKING = "org.fruct.oss.tsp.LocationTrackingService.START";
-	public static final String ACTION_STOP_TRACKING = "org.fruct.oss.tsp.LocationTrackingService.STOP";
-
 	private GoogleApiClient apiClient;
 	private boolean isLocationUpdatesSubscribed;
 
@@ -37,49 +34,31 @@ public class LocationTrackingService extends Service
 	@Override
 	public void onCreate() {
 		super.onCreate();
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-	}
-
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		if (intent == null || intent.getAction() == null) {
-			return START_NOT_STICKY;
-		}
-
-		switch (intent.getAction()) {
-		case ACTION_START_TRACKING:
-			startTracking();
-			break;
-
-		case ACTION_STOP_TRACKING:
-			stopTracking();
-			break;
-
-		default:
-			return super.onStartCommand(intent, flags, startId);
-		}
-
-		return START_STICKY;
-	}
-
-	private void stopTracking() {
-		if (isLocationUpdatesSubscribed) {
-			LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
-		}
-		apiClient.disconnect();
-	}
-
-	private void startTracking() {
 		apiClient = new GoogleApiClient.Builder(this)
 				.addApi(LocationServices.API)
 				.addConnectionCallbacks(this)
 				.addOnConnectionFailedListener(this)
 				.build();
 		apiClient.connect();
+	}
+
+	@Override
+	public void onDestroy() {
+		if (isLocationUpdatesSubscribed) {
+			LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
+		}
+		apiClient.disconnect();
+		apiClient = null;
+		super.onDestroy();
+	}
+
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		if (intent == null) {
+			return START_STICKY;
+		}
+
+		return START_STICKY;
 	}
 
 	@Override
@@ -117,10 +96,10 @@ public class LocationTrackingService extends Service
 	}
 
 	public static void actionStartTracking(Context context) {
-		context.startService(new Intent(ACTION_START_TRACKING, null, context, LocationTrackingService.class));
+		context.startService(new Intent(context, LocationTrackingService.class));
 	}
 
 	public static void actionStopTracking(Context context) {
-		context.startService(new Intent(ACTION_STOP_TRACKING, null, context, LocationTrackingService.class));
+		context.stopService(new Intent(context, LocationTrackingService.class));
 	}
 }

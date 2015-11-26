@@ -99,6 +99,7 @@ public class TestSmartSpace implements SmartSpace {
 		for (int i = 1; i < schedulePoints.size(); i++) {
 			movements.add(new Movement(schedulePoints.get(i - 1), schedulePoints.get(i)));
 		}
+
 		EventBus.getDefault().post(new ScheduleEvent(movements));
 	}
 }

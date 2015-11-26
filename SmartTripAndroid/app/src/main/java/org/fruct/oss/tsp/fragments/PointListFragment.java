@@ -83,6 +83,8 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 			}
 		}
 		Log.d(TAG, checkedPoints.size() + " points searching");
+
+		getSmartSpace().postScheduleRequest(checkedPoints);
 	}
 
 	private void setupOptionsMenu() {
