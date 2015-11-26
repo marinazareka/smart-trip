@@ -3,6 +3,12 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_search"
-        android:title="@android:string/search_go"
+        android:title="@string/action_search"
         app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_schedule"
+        android:title="@string/action_schedule"
+        app:showAsAction="ifRoom"/>
+
 </menu>

@@ -1,13 +1,16 @@
 <resources>
-    <string name="app_name">SmartTripAndroid</string>
+    <string name="app_name">Smart Trip</string>
 
-    <string name="nav_map">Map</string>
-    <string name="nav_list">List</string>
-    <string name="nav_quit">Quit</string>
+    <string name="nav_map">Карта</string>
+    <string name="nav_list">Список</string>
+    <string name="nav_quit">Выход</string>
 
-    <string name="tab_geo">Points</string>
-    <string name="tab_trip">Trip</string>
+    <string name="tab_geo">Точки</string>
+    <string name="tab_trip">Маршрут</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="action_schedule">Маршрут</string>
+    <string name="action_search">Искать</string>
+    <string name="title_enter_request">Request</string>
+    <string name="hint_radius">Radius</string>
+    <string name="hint_pattern">Pattern</string>
 </resources>

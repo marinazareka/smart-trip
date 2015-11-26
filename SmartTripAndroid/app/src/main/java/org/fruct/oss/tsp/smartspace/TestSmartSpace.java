@@ -3,6 +3,7 @@ package org.fruct.oss.tsp.smartspace;
 import android.content.Context;
 import android.location.Location;
 import android.os.Handler;
+import android.util.Log;
 
 import org.fruct.oss.tsp.data.Movement;
 import org.fruct.oss.tsp.data.Point;
@@ -19,6 +20,8 @@ import java.util.Random;
 import de.greenrobot.event.EventBus;
 
 public class TestSmartSpace implements SmartSpace {
+	private static final String TAG = "TestSmartSpace";
+
 	private Random random;
 
 	private Location location;
@@ -69,6 +72,8 @@ public class TestSmartSpace implements SmartSpace {
 	}
 
 	void search() {
+		Log.d(TAG, "Searching with " + location + ":" + pattern + ":" + radius);
+
 		if (location == null || pattern == null) {
 			return;
 		}

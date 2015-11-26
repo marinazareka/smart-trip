@@ -1,10 +1,12 @@
 package org.fruct.oss.tsp.fragments;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,13 +15,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.TextView;
+
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.data.Point;
-import org.fruct.oss.tsp.events.LocationEvent;
-import org.fruct.oss.tsp.smartspace.SmartSpace;
-import org.fruct.oss.tsp.smartspace.TestSmartSpace;
 import org.fruct.oss.tsp.viewmodel.DefaultGeoViewModel;
 import org.fruct.oss.tsp.viewmodel.GeoViewModel;
 
@@ -29,7 +32,6 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
-import de.greenrobot.event.EventBus;
 
 public class PointListFragment extends BaseFragment implements GeoViewModel.Listener {
 	private static final String TAG = "PointListFragment";
@@ -58,14 +60,18 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
-		menu.findItem(R.id.action_search).setVisible(geoViewModel.isAnythingChecked());
+		menu.findItem(R.id.action_schedule).setVisible(geoViewModel.isAnythingChecked());
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		case R.id.action_schedule:
+			scheduleSelection();
+			break;
+
 		case R.id.action_search:
-			searchSelection();
+			startSearchDialog();
 			break;
 
 		default:
@@ -75,7 +81,56 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 		return true;
 	}
 
-	private void searchSelection() {
+	private void startSearchDialog() {
+		new MaterialDialog.Builder(getActivity())
+				.title(R.string.title_enter_request)
+				.positiveText(android.R.string.ok)
+				.negativeText(android.R.string.cancel)
+				.customView(R.layout.dialog_search_request, false)
+				.onNegative(new MaterialDialog.SingleButtonCallback() {
+					@Override
+					public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+						dialog.dismiss();
+					}
+				})
+				.onPositive(new MaterialDialog.SingleButtonCallback() {
+					@Override
+					public void onClick(@NonNull MaterialDialog dialog,
+										@NonNull DialogAction which) {
+						EditText radiusEditText = ButterKnife.findById(dialog.getView(),
+								R.id.radius_edit_text);
+						EditText patternEditText = ButterKnife.findById(dialog.getView(),
+								R.id.pattern_edit_text);
+
+						String radiusText = radiusEditText.getText().toString();
+						String patternText = patternEditText.getText().toString();
+
+						int radius = -1;
+						try {
+							radius = Integer.parseInt(radiusText);
+						} catch (NumberFormatException ex) {
+							radiusEditText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorAccent));
+						}
+
+						if (TextUtils.isEmpty(patternText)) {
+							patternEditText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorAccent));
+						}
+
+						if (!TextUtils.isEmpty(patternText) && radius >= 0) {
+							search(radius, patternText);
+							dialog.dismiss();
+						}
+					}
+				})
+				.autoDismiss(false)
+				.show();
+	}
+
+	private void search(int radius, String patternText) {
+		getSmartSpace().postSearchRequest(radius, patternText);
+	}
+
+	private void scheduleSelection() {
 		List<Point> checkedPoints = new ArrayList<>();
 		for (GeoViewModel.PointModel pointModel : geoViewModel.getPoints()) {
 			if (pointModel.isChecked) {
@@ -108,7 +163,6 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 	public void onResume() {
 		super.onResume();
 
-		getSmartSpace().postSearchRequest(1, "qwer");
 
 		geoViewModel.start();
 		geoViewModel.registerListener(this);
