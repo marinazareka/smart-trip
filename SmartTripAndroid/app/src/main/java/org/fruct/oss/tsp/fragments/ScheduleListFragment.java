@@ -17,6 +17,11 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 
+/**
+ * Пользовательский интерфейс для маршрута.
+ *
+ * Фрагмент подписывает на изменение хранилища маршрута и обновляет список при получении обновлений данных.
+ */
 public class ScheduleListFragment extends BaseFragment {
 	@Bind(R.id.recycler_view)
 	RecyclerView recyclerView;

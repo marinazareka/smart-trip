@@ -12,6 +12,11 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
+/**
+ * Локальное хранилище данных о маршруте.
+ *
+ * Подписывается на событие обновления и обновляет свое состояние при получении события.
+ */
 public class ScheduleStore implements Store {
 	private static final String TAG = "ScheduleStore";
 
@@ -35,6 +40,10 @@ public class ScheduleStore implements Store {
 		EventBus.getDefault().post(new ScheduleStoreChangedEvent());
 	}
 
+	/**
+	 * Получить текущие отрезки маршрута.
+	 * @return список текущих отрезков маршрута. Может быть немодифицируемым.
+	 */
 	public List<Movement> getCurrentSchedule() {
 		return currentSchedule;
 	}

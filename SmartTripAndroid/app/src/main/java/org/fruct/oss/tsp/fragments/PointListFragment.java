@@ -33,6 +33,19 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 
+/**
+ * Пользовательский интерфейс для списка точек для последнего запроса пользователя
+ *
+ * Содержит следующие элементы
+ * <ul>
+ *     <li>Пункт меню "Поиск". При выборе приложение запрашивает у пользователя
+ *     параметры поиска и передает запрос {@link org.fruct.oss.tsp.smartspace.SmartSpace}</li>
+ *     <li>Список точек с checkbox'ми выбора точек для построения маршрута</li>
+ *     <li>Пункт меню "Маршрут". Активен при наличии выбранных точек.</li>
+ * </ul>
+ *
+ * Текущее состояние выбора точек и хранится в объекте вспомогательного класса {@link GeoViewModel}.
+ */
 public class PointListFragment extends BaseFragment implements GeoViewModel.Listener {
 	private static final String TAG = "PointListFragment";
 

@@ -20,6 +20,12 @@ import org.fruct.oss.tsp.events.LocationEvent;
 
 import de.greenrobot.event.EventBus;
 
+/**
+ * Сервис отслеживания местоположения пользователя
+ *
+ * Уведомления об обновления местоположения пользователя происходят через событие {@link LocationEvent}
+ * Для получения местоположения используются сервисы Google Play
+ */
 public class LocationTrackingService extends Service
 		implements GoogleApiClient.ConnectionCallbacks,
 		GoogleApiClient.OnConnectionFailedListener, LocationListener {
@@ -95,10 +101,18 @@ public class LocationTrackingService extends Service
 		EventBus.getDefault().post(new LocationEvent(location));
 	}
 
+	/**
+	 * Запуск сервиса
+	 * @param context
+	 */
 	public static void actionStartTracking(Context context) {
 		context.startService(new Intent(context, LocationTrackingService.class));
 	}
 
+	/**
+	 * Остановка сервиса
+	 * @param context
+	 */
 	public static void actionStopTracking(Context context) {
 		context.stopService(new Intent(context, LocationTrackingService.class));
 	}

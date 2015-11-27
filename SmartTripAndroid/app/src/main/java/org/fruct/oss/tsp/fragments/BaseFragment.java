@@ -9,6 +9,9 @@ import org.fruct.oss.tsp.smartspace.SmartSpace;
 import org.fruct.oss.tsp.stores.GeoStore;
 import org.fruct.oss.tsp.stores.ScheduleStore;
 
+/**
+ * Базовый фрагмент, предназначенный для получения общих зависимостей для фрагментов.
+ */
 public class BaseFragment extends Fragment {
 	private CommonFragment commonFragment;
 
@@ -27,14 +30,23 @@ public class BaseFragment extends Fragment {
 		super.onDetach();
 	}
 
+	/**
+	 * @return хранилище геоданных
+	 */
 	protected GeoStore getGeoStore() {
 		return commonFragment.getGeoStore();
 	}
 
+	/**
+	 * @return хранилище маршрута
+	 */
 	protected ScheduleStore getScheduleStore() {
 		return commonFragment.getScheduleStore();
 	}
 
+	/**
+	 * @return интерфейс интеллектуального пространства
+	 */
 	protected SmartSpace getSmartSpace() {
 		return commonFragment.getSmartSpace();
 	}

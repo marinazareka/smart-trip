@@ -1,5 +1,10 @@
 package org.fruct.oss.tsp.data;
 
+import java.lang.annotation.Documented;
+
+/**
+ * Отрезок пути маршурута
+ */
 public class Movement {
 	private Point a;
 	private Point b;
@@ -9,10 +14,16 @@ public class Movement {
 		this.b = b;
 	}
 
+	/**
+	 * @return Начальная точка маршрута
+	 */
 	public Point getA() {
 		return a;
 	}
 
+	/**
+	 * @return Конечная точка маршрута
+	 */
 	public Point getB() {
 		return b;
 	}

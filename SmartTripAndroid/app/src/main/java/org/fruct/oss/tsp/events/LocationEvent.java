@@ -2,6 +2,9 @@ package org.fruct.oss.tsp.events;
 
 import android.location.Location;
 
+/**
+ * Событие обновление координат пользователя
+ */
 public class LocationEvent {
 	private Location location;
 

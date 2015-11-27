@@ -24,11 +24,26 @@ import org.fruct.oss.tsp.fragments.ScheduleListFragment;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
+/**
+ * Основное окно приложения
+ *
+ * Приложение имеет двухуровневую навигацию:
+ * <ol>
+ *     <li>Боковая панель (NavigationDrawer)</li>
+ *     <li>Панель tab'ов</li>
+ * </ol>
+ *
+ * MainActivity управляет навигацией по приложению:
+ * <ul>
+ *     <li>Выполняет переключение фрагментов при выборе пунктов бокового меню и tab'ов</li>
+ *     <li>Скрывает панель tab'ов при необходимости</li>
+ * </ul>
+ *
+ */
 public class MainActivity extends AppCompatActivity {
 	private static final String TRANSACTION_ROOT = "TRANSACTION_ROOT";
 
 	public static final String TAG_COMMON_FRAGMENT = "TAG_COMMON_FRAGMENT";
-
 
 	@Bind(R.id.toolbar)
 	Toolbar toolbar;
@@ -44,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
 	private Drawer drawer;
 	private TabLayout.Tab geoTab;
 	private TabLayout.Tab tripTab;
-
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

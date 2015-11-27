@@ -1,5 +1,8 @@
 package org.fruct.oss.tsp.data;
 
+/**
+ * Информация о географическом объекте
+ */
 public class Point {
 	private String id;
 	private String title;
@@ -13,18 +16,31 @@ public class Point {
 		this.lon = lon;
 	}
 
+	/**
+	 *
+	 * @return Уникальный идентификатор точки
+	 */
 	public String getId() {
 		return id;
 	}
 
+	/**
+	 * @return Широта
+	 */
 	public double getLat() {
 		return lat;
 	}
 
+	/**
+	 * @return Долгота
+	 */
 	public double getLon() {
 		return lon;
 	}
 
+	/**
+	 * @return Название точки
+	 */
 	public String getTitle() {
 		return title;
 	}

@@ -4,6 +4,9 @@ import org.fruct.oss.tsp.data.Movement;
 
 import java.util.List;
 
+/**
+ * Уведомлении об выполнении запроса построения маршрута
+ */
 public class ScheduleEvent {
 	private List<Movement> movements;
 

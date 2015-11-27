@@ -9,6 +9,9 @@ import org.fruct.oss.tsp.stores.GeoStore;
 
 import de.greenrobot.event.EventBus;
 
+/**
+ * Реализация {@link GeoViewModel} с привязкой к хранилищу данных {@link GeoStore}
+ */
 public class DefaultGeoViewModel extends AbstractGeoViewModel {
 	private Context context;
 	private GeoStore geoStore;

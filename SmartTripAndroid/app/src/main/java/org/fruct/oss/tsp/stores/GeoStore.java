@@ -1,5 +1,6 @@
 package org.fruct.oss.tsp.stores;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.fruct.oss.tsp.data.Point;
@@ -11,6 +12,11 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
+/**
+ * Локальное хранилище данных о загруженных географических объектах.
+ *
+ * Подписывается на событие обновления и обновляет свое состояние при получении события.
+ */
 public class GeoStore implements Store {
 	private static final String TAG = "GeoStore";
 
@@ -26,6 +32,11 @@ public class GeoStore implements Store {
 		EventBus.getDefault().unregister(this);
 	}
 
+	/**
+	 * Получить текущие объекты.
+	 * @return список текущих объектов. Может быть немодифицируемым.
+	 */
+	@NonNull
 	public List<Point> getPoints() {
 		return points;
 	}

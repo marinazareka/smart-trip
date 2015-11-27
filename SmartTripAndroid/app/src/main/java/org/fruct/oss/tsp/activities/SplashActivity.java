@@ -12,6 +12,12 @@ import com.google.android.gms.common.GoogleApiAvailability;
 
 import org.fruct.oss.tsp.R;
 
+/**
+ * Начальный экран приложение
+ *
+ * Проверяет доступность сервисов Google Play и при необходимости выполняет их обновление
+ * При доступности запускает {@link MainActivity}
+ */
 public class SplashActivity extends Activity {
 	private static final String TAG = "SplashActivity";
 

@@ -4,6 +4,9 @@ import org.fruct.oss.tsp.data.Point;
 
 import java.util.List;
 
+/**
+ * Уведомлении об выполнении запроса географических объектов
+ */
 public class SearchEvent {
 	private List<Point> points;
 

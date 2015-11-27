@@ -13,7 +13,8 @@ import org.fruct.oss.tsp.stores.ScheduleStore;
 import de.greenrobot.event.EventBus;
 
 /**
- * A simple {@link Fragment} subclass.
+ * Фрагмент без пользовательского интерфейса, предназначен для хранения глобальных объектов приложения,
+ * сохраняя их состояния при изменении конфигурации устройства (например поворот экрана).
  */
 public class CommonFragment extends Fragment {
 	private GeoStore geoStore;
@@ -63,14 +64,23 @@ public class CommonFragment extends Fragment {
 		super.onStop();
 	}
 
+	/**
+	 * @return хранилище геоданных
+	 */
 	public GeoStore getGeoStore() {
 		return geoStore;
 	}
 
+	/**
+	 * @return хранилище маршрута
+	 */
 	public ScheduleStore getScheduleStore() {
 		return scheduleStore;
 	}
 
+	/**
+	 * @return интерфейс интеллектуального пространства
+	 */
 	public SmartSpace getSmartSpace() {
 		return smartSpace;
 	}

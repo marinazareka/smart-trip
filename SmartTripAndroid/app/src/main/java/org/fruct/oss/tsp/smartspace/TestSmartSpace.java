@@ -19,6 +19,9 @@ import java.util.Random;
 
 import de.greenrobot.event.EventBus;
 
+/**
+ * Реализация интерфейса {link SmartSpace} для тестирования и отладки
+ */
 public class TestSmartSpace implements SmartSpace {
 	private static final String TAG = "TestSmartSpace";
 
@@ -34,7 +37,6 @@ public class TestSmartSpace implements SmartSpace {
 
 	private Context context;
 	private Handler handler;
-
 
 	public TestSmartSpace(Context context) {
 		this.context = context.getApplicationContext();
