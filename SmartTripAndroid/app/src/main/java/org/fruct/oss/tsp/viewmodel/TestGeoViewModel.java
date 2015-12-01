@@ -3,7 +3,7 @@ package org.fruct.oss.tsp.viewmodel;
 import android.os.Handler;
 import android.os.Looper;
 
-import org.fruct.oss.tsp.data.Point;
+import org.fruct.oss.tsp.commondatatypes.Point;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.fruct.oss.tsp.R;
-import org.fruct.oss.tsp.data.Movement;
+import org.fruct.oss.tsp.commondatatypes.Movement;
 import org.fruct.oss.tsp.events.ScheduleStoreChangedEvent;
 
 import butterknife.Bind;

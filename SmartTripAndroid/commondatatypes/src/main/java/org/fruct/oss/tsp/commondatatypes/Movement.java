@@ -1,6 +1,4 @@
-package org.fruct.oss.tsp.data;
-
-import java.lang.annotation.Documented;
+package org.fruct.oss.tsp.commondatatypes;
 
 /**
  * Отрезок пути маршурута

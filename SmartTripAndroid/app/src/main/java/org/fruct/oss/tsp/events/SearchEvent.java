@@ -1,6 +1,6 @@
 package org.fruct.oss.tsp.events;
 
-import org.fruct.oss.tsp.data.Point;
+import org.fruct.oss.tsp.commondatatypes.Point;
 
 import java.util.List;
 

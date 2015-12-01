@@ -2,12 +2,11 @@ package org.fruct.oss.tsp.stores;
 
 import android.util.Log;
 
-import org.fruct.oss.tsp.data.Movement;
+import org.fruct.oss.tsp.commondatatypes.Movement;
 import org.fruct.oss.tsp.events.ScheduleEvent;
 import org.fruct.oss.tsp.events.ScheduleStoreChangedEvent;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;

@@ -22,7 +22,7 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.fruct.oss.tsp.R;
-import org.fruct.oss.tsp.data.Point;
+import org.fruct.oss.tsp.commondatatypes.Point;
 import org.fruct.oss.tsp.viewmodel.DefaultGeoViewModel;
 import org.fruct.oss.tsp.viewmodel.GeoViewModel;
 

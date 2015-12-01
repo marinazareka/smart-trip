@@ -1,4 +1,4 @@
-package org.fruct.oss.tsp.data;
+package org.fruct.oss.tsp.commondatatypes;
 
 /**
  * Информация о географическом объекте

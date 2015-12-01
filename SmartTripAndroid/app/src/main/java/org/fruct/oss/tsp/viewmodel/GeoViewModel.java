@@ -1,6 +1,6 @@
 package org.fruct.oss.tsp.viewmodel;
 
-import org.fruct.oss.tsp.data.Point;
+import org.fruct.oss.tsp.commondatatypes.Point;
 
 import java.util.List;
 

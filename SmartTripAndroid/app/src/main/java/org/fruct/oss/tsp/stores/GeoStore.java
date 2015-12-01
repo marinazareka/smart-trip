@@ -3,7 +3,7 @@ package org.fruct.oss.tsp.stores;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import org.fruct.oss.tsp.data.Point;
+import org.fruct.oss.tsp.commondatatypes.Point;
 import org.fruct.oss.tsp.events.GeoStoreChangedEvent;
 import org.fruct.oss.tsp.events.SearchEvent;
 

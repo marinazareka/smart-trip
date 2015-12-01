@@ -2,7 +2,7 @@ package org.fruct.oss.tsp.smartspace;
 
 import android.location.Location;
 
-import org.fruct.oss.tsp.data.Point;
+import org.fruct.oss.tsp.commondatatypes.Point;
 import org.fruct.oss.tsp.data.ScheduleRequest;
 import org.fruct.oss.tsp.data.SearchRequest;
 import org.fruct.oss.tsp.data.User;
