@@ -91,11 +91,13 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback {
 	public boolean handleMessage(Message msg) {
 		switch (msg.what) {
 		case SmartSpaceService.CALLBACK_SEARCH_RESULT:
+			msg.getData().setClassLoader(Point.class.getClassLoader());
 			List<Point> points = msg.getData().getParcelableArrayList("points");
 			EventBus.getDefault().post(new SearchEvent(points));
 			break;
 
 		case SmartSpaceService.CALLBACK_SCHEDULE_RESULT:
+			msg.getData().setClassLoader(Point.class.getClassLoader());
 			List<Movement> movements = msg.getData().getParcelableArrayList("movements");
 			EventBus.getDefault().post(new ScheduleEvent(movements));
 			break;

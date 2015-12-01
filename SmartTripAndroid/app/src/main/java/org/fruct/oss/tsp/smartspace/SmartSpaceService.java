@@ -94,6 +94,7 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 			break;
 
 		case MSG_ACTION_POST_SCHEDULE_REQUEST:
+			msg.getData().setClassLoader(Point.class.getClassLoader());
 			List<Point> points = msg.getData().getParcelableArrayList("points");
 			handlerPostScheduleRequest(points);
 			break;
