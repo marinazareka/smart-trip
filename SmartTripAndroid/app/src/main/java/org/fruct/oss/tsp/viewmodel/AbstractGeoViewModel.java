@@ -1,7 +1,7 @@
 package org.fruct.oss.tsp.viewmodel;
 
 import org.fruct.oss.tsp.BuildConfig;
-import org.fruct.oss.tsp.commondatatypes.Point;
+import org.fruct.oss.tsp.commondatatype.Point;
 
 import java.util.ArrayList;
 import java.util.HashSet;

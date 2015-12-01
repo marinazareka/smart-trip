@@ -2,7 +2,7 @@ package org.fruct.oss.tsp.stores;
 
 import android.util.Log;
 
-import org.fruct.oss.tsp.commondatatypes.Movement;
+import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.events.ScheduleEvent;
 import org.fruct.oss.tsp.events.ScheduleStoreChangedEvent;
 

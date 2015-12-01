@@ -1,1 +1,1 @@
-include ':app', ':smartslognative', ':commondatatypes'
+include ':app', ':smartslognative', ':commondata'

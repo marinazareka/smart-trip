@@ -1,6 +1,6 @@
 package org.fruct.oss.tsp.events;
 
-import org.fruct.oss.tsp.commondatatypes.Movement;
+import org.fruct.oss.tsp.commondatatype.Movement;
 
 import java.util.List;
 
