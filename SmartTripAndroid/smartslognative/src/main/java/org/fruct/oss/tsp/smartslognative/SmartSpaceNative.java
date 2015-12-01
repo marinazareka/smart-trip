@@ -4,7 +4,8 @@ import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
 
 public interface SmartSpaceNative {
-	void publishUser(String userId);
+	void initialize(String userId);
+	void shutdown();
 
 	void updateUserLocation(double lat, double lon);
 
@@ -12,7 +13,11 @@ public interface SmartSpaceNative {
 
 	void postScheduleRequest(Point[] points);
 
-	// Callbacks
-	void onSearchRequestReady(Point[] points);
-	void onScheduleRequestReady(Movement[] movements);
+	void setListener(Listener listener);
+
+	interface Listener {
+		// Callbacks
+		void onSearchRequestReady(Point[] points);
+		void onScheduleRequestReady(Movement[] movements);
+	}
 }

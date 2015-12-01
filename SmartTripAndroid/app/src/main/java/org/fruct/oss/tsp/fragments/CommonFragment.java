@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 import org.fruct.oss.tsp.events.LocationEvent;
+import org.fruct.oss.tsp.smartspace.BoundSmartSpace;
 import org.fruct.oss.tsp.smartspace.SmartSpace;
 import org.fruct.oss.tsp.smartspace.TestSmartSpace;
 import org.fruct.oss.tsp.stores.GeoStore;
@@ -20,7 +21,7 @@ public class CommonFragment extends Fragment {
 	private GeoStore geoStore;
 	private ScheduleStore scheduleStore;
 
-	private SmartSpace smartSpace;
+	private BoundSmartSpace smartSpace;
 
 	public CommonFragment() {
 	}
@@ -41,7 +42,7 @@ public class CommonFragment extends Fragment {
 	}
 
 	private void createSmartspace() {
-		smartSpace = new TestSmartSpace(getActivity());
+		smartSpace = new BoundSmartSpace(getActivity());
 	}
 
 	private void createGeoStore() {
@@ -54,10 +55,12 @@ public class CommonFragment extends Fragment {
 		EventBus.getDefault().register(this);
 		geoStore.start();
 		scheduleStore.start();
+		smartSpace.start();
 	}
 
 	@Override
 	public void onStop() {
+		smartSpace.stop();
 		scheduleStore.stop();
 		geoStore.stop();
 		EventBus.getDefault().unregister(this);
