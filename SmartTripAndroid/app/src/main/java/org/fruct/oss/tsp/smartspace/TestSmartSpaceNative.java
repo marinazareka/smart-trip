@@ -5,6 +5,7 @@ import android.util.Log;
 
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
+import org.fruct.oss.tsp.smartslognative.NativeTest;
 import org.fruct.oss.tsp.smartslognative.SmartSpaceNative;
 
 import java.util.ArrayList;
@@ -84,6 +85,8 @@ public class TestSmartSpaceNative implements SmartSpaceNative {
 				if (listener != null) {
 					listener.onScheduleRequestReady(movements.toArray(new Movement[movements.size()]));
 				}
+
+				//NativeTest.divide(5, movements.size() - 1);
 			}
 		}, 1000);
 	}

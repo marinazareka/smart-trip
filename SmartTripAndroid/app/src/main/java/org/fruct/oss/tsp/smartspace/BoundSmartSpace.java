@@ -12,6 +12,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
@@ -29,6 +30,8 @@ import de.greenrobot.event.EventBus;
 // TODO: сервис может быть не подключен во время запросов.
 
 public class BoundSmartSpace implements SmartSpace, Handler.Callback {
+	private static final String TAG = "BoundSmartSpace";
+
 	private final Context context;
 
 	private SmartSpaceServiceConnection connection;
@@ -109,12 +112,14 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback {
 	private class SmartSpaceServiceConnection implements ServiceConnection {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
+			Log.d(TAG, "Smart space service connected");
 			messenger = new Messenger(service);
 			sendCallback();
 		}
 
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
+			Log.d(TAG, "Smart space service lost");
 			BoundSmartSpace.this.onServiceDisconnected();
 		}
 	}
@@ -138,6 +143,7 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback {
 	}
 
 	private void onServiceDisconnected() {
+		Log.d(TAG, "Smart space service disconnected");
 		messenger = null;
 	}
 }

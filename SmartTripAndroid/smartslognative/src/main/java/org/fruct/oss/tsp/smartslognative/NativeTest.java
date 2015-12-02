@@ -5,4 +5,5 @@ public class NativeTest {
 		System.loadLibrary("smartslognative");
 	}
 	public static native String helloworld();
+	public static native int divide(int a, int b);
 }

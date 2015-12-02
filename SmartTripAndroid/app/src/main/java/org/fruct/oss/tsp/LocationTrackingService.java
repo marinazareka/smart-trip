@@ -97,7 +97,7 @@ public class LocationTrackingService extends Service
 
 	@Override
 	public void onLocationChanged(Location location) {
-		Log.d(TAG, "Location received " + location);
+		Log.v(TAG, "Location received " + location);
 		EventBus.getDefault().post(new LocationEvent(location));
 	}
 
