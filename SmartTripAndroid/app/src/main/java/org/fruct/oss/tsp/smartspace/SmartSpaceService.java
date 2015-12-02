@@ -16,6 +16,7 @@ import android.util.Log;
 
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
+import org.fruct.oss.tsp.smartslognative.JniSmartSpaceNative;
 import org.fruct.oss.tsp.smartslognative.SmartSpaceNative;
 
 import java.util.ArrayList;
@@ -62,8 +63,8 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 		handler.post(new Runnable() {
 			@Override
 			public void run() {
-				smartSpace.setListener(new Listener());
 				smartSpace.initialize("test-user-id");
+				smartSpace.setListener(new Listener());
 			}
 		});
 	}
@@ -76,7 +77,7 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 	}
 
 	private SmartSpaceNative createSmartSpaceNative() {
-		return new TestSmartSpaceNative();
+		return new JniSmartSpaceNative();
 	}
 
 	@Override
