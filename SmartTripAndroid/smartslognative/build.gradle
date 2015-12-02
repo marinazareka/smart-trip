@@ -22,6 +22,11 @@ model {
 
     android.ndk {
         moduleName = "smartslognative"
+        CFlags.add("-I${file("src/main/jni/expat")}".toString())
+        CFlags.add("-I${file("src/main/jni")}".toString())
+        CFlags.add("-D MTENABLE");
+        CFlags.add("-D HAVE_MEMMOVE")
+        CFlags.add("-std=gnu99")
     }
 
     compileOptions.with {

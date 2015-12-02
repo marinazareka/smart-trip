@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 import org.fruct.oss.tsp.events.LocationEvent;
 import org.fruct.oss.tsp.smartspace.BoundSmartSpace;
 import org.fruct.oss.tsp.smartspace.SmartSpace;
-import org.fruct.oss.tsp.smartspace.TestSmartSpace;
 import org.fruct.oss.tsp.stores.GeoStore;
 import org.fruct.oss.tsp.stores.ScheduleStore;
 
