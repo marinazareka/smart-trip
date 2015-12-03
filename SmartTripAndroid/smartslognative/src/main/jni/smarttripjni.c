@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include <jni.h>
 #include <android/log.h>
 
@@ -6,29 +8,64 @@
 
 #define APPNAME "TSP-Native"
 
-static jclass class_point;
+static JavaVM* jvm;
 
+static jclass class_point;
+static jclass class_listener;
+
+static jmethodID constructor_point;
 static jmethodID method_get_point_id;
 static jmethodID method_get_point_title;
 static jmethodID method_get_point_lat;
 static jmethodID method_get_point_lon;
 
+static jmethodID method_listener_on_search_request_ready;
+
+static jobject global_listener;
+
 static void initialize_jni(JNIEnv *env) {
+    (*env)->GetJavaVM(env, &jvm);
+
     class_point = (*env)->FindClass(env, "org/fruct/oss/tsp/commondatatype/Point");
     class_point = (*env)->NewGlobalRef(env, class_point);
 
-    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Get getTitle");
+    class_listener = (*env)->FindClass(env, "org/fruct/oss/tsp/smartslognative/SmartSpaceNative$Listener");
+    class_listener = (*env)->NewGlobalRef(env, class_listener);
+
+    constructor_point = (*env)->GetMethodID(env, class_point, "<init>",
+                                            "(Ljava/lang/String;Ljava/lang/String;DD)V");
+
     method_get_point_title = (*env)->GetMethodID(env, class_point, "getTitle", "()Ljava/lang/String;");
-    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Get getId");
     method_get_point_id = (*env)->GetMethodID(env, class_point, "getId", "()Ljava/lang/String;");
-    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Get getLat");
     method_get_point_lat = (*env)->GetMethodID(env, class_point, "getLat", "()D");
-    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Get getLon");
     method_get_point_lon = (*env)->GetMethodID(env, class_point, "getLon", "()D");
+
+    method_listener_on_search_request_ready
+            = (*env)->GetMethodID(env, class_listener, "onSearchRequestReady",
+                                  "([Lorg/fruct/oss/tsp/commondatatype/Point;)V");
 }
 
 static void shutdown_jni(JNIEnv* env) {
     (*env)->DeleteGlobalRef(env, class_point);
+    (*env)->DeleteGlobalRef(env, class_listener);
+}
+
+static JNIEnv* get_jni_env() {
+    JNIEnv* env = NULL;
+
+    jint res_env = (*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_1_6);
+    if (res_env == JNI_OK) {
+        return env;
+    }
+
+    jint res = (*jvm)->AttachCurrentThread(jvm, &env, NULL);
+
+    if (res != JNI_OK) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't attach thread");
+        return NULL;
+    } else {
+        return env;
+    }
 }
 
 JNIEXPORT jstring JNICALL
@@ -121,6 +158,33 @@ Java_org_fruct_oss_tsp_smartslognative_JniSmartSpaceNative_setListener(JNIEnv *e
                                                                        jobject instance,
                                                                        jobject listener) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "setListener called");
-    // TODO
+    global_listener = (*env)->NewGlobalRef(env, listener);
+}
+
+// Callbacks
+void st_on_search_request_ready(struct Point *points, int points_count) {
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "st_on_search_request_ready");
+
+    JNIEnv* env = get_jni_env();
+
+    jobjectArray array = (*env)->NewObjectArray(env, points_count, class_point, NULL);
+
+    for (int i = 0; i < points_count; i++) {
+        jstring id_str = (*env)->NewStringUTF(env, points[i].id);
+        jstring title_str = (*env)->NewStringUTF(env, points[i].title);
+
+        jobject point_object = (*env)->NewObject(env, class_point, constructor_point,
+                                                 id_str, title_str, points[i].lat, points[i].lon);
+
+        (*env)->SetObjectArrayElement(env, array, i, point_object);
+    }
+
+    (*env)->CallVoidMethod(env, global_listener, method_listener_on_search_request_ready, array);
+}
+
+void st_on_schedule_request_ready(struct Movement *movements, int movements_count) {
+    JNIEnv* env;
+    (*jvm)->AttachCurrentThread(jvm, &env, NULL);
+
 
 }

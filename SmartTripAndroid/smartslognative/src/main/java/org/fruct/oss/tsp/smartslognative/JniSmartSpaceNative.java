@@ -3,7 +3,7 @@ package org.fruct.oss.tsp.smartslognative;
 import org.fruct.oss.tsp.commondatatype.Point;
 
 public class JniSmartSpaceNative implements SmartSpaceNative {
-	static {
+	public static void loadNativeLibrary() {
 		System.loadLibrary("smartstripnative");
 	}
 

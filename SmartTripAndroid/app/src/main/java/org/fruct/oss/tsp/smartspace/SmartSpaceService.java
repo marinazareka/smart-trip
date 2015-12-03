@@ -25,6 +25,7 @@ import java.util.List;
 public class SmartSpaceService extends Service implements Handler.Callback {
 	private static final Logger log = LoggerFactory.getLogger(SmartSpaceService.class);
 
+	public static final int MSG_ACTION_INITIALIZE = 0;
 	public static final int MSG_ACTION_POST_USER_LOCATION = 1;
 	public static final int MSG_ACTION_POST_SEARCH_REQUEST = 2;
 	public static final int MSG_ACTION_POST_SCHEDULE_REQUEST = 3;
@@ -57,13 +58,7 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 
 		smartSpace = createSmartSpaceNative();
 
-		handler.post(new Runnable() {
-			@Override
-			public void run() {
-				smartSpace.initialize("test-user-id");
-				smartSpace.setListener(new Listener());
-			}
-		});
+		handler.sendEmptyMessage(MSG_ACTION_INITIALIZE);
 	}
 
 	@Override
@@ -74,12 +69,18 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 	}
 
 	private SmartSpaceNative createSmartSpaceNative() {
+		JniSmartSpaceNative.loadNativeLibrary();
 		return new JniSmartSpaceNative();
 	}
 
 	@Override
 	public boolean handleMessage(Message msg) {
 		switch (msg.what) {
+		case MSG_ACTION_INITIALIZE:
+			smartSpace.initialize("test-user-id");
+			smartSpace.setListener(new Listener());
+			break;
+
 		case MSG_ACTION_POST_USER_LOCATION:
 			Location location = msg.getData().getParcelable("location");
 			handlePostUserLocation(location);
