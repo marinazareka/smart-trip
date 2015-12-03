@@ -23,8 +23,29 @@ static jmethodID method_listener_on_search_request_ready;
 
 static jobject global_listener;
 
-static void initialize_jni(JNIEnv *env) {
-    (*env)->GetJavaVM(env, &jvm);
+static JNIEnv* get_jni_env() {
+    JNIEnv* env = NULL;
+
+    jint res_env = (*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_1_2);
+    if (res_env == JNI_OK) {
+        return env;
+    }
+
+    jint res = (*jvm)->AttachCurrentThread(jvm, &env, NULL);
+
+    if (res != JNI_OK) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't attach thread");
+        return NULL;
+    } else {
+        return env;
+    }
+}
+
+JNIEXPORT jint JNICALL
+JNI_OnLoad(JavaVM *vm, void *reserved) {
+    jvm = vm;
+
+    JNIEnv* env = get_jni_env();
 
     class_point = (*env)->FindClass(env, "org/fruct/oss/tsp/commondatatype/Point");
     class_point = (*env)->NewGlobalRef(env, class_point);
@@ -43,29 +64,15 @@ static void initialize_jni(JNIEnv *env) {
     method_listener_on_search_request_ready
             = (*env)->GetMethodID(env, class_listener, "onSearchRequestReady",
                                   "([Lorg/fruct/oss/tsp/commondatatype/Point;)V");
+    return JNI_VERSION_1_2;
 }
 
-static void shutdown_jni(JNIEnv* env) {
+JNIEXPORT void JNICALL
+JNI_OnUnload(JavaVM *vm, void *reserved) {
+    JNIEnv* env = get_jni_env();
+
     (*env)->DeleteGlobalRef(env, class_point);
     (*env)->DeleteGlobalRef(env, class_listener);
-}
-
-static JNIEnv* get_jni_env() {
-    JNIEnv* env = NULL;
-
-    jint res_env = (*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_1_6);
-    if (res_env == JNI_OK) {
-        return env;
-    }
-
-    jint res = (*jvm)->AttachCurrentThread(jvm, &env, NULL);
-
-    if (res != JNI_OK) {
-        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't attach thread");
-        return NULL;
-    } else {
-        return env;
-    }
 }
 
 JNIEXPORT jstring JNICALL
@@ -87,7 +94,6 @@ Java_org_fruct_oss_tsp_smartslognative_JniSmartSpaceNative_initialize(JNIEnv *en
     const char *userId = (*env)->GetStringUTFChars(env, userId_, 0);
 
     st_initialize(userId);
-    initialize_jni(env);
 
     (*env)->ReleaseStringUTFChars(env, userId_, userId);
 }
@@ -96,7 +102,6 @@ JNIEXPORT void JNICALL
 Java_org_fruct_oss_tsp_smartslognative_JniSmartSpaceNative_shutdown(JNIEnv *env, jobject instance) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "shutdown called");
     st_shutdown();
-    shutdown_jni(env);
 }
 
 JNIEXPORT void JNICALL
