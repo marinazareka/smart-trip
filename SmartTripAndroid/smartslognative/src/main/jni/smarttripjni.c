@@ -4,7 +4,7 @@
 #include "smarttrip.h"
 #include "st_point.h"
 
-#define APPNAME "SmartTripJni"
+#define APPNAME "TSP-Native"
 
 static jclass class_point;
 
