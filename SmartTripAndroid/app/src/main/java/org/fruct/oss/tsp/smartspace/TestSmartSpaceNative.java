@@ -1,18 +1,18 @@
 package org.fruct.oss.tsp.smartspace;
 
 import android.os.Handler;
-import android.util.Log;
 
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
-import org.fruct.oss.tsp.smartslognative.NativeTest;
 import org.fruct.oss.tsp.smartslognative.SmartSpaceNative;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TestSmartSpaceNative implements SmartSpaceNative {
-	private static final String TAG = "TestSmartSpaceNative";
+	private static final Logger log = LoggerFactory.getLogger(TestSmartSpaceNative.class);
 
 	private boolean isSearchFinished;
 	private Handler handler;
@@ -28,26 +28,26 @@ public class TestSmartSpaceNative implements SmartSpaceNative {
 
 	@Override
 	public void initialize(String userId) {
-		Log.d(TAG, "initialize() called with: " + "userId = [" + userId + "]");
+		log.debug("initialize() called with: " + "userId = [" + userId + "]");
 	}
 
 	@Override
 	public void shutdown() {
 		handler.removeCallbacksAndMessages(null);
 
-		Log.d(TAG, "shutdown() called with: " + "");
+		log.debug("shutdown() called with: " + "");
 	}
 
 	@Override
 	public void updateUserLocation(double lat, double lon) {
 		this.lat = lat;
 		this.lon = lon;
-		Log.d(TAG, "updateUserLocation() called with: " + "lat = [" + lat + "], lon = [" + lon + "]");
+		log.debug("updateUserLocation() called with: " + "lat = [" + lat + "], lon = [" + lon + "]");
 	}
 
 	@Override
 	public void postSearchRequest(double radius, String pattern) {
-		Log.d(TAG, "postSearchRequest() called with: " + "radius = [" + radius + "], pattern = [" + pattern + "]");
+		log.debug("postSearchRequest() called with: " + "radius = [" + radius + "], pattern = [" + pattern + "]");
 
 		handler.postDelayed(new Runnable() {
 			@Override
@@ -72,7 +72,7 @@ public class TestSmartSpaceNative implements SmartSpaceNative {
 
 	@Override
 	public void postScheduleRequest(final Point[] points) {
-		Log.d(TAG, "postScheduleRequest() called with: " + "points = [" + points + "]");
+		log.debug("postScheduleRequest() called with: " + "points = [" + points + "]");
 
 		handler.postDelayed(new Runnable() {
 			@Override
@@ -94,6 +94,6 @@ public class TestSmartSpaceNative implements SmartSpaceNative {
 	@Override
 	public void setListener(Listener listener) {
 		this.listener = listener;
-		Log.d(TAG, "setListener() called with: " + "listener = [" + listener + "]");
+		log.debug("setListener() called with: " + "listener = [" + listener + "]");
 	}
 }

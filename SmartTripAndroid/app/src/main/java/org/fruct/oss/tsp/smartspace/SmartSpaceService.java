@@ -3,30 +3,27 @@ package org.fruct.oss.tsp.smartspace;
 import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
-import android.os.Parcelable;
 import android.os.RemoteException;
-import android.util.Log;
 
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.smartslognative.JniSmartSpaceNative;
 import org.fruct.oss.tsp.smartslognative.SmartSpaceNative;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class SmartSpaceService extends Service implements Handler.Callback {
-	private static final String TAG = "SmartSpaceService";
+	private static final Logger log = LoggerFactory.getLogger(SmartSpaceService.class);
 
 	public static final int MSG_ACTION_POST_USER_LOCATION = 1;
 	public static final int MSG_ACTION_POST_SEARCH_REQUEST = 2;
@@ -148,7 +145,7 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 							callbackMessenger.send(message);
 						} catch (RemoteException e) {
 							callbackMessenger = null;
-							Log.e(TAG, "Callback messenger disconnected");
+							log.error("Callback messenger disconnected");
 						}
 					}
 				}
@@ -173,7 +170,7 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 							callbackMessenger.send(message);
 						} catch (RemoteException e) {
 							callbackMessenger = null;
-							Log.e(TAG, "Callback messenger disconnected");
+							log.error("Callback messenger disconnected");
 						}
 					}
 				}

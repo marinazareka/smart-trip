@@ -5,6 +5,8 @@ import android.util.Log;
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.events.ScheduleEvent;
 import org.fruct.oss.tsp.events.ScheduleStoreChangedEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +19,7 @@ import de.greenrobot.event.EventBus;
  * Подписывается на событие обновления и обновляет свое состояние при получении события.
  */
 public class ScheduleStore implements Store {
-	private static final String TAG = "ScheduleStore";
+	private static final Logger log = LoggerFactory.getLogger(ScheduleStore.class);
 
 	private List<Movement> currentSchedule = new ArrayList<>();
 
@@ -35,7 +37,7 @@ public class ScheduleStore implements Store {
 		currentSchedule.clear();
 		currentSchedule.addAll(event.getMovements());
 
-		Log.d(TAG, "Schedule store updated");
+		log.debug("Schedule store updated");
 		EventBus.getDefault().post(new ScheduleStoreChangedEvent());
 	}
 

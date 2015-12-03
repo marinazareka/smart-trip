@@ -7,7 +7,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,6 +24,8 @@ import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.viewmodel.DefaultGeoViewModel;
 import org.fruct.oss.tsp.viewmodel.GeoViewModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +48,7 @@ import butterknife.OnCheckedChanged;
  * Текущее состояние выбора точек и хранится в объекте вспомогательного класса {@link GeoViewModel}.
  */
 public class PointListFragment extends BaseFragment implements GeoViewModel.Listener {
-	private static final String TAG = "PointListFragment";
+	private static final Logger log = LoggerFactory.getLogger(PointListFragment.class);
 
 	@Bind(R.id.recycler_view)
 	RecyclerView recyclerView;
@@ -150,7 +151,8 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 				checkedPoints.add(pointModel.point);
 			}
 		}
-		Log.d(TAG, checkedPoints.size() + " points searching");
+
+		log.debug("{} points searching", checkedPoints.size());
 
 		getSmartSpace().postScheduleRequest(checkedPoints);
 	}
@@ -242,7 +244,6 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 
 			@OnCheckedChanged(R.id.check_box)
 			void onCheckBoxChecked(boolean checked) {
-				Log.d(TAG, "Checked");
 				geoViewModel.setCheckedState(position, checked);
 				getActivity().invalidateOptionsMenu();
 			}

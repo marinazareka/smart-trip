@@ -3,7 +3,6 @@ package org.fruct.oss.tsp.smartspace;
 import android.content.Context;
 import android.location.Location;
 import android.os.Handler;
-import android.util.Log;
 
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
@@ -12,6 +11,8 @@ import org.fruct.oss.tsp.data.SearchRequest;
 import org.fruct.oss.tsp.data.User;
 import org.fruct.oss.tsp.events.ScheduleEvent;
 import org.fruct.oss.tsp.events.SearchEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +24,7 @@ import de.greenrobot.event.EventBus;
  * Реализация интерфейса {link SmartSpace} для тестирования и отладки
  */
 public class TestSmartSpace implements SmartSpace {
-	private static final String TAG = "TestSmartSpace";
+	private static final Logger log = LoggerFactory.getLogger(TestSmartSpace.class);
 
 	private Random random;
 
@@ -74,7 +75,7 @@ public class TestSmartSpace implements SmartSpace {
 	}
 
 	void search() {
-		Log.d(TAG, "Searching with " + location + ":" + pattern + ":" + radius);
+		log.debug("Searching with " + location + ":" + pattern + ":" + radius);
 
 		if (location == null || pattern == null) {
 			return;

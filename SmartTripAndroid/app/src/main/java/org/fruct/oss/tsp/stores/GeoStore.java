@@ -1,11 +1,12 @@
 package org.fruct.oss.tsp.stores;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.events.GeoStoreChangedEvent;
 import org.fruct.oss.tsp.events.SearchEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +19,7 @@ import de.greenrobot.event.EventBus;
  * Подписывается на событие обновления и обновляет свое состояние при получении события.
  */
 public class GeoStore implements Store {
-	private static final String TAG = "GeoStore";
+	private static final Logger log = LoggerFactory.getLogger(GeoStore.class);
 
 	private List<Point> points = Collections.emptyList();
 
@@ -44,7 +45,7 @@ public class GeoStore implements Store {
 	public void onEventMainThread(SearchEvent searchEvent) {
 		points = searchEvent.getPoints();
 
-		Log.d(TAG, "Schedule store updated");
+		log.debug("Schedule store updated");
 		EventBus.getDefault().post(new GeoStoreChangedEvent());
 	}
 }

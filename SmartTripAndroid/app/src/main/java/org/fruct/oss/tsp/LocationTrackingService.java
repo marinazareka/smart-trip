@@ -6,17 +6,16 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderApi;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import org.fruct.oss.tsp.activities.MainActivity;
 import org.fruct.oss.tsp.events.LocationEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.greenrobot.event.EventBus;
 
@@ -29,7 +28,7 @@ import de.greenrobot.event.EventBus;
 public class LocationTrackingService extends Service
 		implements GoogleApiClient.ConnectionCallbacks,
 		GoogleApiClient.OnConnectionFailedListener, LocationListener {
-	private static final String TAG = "LocationTrackingService";
+	private static final Logger log = LoggerFactory.getLogger(LocationTrackingService.class);
 
 	private GoogleApiClient apiClient;
 	private boolean isLocationUpdatesSubscribed;
@@ -97,7 +96,7 @@ public class LocationTrackingService extends Service
 
 	@Override
 	public void onLocationChanged(Location location) {
-		Log.v(TAG, "Location received " + location);
+		log.trace("Location received {}", location);
 		EventBus.getDefault().post(new LocationEvent(location));
 	}
 
