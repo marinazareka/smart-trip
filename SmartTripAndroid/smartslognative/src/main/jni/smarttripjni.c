@@ -185,6 +185,9 @@ void st_on_search_request_ready(struct Point *points, int points_count) {
     }
 
     (*env)->CallVoidMethod(env, global_listener, method_listener_on_search_request_ready, array);
+
+    // TODO: should be check is current thread attached
+    (*jvm)->DetachCurrentThread(jvm);
 }
 
 void st_on_schedule_request_ready(struct Movement *movements, int movements_count) {
