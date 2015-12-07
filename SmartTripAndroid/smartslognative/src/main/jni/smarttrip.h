@@ -1,13 +1,18 @@
 #ifndef SMARTTRIPANDROID_SMARTTRIP_H
 #define SMARTTRIPANDROID_SMARTTRIP_H
 
+#include <stdbool.h>
+
+#define APPNAME "TSP-Native"
+
 struct Point;
 struct Movement;
 
 struct Callback {
 };
 
-void st_initialize(const char* user_id);
+bool st_initialize(const char *user_id, const char *string, const char *string1,
+                   const char *string2, int i);
 void st_shutdown();
 void st_update_user_location(double lat, double lon);
 void st_post_search_request(double radius, const char *pattern);

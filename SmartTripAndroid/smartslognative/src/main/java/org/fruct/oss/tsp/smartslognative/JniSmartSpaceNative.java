@@ -2,13 +2,15 @@ package org.fruct.oss.tsp.smartslognative;
 
 import org.fruct.oss.tsp.commondatatype.Point;
 
+import java.io.IOException;
+
 public class JniSmartSpaceNative implements SmartSpaceNative {
 	public static void loadNativeLibrary() {
 		System.loadLibrary("smartstripnative");
 	}
 
 	@Override
-	public native void initialize(String userId);
+	public native void initialize(String userId, String kpName, String smartSpaceName, String address, int port) throws IOException;
 
 	@Override
 	public native void shutdown();

@@ -23,9 +23,12 @@ model {
     android.ndk {
         moduleName = "smartstripnative"
         CFlags.add("-I${file("src/main/jni/expat")}".toString())
+        CFlags.add("-I${file("src/main/jni/smartslog")}".toString())
+        CFlags.add("-I${file("src/main/jni/ontology")}".toString())
         CFlags.add("-I${file("src/main/jni")}".toString())
         CFlags.add("-D MTENABLE");
         CFlags.add("-D HAVE_MEMMOVE")
+        CFlags.add("-D NO_GLIB")
         CFlags.add("-std=gnu99")
         ldLibs.add("log")
     }

@@ -5,7 +5,9 @@
 #include <time.h>
 #include <assert.h>
 
+#if !defined(NO_GLIB)
 #include <glib.h>
+#endif
 
 #include <netdb.h>
 #include <netinet/in.h>
@@ -96,6 +98,7 @@ bool get_point_coordinates(sslog_node_t* node, sslog_individual_t* point, double
    return true;
 }
 
+#if !defined(NO_GLIB)
 sslog_node_t* create_node(const char* kp_name, const char* config) {
     GKeyFile* keyfile = g_key_file_new();
 
@@ -116,6 +119,7 @@ sslog_node_t* create_node(const char* kp_name, const char* config) {
 
     return ret;
 }
+#endif
 
 sslog_node_t* create_node_resolve(const char* name, const char* smartspace, const char* address, int port) {
     // Check if address is already IP4 address

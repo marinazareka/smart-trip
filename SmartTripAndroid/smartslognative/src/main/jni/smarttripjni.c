@@ -6,12 +6,12 @@
 #include "smarttrip.h"
 #include "st_point.h"
 
-#define APPNAME "TSP-Native"
 
 static JavaVM* jvm;
 
 static jclass class_point;
 static jclass class_listener;
+static jclass class_ioexception;
 
 static jmethodID constructor_point;
 static jmethodID method_get_point_id;
@@ -47,6 +47,9 @@ JNI_OnLoad(JavaVM *vm, void *reserved) {
 
     JNIEnv* env = get_jni_env();
 
+    class_ioexception = (*env)->FindClass(env, "java/io/IOException");
+    class_ioexception = (*env)->NewGlobalRef(env, class_ioexception);
+
     class_point = (*env)->FindClass(env, "org/fruct/oss/tsp/commondatatype/Point");
     class_point = (*env)->NewGlobalRef(env, class_point);
 
@@ -71,6 +74,7 @@ JNIEXPORT void JNICALL
 JNI_OnUnload(JavaVM *vm, void *reserved) {
     JNIEnv* env = get_jni_env();
 
+    (*env)->DeleteGlobalRef(env, class_ioexception);
     (*env)->DeleteGlobalRef(env, class_point);
     (*env)->DeleteGlobalRef(env, class_listener);
 }
@@ -88,14 +92,29 @@ Java_org_fruct_oss_tsp_smartslognative_NativeTest_divide(JNIEnv *env, jclass typ
 
 JNIEXPORT void JNICALL
 Java_org_fruct_oss_tsp_smartslognative_JniSmartSpaceNative_initialize(JNIEnv *env, jobject instance,
-                                                                      jstring userId_) {
-    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "initialize called");
-
+                                                                      jstring userId_,
+                                                                      jstring kpName_,
+                                                                      jstring smartSpaceName_,
+                                                                      jstring address_, jint port) {
     const char *userId = (*env)->GetStringUTFChars(env, userId_, 0);
+    const char *kpName = (*env)->GetStringUTFChars(env, kpName_, 0);
+    const char *smartSpaceName = (*env)->GetStringUTFChars(env, smartSpaceName_, 0);
+    const char *address = (*env)->GetStringUTFChars(env, address_, 0);
 
-    st_initialize(userId);
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "initialize called %s %s %s %s %d",
+                        userId, kpName, smartSpaceName, address, port);
 
+    if (!st_initialize(userId, kpName, smartSpaceName, address, port)) {
+        (*env)->ThrowNew(env, class_ioexception, "Can't initialize smartspace");
+    } else {
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "successfully initialized");
+    }
+
+    // Release functions are safe to call with pending exception
     (*env)->ReleaseStringUTFChars(env, userId_, userId);
+    (*env)->ReleaseStringUTFChars(env, kpName_, kpName);
+    (*env)->ReleaseStringUTFChars(env, smartSpaceName_, smartSpaceName);
+    (*env)->ReleaseStringUTFChars(env, address_, address);
 }
 
 JNIEXPORT void JNICALL
@@ -196,3 +215,4 @@ void st_on_schedule_request_ready(struct Movement *movements, int movements_coun
 
 
 }
+

@@ -3,8 +3,11 @@ package org.fruct.oss.tsp.smartslognative;
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
 
+import java.io.IOException;
+
 public interface SmartSpaceNative {
-	void initialize(String userId);
+	void initialize(String userId, String kpName, String smartSpaceName, String address, int port) throws IOException;
+
 	void shutdown();
 
 	void updateUserLocation(double lat, double lon);

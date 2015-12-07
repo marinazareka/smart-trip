@@ -1,6 +1,7 @@
 package org.fruct.oss.tsp.smartspace;
 
 import android.os.Handler;
+import android.util.Log;
 
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
@@ -27,8 +28,8 @@ public class TestSmartSpaceNative implements SmartSpaceNative {
 	}
 
 	@Override
-	public void initialize(String userId) {
-		log.debug("initialize() called with: " + "userId = [" + userId + "]");
+	public void initialize(String userId, String kpName, String smartSpaceName, String address, int port) {
+		log.debug("initialize() called with: " + "userId = [" + userId + "], kpName = [" + kpName + "], smartSpaceName = [" + smartSpaceName + "], address = [" + address + "], port = [" + port + "]");
 	}
 
 	@Override

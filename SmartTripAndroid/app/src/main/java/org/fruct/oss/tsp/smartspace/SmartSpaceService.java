@@ -18,6 +18,7 @@ import org.fruct.oss.tsp.smartslognative.SmartSpaceNative;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -77,8 +78,13 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 	public boolean handleMessage(Message msg) {
 		switch (msg.what) {
 		case MSG_ACTION_INITIALIZE:
-			smartSpace.initialize("test-user-id");
-			smartSpace.setListener(new Listener());
+			try {
+				smartSpace.initialize("test-user-id", "android-user-kp", "X", "172.20.2.240", 10010);
+				smartSpace.setListener(new Listener());
+				// TODO: do something with uninitialized smartspace
+			} catch (IOException e) {
+				log.error("Can't initialize smartspace", false);
+			}
 			break;
 
 		case MSG_ACTION_POST_USER_LOCATION:
