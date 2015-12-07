@@ -206,7 +206,7 @@ void publish(int points_count, double* points_pairs, const char* roadType, void*
         sslog_insert_property(movement, PROPERTY_ISENDPOINT, point2);
         sslog_insert_property(movement, PROPERTY_USEROAD, (void*) roadType);
         if (previous_movement != NULL) {
-            sslog_insert_property(previous_movement, PROPERTY_HASNEXTMOVEMENT, movement);
+            sslog_node_insert_property(node, previous_movement, PROPERTY_HASNEXTMOVEMENT, movement);
         }
 
         sslog_node_insert_individual(node, movement);

@@ -13,6 +13,7 @@ struct Point {
     double lon;
 };
 
+void st_init_point_clone(struct Point* point, struct Point* source);
 void st_init_point(struct Point* point, const char* id, const char* title, double lat, double lon);
 void st_free_point(struct Point* point);
 

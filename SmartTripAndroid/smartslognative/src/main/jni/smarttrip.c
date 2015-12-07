@@ -6,19 +6,71 @@
 #include <pthread.h>
 
 #include <android/log.h>
+#include <common/common.h>
+#include <entity_internal.h>
 
 #include "st_point.h"
+#include "st_movement.h"
 #include "ontology/ontology.h"
 #include "common/common.h"
 #include "smartslog.h"
 
 static sslog_node_t *node;
 
-static sslog_individual_t *user_individual;
-static sslog_individual_t *user_location;
+static sslog_individual_t* user_individual;
+static sslog_individual_t* user_location;
 
 static sslog_subscription_t* sub_search_request;
 static sslog_individual_t* request_individual;
+
+static sslog_subscription_t* sub_schedule_request;
+static sslog_individual_t* schedule_individual;
+static sslog_individual_t* route_individual;
+
+static void schedule_subscription_handler(sslog_subscription_t* sub) {
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "schedule_subscription_handler");
+
+    //sslog_node_populate(node, route_individual);
+
+    PtrArray ptr_array;
+    ptr_array_init(&ptr_array);
+
+    sslog_individual_t* start_movement = sslog_node_get_property(node, route_individual,
+                                                            PROPERTY_HASSTARTMOVEMENT);
+
+    sslog_individual_t* current_movement = start_movement;
+
+    while (current_movement != NULL) {
+        ptr_array_insert(&ptr_array, current_movement);
+        current_movement = sslog_node_get_property(node, current_movement, PROPERTY_HASNEXTMOVEMENT);
+    }
+
+    int movement_count = ptr_array.size;
+    struct Movement movement_array[movement_count];
+
+    for (int i = 0; i < movement_count; i++) {
+        sslog_individual_t* movement = ptr_array.array[i];
+
+        sslog_individual_t* point_a = sslog_node_get_property(node, movement, PROPERTY_ISSTARTPOINT);
+        sslog_individual_t* point_b = sslog_node_get_property(node, movement, PROPERTY_ISENDPOINT);
+
+        double lat, lon;
+
+        get_point_coordinates(node, point_a, &lat, &lon);
+        st_init_point(&movement_array[i].point_a, point_a->entity.uri, "untitled a", lat, lon);
+
+        get_point_coordinates(node, point_b, &lat, &lon);
+        st_init_point(&movement_array[i].point_b, point_a->entity.uri, "untitled b", lat, lon);
+    }
+
+    st_on_schedule_request_ready(movement_array, movement_count);
+
+    ptr_array_free(&ptr_array);
+    for (int i = 0; i < movement_count; i++) {
+        st_free_point(&movement_array[i].point_a);
+        st_free_point(&movement_array[i].point_b);
+    }
+}
 
 static void search_subscription_handler(sslog_subscription_t* sub) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "search_subscription_handler");
@@ -169,7 +221,7 @@ void st_post_search_request(double radius, const char *pattern) {
     sslog_insert_property(region_individual, PROPERTY_RADIUS, double_to_string(radius));
 
     sslog_individual_t* request_individual_l = sslog_new_individual(CLASS_SEARCHREQUEST,
-                                                                  rand_uuid("search_request"));
+                                                                    rand_uuid("search_request"));
     sslog_insert_property(request_individual_l, PROPERTY_USELOCATION, user_location);
 
     sslog_node_insert_individual(node, request_individual_l);
@@ -193,14 +245,55 @@ void st_post_search_request(double radius, const char *pattern) {
         __android_log_print(ANDROID_LOG_WARN, APPNAME, "Can't subscribe response: %s", sslog_error_get_text(node));
         return;
     }
-
-//    pthread_t thread;
-//    pthread_create(&thread, NULL, &handle_search_request_test, NULL);
-//    pthread_detach(thread);
 }
 
 void st_post_schedule_request(struct Point *points, int points_count) {
+    if (sub_schedule_request != NULL) {
+        sslog_sbcr_stop(sub_schedule_request);
+        sslog_sbcr_unsubscribe(sub_schedule_request);
+        sslog_free_subscription(sub_schedule_request);
+        sub_schedule_request = NULL;
+    }
 
+    if (route_individual != NULL) {
+        sslog_node_remove_individual(node, route_individual);
+        route_individual = NULL;
+    }
+
+    if (schedule_individual != NULL) {
+        sslog_node_remove_individual(node, schedule_individual);
+        schedule_individual = NULL;
+    }
+
+    schedule_individual = sslog_new_individual(CLASS_SCHEDULE, rand_uuid("schedule"));
+    route_individual = sslog_new_individual(CLASS_ROUTE, rand_uuid("route"));
+
+    sslog_insert_property(schedule_individual, PROPERTY_HASROUTE, route_individual);
+
+    for (int i = 0; i < points_count; i++) {
+        sslog_individual_t* point_individual = create_point_individual(node, points[i].lat, points[i].lon);
+        sslog_insert_property(route_individual, PROPERTY_HASPOINT, point_individual);
+    }
+
+    sslog_node_insert_individual(node, route_individual);
+    sslog_node_insert_individual(node, schedule_individual);
+
+    // Subscribe response
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating subsription");
+
+    list_t* properties = list_new();
+    list_add_data(properties, PROPERTY_HASSTARTMOVEMENT);
+
+    sub_schedule_request = sslog_new_subscription(node, true);
+    sslog_sbcr_add_individual(sub_schedule_request, route_individual, properties);
+    sslog_sbcr_set_changed_handler(sub_schedule_request, &schedule_subscription_handler);
+
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Subscribing schedule request");
+    if (sslog_sbcr_subscribe(sub_schedule_request) != SSLOG_ERROR_NO) {
+        sslog_free_subscription(sub_schedule_request);
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Can't subscribe schedule response: %s", sslog_error_get_text(node));
+        return;
+    }
 }
 
 

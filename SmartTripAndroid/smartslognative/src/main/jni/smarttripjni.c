@@ -5,6 +5,7 @@
 
 #include "smarttrip.h"
 #include "st_point.h"
+#include "st_movement.h"
 
 
 static JavaVM* jvm;
@@ -12,7 +13,9 @@ static JavaVM* jvm;
 static jclass class_point;
 static jclass class_listener;
 static jclass class_ioexception;
+static jclass class_movement;
 
+static jmethodID constructor_movement;
 static jmethodID constructor_point;
 static jmethodID method_get_point_id;
 static jmethodID method_get_point_title;
@@ -20,6 +23,7 @@ static jmethodID method_get_point_lat;
 static jmethodID method_get_point_lon;
 
 static jmethodID method_listener_on_search_request_ready;
+static jmethodID method_listener_on_schedule_request_ready;
 
 static jobject global_listener;
 
@@ -53,8 +57,14 @@ JNI_OnLoad(JavaVM *vm, void *reserved) {
     class_point = (*env)->FindClass(env, "org/fruct/oss/tsp/commondatatype/Point");
     class_point = (*env)->NewGlobalRef(env, class_point);
 
+    class_movement = (*env)->FindClass(env, "org/fruct/oss/tsp/commondatatype/Movement");
+    class_movement = (*env)->NewWeakGlobalRef(env, class_movement);
+
     class_listener = (*env)->FindClass(env, "org/fruct/oss/tsp/smartslognative/SmartSpaceNative$Listener");
     class_listener = (*env)->NewGlobalRef(env, class_listener);
+
+    constructor_movement = (*env)->GetMethodID(env, class_movement, "<init>",
+    "(Lorg/fruct/oss/tsp/commondatatype/Point;Lorg/fruct/oss/tsp/commondatatype/Point;)V");
 
     constructor_point = (*env)->GetMethodID(env, class_point, "<init>",
                                             "(Ljava/lang/String;Ljava/lang/String;DD)V");
@@ -67,6 +77,10 @@ JNI_OnLoad(JavaVM *vm, void *reserved) {
     method_listener_on_search_request_ready
             = (*env)->GetMethodID(env, class_listener, "onSearchRequestReady",
                                   "([Lorg/fruct/oss/tsp/commondatatype/Point;)V");
+    method_listener_on_schedule_request_ready
+            = (*env)->GetMethodID(env, class_listener, "onScheduleRequestReady",
+                                  "([Lorg/fruct/oss/tsp/commondatatype/Movement;)V");
+
     return JNI_VERSION_1_2;
 }
 
@@ -185,6 +199,15 @@ Java_org_fruct_oss_tsp_smartslognative_JniSmartSpaceNative_setListener(JNIEnv *e
     global_listener = (*env)->NewGlobalRef(env, listener);
 }
 
+
+static jobject create_point_object(JNIEnv* env, struct Point* point) {
+    jstring id_str = (*env)->NewStringUTF(env, point->id);
+    jstring title_str = (*env)->NewStringUTF(env, point->title);
+
+    return (*env)->NewObject(env, class_point, constructor_point,
+                             id_str, title_str, point->lat, point->lon);
+}
+
 // Callbacks
 void st_on_search_request_ready(struct Point *points, int points_count) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "st_on_search_request_ready");
@@ -194,11 +217,7 @@ void st_on_search_request_ready(struct Point *points, int points_count) {
     jobjectArray array = (*env)->NewObjectArray(env, points_count, class_point, NULL);
 
     for (int i = 0; i < points_count; i++) {
-        jstring id_str = (*env)->NewStringUTF(env, points[i].id);
-        jstring title_str = (*env)->NewStringUTF(env, points[i].title);
-
-        jobject point_object = (*env)->NewObject(env, class_point, constructor_point,
-                                                 id_str, title_str, points[i].lat, points[i].lon);
+        jobject point_object = create_point_object(env, &points[i]);
 
         (*env)->SetObjectArrayElement(env, array, i, point_object);
     }
@@ -209,10 +228,27 @@ void st_on_search_request_ready(struct Point *points, int points_count) {
     (*jvm)->DetachCurrentThread(jvm);
 }
 
+static jobject create_movement_object(JNIEnv* env, struct Movement* movement) {
+    jobject point_a = create_point_object(env, &movement->point_a);
+    jobject point_b = create_point_object(env, &movement->point_b);
+
+    return (*env)->NewObject(env, class_movement, constructor_movement, point_a, point_b);
+}
+
 void st_on_schedule_request_ready(struct Movement *movements, int movements_count) {
     JNIEnv* env;
     (*jvm)->AttachCurrentThread(jvm, &env, NULL);
 
+    jobjectArray movement_array = (*env)->NewObjectArray(env, movements_count, class_movement, NULL);
 
+    for (int i = 0; i < movements_count; i++) {
+        jobject movement = create_movement_object(env, &movements[i]);
+        (*env)->SetObjectArrayElement(env, movement_array, i, movement);
+    }
+
+    (*env)->CallVoidMethod(env, global_listener, method_listener_on_schedule_request_ready, movement_array);
+
+    // TODO: should be check is current thread attached
+    (*jvm)->DetachCurrentThread(jvm);
 }
 
