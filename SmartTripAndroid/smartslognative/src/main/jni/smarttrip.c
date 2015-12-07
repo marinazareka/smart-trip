@@ -32,14 +32,19 @@ static void schedule_subscription_handler(sslog_subscription_t* sub) {
 
     //sslog_node_populate(node, route_individual);
 
-    PtrArray ptr_array;
-    ptr_array_init(&ptr_array);
 
     sslog_individual_t* start_movement = sslog_node_get_property(node, route_individual,
                                                             PROPERTY_HASSTARTMOVEMENT);
 
+    if (start_movement == NULL) {
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Empty schedule response");
+        return;
+    }
+
     sslog_individual_t* current_movement = start_movement;
 
+    PtrArray ptr_array;
+    ptr_array_init(&ptr_array);
     while (current_movement != NULL) {
         ptr_array_insert(&ptr_array, current_movement);
         current_movement = sslog_node_get_property(node, current_movement, PROPERTY_HASNEXTMOVEMENT);
@@ -81,6 +86,11 @@ static void search_subscription_handler(sslog_subscription_t* sub) {
 
     int points_number = list_count(inserted_individuals);
     struct Point point_array[points_number];
+
+    if (points_number == 0) {
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Empty search response");
+        return;
+    }
 
     int counter = 0;
     list_head_t* iter;
@@ -225,9 +235,7 @@ void st_post_search_request(double radius, const char *pattern) {
     sslog_insert_property(request_individual_l, PROPERTY_USELOCATION, user_location);
 
     sslog_node_insert_individual(node, request_individual_l);
-
     request_individual = request_individual_l;
-
 
     // Subscribe to update
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating subsription");
@@ -245,6 +253,9 @@ void st_post_search_request(double radius, const char *pattern) {
         __android_log_print(ANDROID_LOG_WARN, APPNAME, "Can't subscribe response: %s", sslog_error_get_text(node));
         return;
     }
+
+    // Seems that smartslog doesn't notify if data already exists in smartspace
+    //search_subscription_handler(sub_search_request);
 }
 
 void st_post_schedule_request(struct Point *points, int points_count) {
@@ -294,6 +305,8 @@ void st_post_schedule_request(struct Point *points, int points_count) {
         __android_log_print(ANDROID_LOG_WARN, APPNAME, "Can't subscribe schedule response: %s", sslog_error_get_text(node));
         return;
     }
+
+    //schedule_subscription_handler(sub_schedule_request);
 }
 
 
