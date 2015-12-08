@@ -500,7 +500,7 @@ int sslog_store_update_triples_old(sslog_store_t *store, list_t *current_triples
 
         list_t *founded_node = list_get_node_with_equals(list_store, remove_triple, LIST_CAST_TO_EQUAL_BOOL_FUNC sslog_equal_triples);
 
-        sslog_triple_stored(founded_node->data, true);
+        sslog_triple_stored((sslog_triple_t *) founded_node->data, true);
 
         // If the pointers of triples are the same,
         // then detach a triple (remove from internal store only).

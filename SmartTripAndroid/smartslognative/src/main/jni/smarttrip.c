@@ -18,7 +18,9 @@
 static sslog_node_t *node;
 
 static sslog_individual_t* user_individual;
-static sslog_individual_t* user_location;
+//static sslog_individual_t* user_location;
+static double user_lat;
+static double user_lon;
 
 static sslog_subscription_t* sub_search_request;
 static sslog_individual_t* request_individual;
@@ -34,7 +36,7 @@ static void schedule_subscription_handler(sslog_subscription_t* sub) {
 
 
     sslog_individual_t* start_movement = sslog_node_get_property(node, route_individual,
-                                                            PROPERTY_HASSTARTMOVEMENT);
+                                                                 PROPERTY_HASSTARTMOVEMENT);
 
     if (start_movement == NULL) {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Empty schedule response");
@@ -186,25 +188,28 @@ void st_shutdown() {
 }
 
 void st_update_user_location(double lat, double lon) {
-    sslog_individual_t* new_location_individual
-            = sslog_new_individual(CLASS_LOCATION, rand_uuid("user_location"));
+    user_lat = lat;
+    user_lon = lon;
 
-    sslog_insert_property(new_location_individual, PROPERTY_LAT, double_to_string(lat));
-    sslog_insert_property(new_location_individual, PROPERTY_LONG, double_to_string(lon));
-
-    sslog_node_insert_individual(node, new_location_individual);
-
-    const void* existing_location = sslog_get_property(user_individual, PROPERTY_HASLOCATION);
-    if (existing_location != NULL) {
-        printf("Location already exists\n");
-    } else {
-        printf("Location not exists\n");
-    }
-
-    sslog_node_update_property(node, user_individual, PROPERTY_HASLOCATION,
-                               (void*) existing_location, new_location_individual);
-
-    user_location = new_location_individual;
+//    sslog_individual_t* new_location_individual
+//            = sslog_new_individual(CLASS_LOCATION, rand_uuid("user_location"));
+//
+//    sslog_insert_property(new_location_individual, PROPERTY_LAT, double_to_string(lat));
+//    sslog_insert_property(new_location_individual, PROPERTY_LONG, double_to_string(lon));
+//
+//    sslog_node_insert_individual(node, new_location_individual);
+//
+//    const void* existing_location = sslog_get_property(user_individual, PROPERTY_HASLOCATION);
+//    if (existing_location != NULL) {
+//        printf("Location already exists\n");
+//    } else {
+//        printf("Location not exists\n");
+//    }
+//
+//    sslog_node_update_property(node, user_individual, PROPERTY_HASLOCATION,
+//                               (void*) existing_location, new_location_individual);
+//
+//    user_location = new_location_individual;
 
     // TODO: delete old location?
 }
@@ -223,7 +228,17 @@ void st_post_search_request(double radius, const char *pattern) {
         request_individual = NULL;
     }
 
-    // Create individual
+    // Create location individual
+    sslog_individual_t* location_individual
+            = sslog_new_individual(CLASS_LOCATION, rand_uuid("user_location"));
+
+    sslog_insert_property(location_individual, PROPERTY_LAT, double_to_string(user_lat));
+    sslog_insert_property(location_individual, PROPERTY_LONG, double_to_string(user_lon));
+
+    sslog_node_insert_individual(node, location_individual);
+
+
+    // Create request individual
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating searchrequest individual");
 
     sslog_individual_t* region_individual = sslog_new_individual(CLASS_CIRCLEREGION,
@@ -232,7 +247,7 @@ void st_post_search_request(double radius, const char *pattern) {
 
     sslog_individual_t* request_individual_l = sslog_new_individual(CLASS_SEARCHREQUEST,
                                                                     rand_uuid("search_request"));
-    sslog_insert_property(request_individual_l, PROPERTY_USELOCATION, user_location);
+    sslog_insert_property(request_individual_l, PROPERTY_USELOCATION, location_individual);
 
     sslog_node_insert_individual(node, request_individual_l);
     request_individual = request_individual_l;

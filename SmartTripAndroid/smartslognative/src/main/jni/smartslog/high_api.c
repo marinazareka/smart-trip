@@ -286,7 +286,7 @@ const void *sslog_get_property(sslog_individual_t *individual, sslog_property_t 
     list_t *query_triples = sslog_store_query_triples_by_data(
                 sslog_session_get_default()->store,
                 individual->entity.uri, property->entity.uri, SSLOG_TRIPLE_ANY,
-                SSLOG_RDF_TYPE_URI, property->type, 1);
+				SSLOG_RDF_TYPE_URI, (sslog_rdf_type)property->type, 1);
 
     if (list_is_null_or_empty(query_triples) == true) {
         list_free(query_triples);
@@ -340,7 +340,7 @@ list_t *sslog_get_properties(sslog_individual_t *individual, sslog_property_t *p
     list_t *query_triples = sslog_store_query_triples_by_data(
                 sslog_session_get_default()->store,
                 individual->entity.uri, property->entity.uri, SSLOG_TRIPLE_ANY,
-                SSLOG_RDF_TYPE_URI, property->type, -1);
+				SSLOG_RDF_TYPE_URI, (sslog_rdf_type) property->type, -1);
 
     if (list_is_empty(query_triples) == 1) {
         SSLOG_DEBUG_FUNC("No values for property '%s'", sslog_entity_get_uri(property));
@@ -407,7 +407,7 @@ int sslog_insert_property(sslog_individual_t *individual, sslog_property_t *prop
 
     char *prop_value = NULL;
 
-    if (property->type == SSLOG_RDF_TYPE_URI) {
+    if (property->type == SSLOG_PROPERTY_TYPE_OBJECT) {
         sslog_entity_t *entity = (sslog_entity_t *) (value);
 
         if (entity->type != SSLOG_ENTITY_INDIVIDUAL) {
@@ -418,11 +418,11 @@ int sslog_insert_property(sslog_individual_t *individual, sslog_property_t *prop
         prop_value = entity->uri;
 
     }else {
-        prop_value = value;
+        prop_value = (char *)value;
     }
 
     sslog_new_triple(individual->entity.uri, property->entity.uri, prop_value,
-                         SSLOG_RDF_TYPE_URI, property->type);
+		SSLOG_RDF_TYPE_URI, (sslog_rdf_type) property->type);
 
     return sslog_error_get_last_code();
 }
@@ -442,7 +442,7 @@ int sslog_remove_property(sslog_individual_t *individual, sslog_property_t *prop
         return sslog_error_set(NULL, SSLOG_ERROR_NULL_ARGUMENT, SSLOG_ERROR_TEXT_NULL_ARGUMENT "value");
     }
 
-    char *object = value;
+    char *object = (char *) value;
     sslog_rdf_type object_type = SSLOG_RDF_TYPE_LIT;
 
     if (sslog_property_is_object(property) == true) {
@@ -522,12 +522,12 @@ int sslog_update_property(sslog_individual_t *individual, sslog_property_t *prop
         current_uri = sslog_object_get_uri(current_value);
         new_uri = sslog_object_get_uri(new_value);
     } else {
-        current_uri = current_value;
-        new_uri = new_value;
+        current_uri = (char *) current_value;
+        new_uri = (char *) new_value;
     }
 
-    sslog_triple_t *current_triple = sslog_new_triple_detached(individual->entity.uri, property->entity.uri, current_uri, SSLOG_RDF_TYPE_URI, property->type);
-    sslog_triple_t *new_triple = sslog_new_triple_detached(individual->entity.uri, property->entity.uri, new_uri, SSLOG_RDF_TYPE_URI, property->type);
+	sslog_triple_t *current_triple = sslog_new_triple_detached(individual->entity.uri, property->entity.uri, current_uri, SSLOG_RDF_TYPE_URI, (sslog_rdf_type) property->type);
+    sslog_triple_t *new_triple = sslog_new_triple_detached(individual->entity.uri, property->entity.uri, new_uri, SSLOG_RDF_TYPE_URI, (sslog_rdf_type) property->type);
 
     list_t *current_triples = list_new();
     list_t *new_triples = list_new();
@@ -667,7 +667,7 @@ int sslog_node_insert_property(sslog_node_t *node, sslog_individual_t *individua
     }
 
     if (sslog_property_is_object(property) == true
-            && sslog_entity_get_type(value) != SSLOG_ENTITY_INDIVIDUAL) {
+		&& sslog_entity_get_type(sslog_object_as_entity(value)) != SSLOG_ENTITY_INDIVIDUAL) {
         return sslog_error_set(NULL, SSLOG_ERROR_INCORRECT_ARGUMENT,
                                SSLOG_ERROR_TEXT_INCORRECT_ARGUMENT "value is not an individual for object property.");
     }
@@ -679,7 +679,7 @@ int sslog_node_insert_property(sslog_node_t *node, sslog_individual_t *individua
 //    }
 
     char *prop_val = (char *) value;
-    int object_type = SSLOG_RDF_TYPE_LIT;
+	sslog_rdf_type object_type = SSLOG_RDF_TYPE_LIT;
 
     list_t *triples = list_new();
 
@@ -723,7 +723,7 @@ int sslog_node_remove_property(sslog_node_t *node, sslog_individual_t *individua
     // Prepare property value^ data or object.
     // For object property get an URI of an individual.
     char *prop_val = (char *) value;
-    int object_type = SSLOG_RDF_TYPE_LIT;
+	sslog_rdf_type object_type = SSLOG_RDF_TYPE_LIT;
 
     if (value == NULL) {
         SSLOG_DEBUG_FUNC("Value of individual (%s) property (%s) is NULL - removing all such properties.",

@@ -91,7 +91,7 @@ struct sslog_property_s {
     char *domain;           /**< Property domain. */
     int mincardinality;     /**< Minimal cardinality. */
     int maxcardinality;     /**< Maximum cardinality. */
-    sslog_rdf_type type;    /**< Type of property: literal (data) or object. */
+	sslog_property_type type;    /**< Type of property: literal (data) or object. */
 };
 
 

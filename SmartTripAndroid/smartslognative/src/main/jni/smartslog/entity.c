@@ -33,6 +33,7 @@
  *
  */
 
+#include "triple.h"
 #include "entity_internal.h"
 
 #include "kpi_api.h"
@@ -42,7 +43,6 @@
 #include "utils/util_func.h"
 
 #include <stdlib.h>
-
 
 /****************************** Implementation *******************************/
 /**************************** External functions *****************************/
@@ -117,7 +117,7 @@ sslog_property_t *sslog_new_property(const char *uri, sslog_property_type type)
     property->domain = NULL;
     property->maxcardinality = -1;
     property->mincardinality = -1;
-    property->type = type;
+	property->type = type;
 
     sslog_entity_set_link(sslog_property_as_entity(property), int_triple);
 
@@ -200,7 +200,7 @@ bool sslog_property_is_object(sslog_property_t *property)
         return false;
     }
 
-    if (property->type == SSLOG_RDF_TYPE_URI) {
+    if (property->type == SSLOG_PROPERTY_TYPE_OBJECT) {
         return true;
     }
 

@@ -375,7 +375,7 @@ list_t *sslog_copy_triples(list_t *triples)
         sslog_triple_t *triple = (sslog_triple_t *) node->data;
 
         sslog_triple_t *copy_triple = sslog_new_triple_detached(triple->subject, triple->predicate, triple->object,
-                                                                triple->subject_type, triple->object_type);
+                                                                (sslog_rdf_type) triple->subject_type, (sslog_rdf_type) triple->object_type);
 
         if (copy_triple != NULL) {
             list_add_data(copy_triples, copy_triple);

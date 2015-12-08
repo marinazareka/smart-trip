@@ -75,6 +75,11 @@ typedef struct sslog_session_s sslog_session_t;
 /** @brief Type that represents a SmartSlog node. */
 typedef struct sslog_node_s sslog_node_t;
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
+
 
 /******************************* Definitions **********************************/
 /**************************** External functions ******************************/
@@ -181,5 +186,11 @@ SSLOG_EXTERN int sslog_node_join(sslog_node_t *node);
  */
 SSLOG_EXTERN int sslog_node_leave(sslog_node_t *node);
 /// @endcond
+
+
+#ifdef	__cplusplus
+}
+#endif
+
 
 #endif	/* _SSLOG_SESSION_H */

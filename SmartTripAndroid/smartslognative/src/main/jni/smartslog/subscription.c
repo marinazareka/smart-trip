@@ -54,7 +54,7 @@
 #include "low_api_internal.h"
 
 
-#if defined(WIN32) || defined (WINCE)
+#if defined(WIN32) || defined(WIN) || defined (WINCE) || defined(SSLOG_WIN)
 #include <winsock2.h>
 
 void usleep(unsigned int usecs)
@@ -579,7 +579,7 @@ SSLOG_EXTERN int sslog_sbcr_add_triples_templates(sslog_subscription_t *subscrip
         sslog_triple_t *triple = (sslog_triple_t *) node->data;
 
         sslog_triple_t *copy_triple = sslog_new_triple_detached(triple->subject, triple->predicate, triple->object,
-                                                                triple->subject_type, triple->object_type);
+			(sslog_rdf_type) triple->subject_type, (sslog_rdf_type) triple->object_type);
 
         list_add_data(&subscription->sbrc_triples, copy_triple);
     }
@@ -1905,7 +1905,7 @@ static sslog_individual_t *get_or_create_individual_with_uuid(sslog_node_t *node
 
         list_t *triples = NULL;
         sslog_triple_t * triple_req = sslog_new_triple_detached(uri, SSLOG_TRIPLE_RDF_TYPE, SS_RDF_SIB_ANY,
-                SS_RDF_TYPE_URI, SS_RDF_TYPE_URI);
+                SSLOG_RDF_TYPE_URI, SSLOG_RDF_TYPE_URI);
 
         // Try to get triple with rdf:type: uuid - rdf:type - *
         sslog_kpi_query_triple(node->kpi, triple_req, &triples);

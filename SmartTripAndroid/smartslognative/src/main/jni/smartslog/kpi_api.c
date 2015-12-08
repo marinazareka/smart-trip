@@ -816,13 +816,13 @@ bool sslog_node_sparql_ask(sslog_node_t *node, const char *query)
     if (node == NULL) {
         sslog_error_set(&node->last_error, SSLOG_ERROR_NULL_ARGUMENT,
                         SSLOG_ERROR_TEXT_NULL_ARGUMENT "node.");
-        return NULL;
+        return false;
     }
 
     if (sslog_is_str_null_empty(query) == true) {
         sslog_error_set(&node->last_error, SSLOG_ERROR_INCORRECT_ARGUMENT,
                         SSLOG_ERROR_TEXT_INCORRECT_ARGUMENT "'query' is NULL or empty.");
-        return NULL;
+        return false;
     }
 
     int query_result = -1;

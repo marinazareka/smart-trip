@@ -617,7 +617,7 @@ SSLOG_EXTERN list_t* list_copy_list_with_filter(list_t *list,
         list_t *node = list_entry(list_walker, list_t, links);
 
         if(filter_func(node->data, filter_data) != 0) {
-            list_add_data(node->data, new_list);
+            list_add_data((list_t *) node->data, new_list);
         }
     }
     return new_list;
