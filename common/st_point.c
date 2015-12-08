@@ -1,6 +1,7 @@
 #include "st_point.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 void st_init_point(struct Point *point, const char *id, const char *title, double lat, double lon) {
     point->id = strdup(id);
@@ -14,6 +15,16 @@ void st_free_point(struct Point *point) {
     free(point->title);
     point->id = NULL;
     point->title = NULL;
+}
+
+/**
+ * Free points array of given size
+ * Doesn't frees array memory, only point content
+ */
+void st_free_point_array(struct Point* point_array, int size) {
+    for (int i = 0; i < size; i++) {
+        st_free_point(&point_array[i]);
+    }
 }
 
 void st_init_point_clone(struct Point *point, struct Point *source) {

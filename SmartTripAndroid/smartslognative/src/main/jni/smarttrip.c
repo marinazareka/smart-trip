@@ -9,7 +9,7 @@
 #include <common/common.h>
 #include <entity_internal.h>
 
-#include "st_point.h"
+#include "common/st_point.h"
 #include "st_movement.h"
 #include "ontology/ontology.h"
 #include "common/common.h"
@@ -246,16 +246,19 @@ void st_post_search_request(double radius, const char *pattern) {
     sslog_node_insert_individual(node, location_individual);
 
 
-    // Create request individual
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating searchrequest individual");
 
+    // Create circle region individual
     sslog_individual_t* region_individual = sslog_new_individual(CLASS_CIRCLEREGION,
                                                                  rand_uuid("circle_search_region"));
     sslog_insert_property(region_individual, PROPERTY_RADIUS, double_to_string(radius));
+    sslog_node_insert_individual(node, region_individual);
 
+    // Create request individual
     sslog_individual_t* request_individual_l = sslog_new_individual(CLASS_SEARCHREQUEST,
                                                                     rand_uuid("search_request"));
     sslog_insert_property(request_individual_l, PROPERTY_USELOCATION, location_individual);
+    sslog_insert_property(request_individual_l, PROPERTY_INREGION, region_individual);
 
     sslog_node_insert_individual(node, request_individual_l);
     request_individual = request_individual_l;

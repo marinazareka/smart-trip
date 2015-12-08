@@ -10,6 +10,6 @@ include_directories(${smartslog_INCLUDE_DIRS} ${glib_INCLUDE_DIRS})
 link_directories(${smartslog_LIBRARY_DIRS} ${glib_LIBRARY_DIRS})
 
 add_library(commons 
-    common.c common.h)
+    common.c common.h st_point.c)
 
 target_link_libraries(commons ontology ${smartslog_LIBRARIES} ${glib_LIBRARIES})

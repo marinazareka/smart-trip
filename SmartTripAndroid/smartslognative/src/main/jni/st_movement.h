@@ -5,7 +5,7 @@
 #ifndef SMARTTRIPANDROID_ST_MOVEMENT_H
 #define SMARTTRIPANDROID_ST_MOVEMENT_H
 
-#include "st_point.h"
+#include "common/st_point.h"
 
 struct Movement {
     struct Point point_a;

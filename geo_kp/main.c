@@ -8,37 +8,34 @@
 
 #include "ontology.h"
 #include "common.h"
+#include "st_point.h"
+
+#include "test-loader.h"
+#include "wm-loader.h"
 
 static volatile bool cont = true;
 
-static double TEST_POINTS[] = {
-    61.78464963754708,34.34697389602661,
-    61.787351, 34.354369,
-    61.787026, 34.365269,
-    61.787859, 34.375612,
-    61.792167, 34.369475,
-    61.783023, 34.360334,
-    61.78734806396082,34.34877634048462,
-    61.78857546526346,34.3526816368103,
-    61.783696001642575,34.35381889343262,
-    61.78598873590156,34.36145782470703,
-    61.77894767194888,34.376220703125,
-    61.773589701610355,34.35892581939697,
-    61.78779439737812,34.37544822692871
-};
+static struct LoaderInterface point_loader;
 
-static void publish_point(sslog_node_t* node, sslog_individual_t* request_individual, double lat, double lon) {
-    printf("Inserting point %lf %lf\n", lat, lon);
-    //sslog_individual_t* point_individual = create_poi_individual(node, lat, lon, rand_uuid("title"), "nocategory");
-    sslog_individual_t* point_individual = create_poi_individual(node, lat, lon, rand_uuid("title"), "nocategory");
+static void publish_point(sslog_node_t* node, sslog_individual_t* request_individual, struct Point* point) {
+    printf("Inserting point %lf %lf\n", point->lat, point->lon);
+    // TODO: uuid isn't being copied
+    sslog_individual_t* point_individual = create_poi_individual(node, point->lat, point->lon, point->title, "nocategory");
     sslog_node_insert_property(node, request_individual, PROPERTY_HASPOINT, point_individual);
 }
 
-static void find_and_publish_points(sslog_node_t* node, sslog_individual_t* request_individual, double lat, double lon) {
-    for (unsigned i = 0; i < (sizeof(TEST_POINTS) / sizeof(double)) / 2; i++) {
-        publish_point(node, request_individual, TEST_POINTS[2 * i], TEST_POINTS[2 * i + 1]);
+static void find_and_publish_points(sslog_node_t* node, sslog_individual_t* request_individual, double lat, double lon, double radius) {
+    struct Point* points = NULL;
+    int count = 0;
+
+    point_loader.load_points(lat, lon, radius, &points, &count);
+
+    for (int i = 0; i < count; i++) {
+        publish_point(node, request_individual, &points[i]);
     }
 
+    st_free_point_array(points, count);
+    free(points);
 
     sslog_node_insert_property(node, request_individual, PROPERTY_PROCESSED, long_to_string(time(NULL)));
 }
@@ -57,11 +54,21 @@ static void process_inserted_request(sslog_node_t* node, const char* request_uui
         return;
     }
 
+    CLEANUP_INDIVIDUAL sslog_individual_t* region_individual
+        = (sslog_individual_t*) sslog_node_get_property(node, request_individual, PROPERTY_INREGION);
+    if (region_individual == NULL) {
+        printf("Can't gen request region individual\n");
+        return;
+    }
+
+    
     sslog_node_populate(node, location_individual);
     double lat = parse_double(sslog_get_property(location_individual, PROPERTY_LAT));
     double lon = parse_double(sslog_get_property(location_individual, PROPERTY_LONG));
-    printf("User location: %lf %lf\n", lat, lon);
-    find_and_publish_points(node, request_individual, lat, lon);
+    double radius = parse_double(sslog_node_get_property(node, region_individual, PROPERTY_RADIUS));
+
+    printf("User location: %lf %lf. Search radius: %lf\n", lat, lon, radius);
+    find_and_publish_points(node, request_individual, lat, lon, radius);
 }
 
 static void process_subscription_request(sslog_node_t* node, sslog_subscription_t* subscription) {
@@ -106,6 +113,8 @@ int main(void) {
 		fprintf(stderr, "Can't join node\n");
 		return 1;
 	}
+
+    point_loader = create_wm_loader(get_config_value("config.ini", "WMLoader", "Key"));
 
     subscribe_request(node);
 

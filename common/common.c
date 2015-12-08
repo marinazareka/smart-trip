@@ -9,6 +9,7 @@
 #include <glib.h>
 #endif
 
+#include <string.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -145,6 +146,20 @@ sslog_node_t* create_node(const char* kp_name, const char* config) {
 
     return ret;
 }
+
+char* get_config_value(const char* config, const char* group, const char* key) {
+    GKeyFile* keyfile = g_key_file_new();
+
+    if (!g_key_file_load_from_file(keyfile, config, G_KEY_FILE_NONE, NULL)) {
+       fprintf(stderr, "Can't load settings file %s\n", config);
+       return NULL;
+    }
+
+    gchar* value = g_key_file_get_string(keyfile, group, key, NULL);
+    char* ret = strdup(value);
+    g_free(value);
+    return ret;
+}
 #endif
 
 sslog_node_t* create_node_resolve(const char* name, const char* smartspace, const char* address, int port) {
@@ -215,3 +230,4 @@ void* ptr_array_remove_last(PtrArray* array) {
 void ptr_array_free(PtrArray* array) {
     free(array->array);
 }
+

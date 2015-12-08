@@ -4,7 +4,7 @@
 #include <android/log.h>
 
 #include "smarttrip.h"
-#include "st_point.h"
+#include "common/st_point.h"
 #include "st_movement.h"
 
 

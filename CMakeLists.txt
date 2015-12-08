@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(travelling-smart-tourist)
 
+SET(CMAKE_C_FLAGS "-std=gnu99 -g")
 
 add_subdirectory(ontology)
 include_directories(ontology/gen)
