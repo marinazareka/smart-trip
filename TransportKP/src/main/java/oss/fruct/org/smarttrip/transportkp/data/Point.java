@@ -1,9 +1,11 @@
 package oss.fruct.org.smarttrip.transportkp.data;
 
 public class Point {
+	private int id;
 	private double lat, lon;
 
-	public Point(double lat, double lon) {
+	public Point(int id, double lat, double lon) {
+		this.id = id;
 		this.lat = lat;
 		this.lon = lon;
 	}
@@ -16,11 +18,17 @@ public class Point {
 		return lon;
 	}
 
+	public int getId() {
+		return id;
+	}
+
 	@Override
 	public String toString() {
 		return "Point{" +
-				"lat=" + lat +
+				"id=" + id +
+				", lat=" + lat +
 				", lon=" + lon +
 				'}';
 	}
+
 }

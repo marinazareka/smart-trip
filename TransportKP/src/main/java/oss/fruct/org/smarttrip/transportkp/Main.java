@@ -6,7 +6,6 @@ import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oss.fruct.org.smarttrip.transportkp.smartspace.JnaSmartSpace;
-import oss.fruct.org.smarttrip.transportkp.smartspace.MockSmartSpace;
 import oss.fruct.org.smarttrip.transportkp.smartspace.SmartSpace;
 
 import java.util.*;

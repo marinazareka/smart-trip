@@ -19,6 +19,12 @@ double parse_double(const char* string_double);
 sslog_individual_t* create_point_individual(sslog_node_t* node,  double lat, double lon);
 
 /**
+ * Create and insert new point with title and category
+ */
+sslog_individual_t* create_poi_individual(sslog_node_t* node, double lat, double lon, const char* title, const char* category);
+
+
+/**
  * Load point lat and lon
  */
 bool get_point_coordinates(sslog_node_t* node, sslog_individual_t* point, double* out_lat, double* out_lon);

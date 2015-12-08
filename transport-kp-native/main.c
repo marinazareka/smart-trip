@@ -16,7 +16,7 @@ bool subscribe();
 void unsubscribe();
 
 bool wait_subscription(int* out_points_count, double** out_points_pairs, void** data);
-void publish(int points_count, double* points_pairs, const char* roadType, void* data); 
+void publish(int points_count, int* ids, const char* roadType, void* data); 
 
 
 static sslog_node_t* node;
@@ -29,7 +29,9 @@ static pthread_cond_t requests_cond = PTHREAD_COND_INITIALIZER;
 typedef struct {
     int count;
     double* points;
-    void* extra;
+    sslog_individual_t** point_individuals;
+
+    sslog_individual_t* route;
 } RequestData;
 
 // Implementations
@@ -64,7 +66,9 @@ static RequestData* process_request(sslog_individual_t* route) {
 
     RequestData* request_data = malloc(sizeof(RequestData));
     int count = list_count(points);
+
     double* points_array = malloc(count * 2 * sizeof(double));
+    sslog_individual_t** point_individuals = malloc(count * sizeof(sslog_individual_t*));
     
     int c = 0;
     list_head_t* iter;
@@ -78,13 +82,17 @@ static RequestData* process_request(sslog_individual_t* route) {
 
         fprintf(stderr, "Point %lf %lf\n", lat, lon);
 
-        points_array[c] = lat;
-        points_array[c + 1] = lon;
-        c += 2;
+        points_array[2 * c] = lat;
+        points_array[2 * c + 1] = lon;
+
+        point_individuals[c] = point_individual;
+
+        c += 1;
     }
 
-    request_data->extra = route;
+    request_data->route = route;
     request_data->points = points_array;
+    request_data->point_individuals = point_individuals;
     request_data->count = count;
 
     return request_data;
@@ -171,28 +179,24 @@ bool wait_subscription(int* out_points_count, double** out_points_pairs, void** 
 
     *out_points_count = request_data->count;
     *out_points_pairs = request_data->points;
-    *data = request_data->extra;
-
-    free(request_data);
+    *data = request_data;
 
     pthread_mutex_unlock(&requests_mutex);
     return true;
 }
 
-void publish(int points_count, double* points_pairs, const char* roadType, void* data) {
+void publish(int points_count, int* ids, const char* roadType, void* data) {
     pthread_mutex_lock(&requests_mutex);
     int movements_count = points_count - 1;
 
-    sslog_individual_t* route_individual = data;
+    RequestData* request_data = data;
+    sslog_individual_t* route_individual = request_data->route;
 
     sslog_individual_t* point_individuals[points_count];
     sslog_individual_t* movement_individuals[movements_count];
 
     for (int i = 0; i < points_count; i++) {
-        double lat = points_pairs[2 * i];
-        double lon = points_pairs[2 * i + 1];
-
-        point_individuals[i] = create_point_individual(node, lat, lon);
+        point_individuals[i] = request_data->point_individuals[ids[i]];
     }
 
     sslog_individual_t* previous_movement = NULL;
@@ -222,4 +226,5 @@ void publish(int points_count, double* points_pairs, const char* roadType, void*
     }
 
     pthread_mutex_unlock(&requests_mutex);
+    free(request_data);
 }

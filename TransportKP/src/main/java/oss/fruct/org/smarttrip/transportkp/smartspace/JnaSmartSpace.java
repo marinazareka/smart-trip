@@ -23,7 +23,7 @@ public class JnaSmartSpace implements SmartSpace {
 		void unsubscribe();
 
 		boolean wait_subscription(IntByReference out_points_count, PointerByReference out_points_pairs, PointerByReference data);
-		void publish(int points_count, double[] points_pairs, String roadType, Pointer data);
+		void publish(int points_count, int[] ids, String roadType, Pointer data);
 
 		// From libc
 		void free(Pointer pointer);
@@ -73,7 +73,7 @@ public class JnaSmartSpace implements SmartSpace {
 
 		Point[] points = new Point[count.getValue()];
 		for (int i = 0; i < count.getValue(); i++) {
-			points[i] = new Point(pointPairs[i * 2], pointPairs[i * 2 + 1]);
+			points[i] = new Point(i, pointPairs[i * 2], pointPairs[i * 2 + 1]);
 		}
 
 		lib.free(array.getValue());
@@ -83,14 +83,13 @@ public class JnaSmartSpace implements SmartSpace {
 
 	@Override
 	public void publish(RouteResponse response) {
-		double[] pointPairs = new double[response.getRoute().length * 2];
+		int[] ids = new int[response.getRoute().length];
 
 		int c = 0;
 		for (Point point : response.getRoute()) {
-			pointPairs[c++] = point.getLat();
-			pointPairs[c++] = point.getLon();
+			ids[c++] = point.getId();
 		}
 
-		lib.publish(response.getRoute().length, pointPairs, response.getRoadType(), (Pointer) response.getRequestTag());
+		lib.publish(response.getRoute().length, ids, response.getRoadType(), (Pointer) response.getRequestTag());
 	}
 }

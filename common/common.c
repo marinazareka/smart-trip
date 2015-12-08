@@ -34,17 +34,22 @@ void init_rand() {
 }
 
 char* rand_uuid(const char* prefix) {
-	static char rand_uuid_buffer[BUFSIZE];
-	sprintf(rand_uuid_buffer, "%s%ld", prefix, nrand48(rand_state));
-	return rand_uuid_buffer;
+    static char rand_uuid_buffer[BUFSIZE];
+    sprintf(rand_uuid_buffer, "%s%ld", prefix, nrand48(rand_state));
+    return rand_uuid_buffer;
+}
+
+char* rand_uuid_buf(const char* prefix, char* buf, size_t buf_size) {
+    snprintf(buf, buf_size, "%s%ld", prefix, nrand48(rand_state));
+    return buf;
 }
 
 // TODO: sNprintf
 char* double_to_string(double value) {
-	static char buffer[BUFSIZE];
-	sprintf(buffer, "%lf", value);
-	return buffer;
-}   
+    static char buffer[BUFSIZE];
+    sprintf(buffer, "%lf", value);
+    return buffer;
+}
 
 char* long_to_string(long value) {
     static char buffer[BUFSIZE];
@@ -69,11 +74,32 @@ void cleanup_individual(sslog_individual_t** individual) {
     *individual = NULL;
 }
 
+sslog_individual_t* create_poi_individual(sslog_node_t* node, double lat, double lon,
+                                          const char* title, const char* category) {
+    char buf[BUFSIZE];
+
+    sslog_individual_t* point = sslog_new_individual(CLASS_POINT, rand_uuid_buf("point", buf, BUFSIZE));
+    sslog_individual_t* location = sslog_new_individual(CLASS_LOCATION, rand_uuid_buf("location", buf, BUFSIZE));
+
+    sslog_insert_property(location, PROPERTY_LAT, double_to_string(lat));
+    sslog_insert_property(location, PROPERTY_LONG, double_to_string(lon));
+
+    sslog_insert_property(point, PROPERTY_HASLOCATION, location);
+    sslog_insert_property(point, PROPERTY_POITITLE, (void*) title);
+    sslog_insert_property(point, PROPERTY_POICATEGORY, (void*) category);
+
+    sslog_node_insert_individual(node, location);
+    sslog_node_insert_individual(node, point);
+
+    return point;
+}
 
 sslog_individual_t* create_point_individual(sslog_node_t* node, double lat, double lon) {
-    sslog_individual_t* point = sslog_new_individual(CLASS_POINT, rand_uuid("point"));
-    sslog_individual_t* location = sslog_new_individual(CLASS_LOCATION, rand_uuid("location"));
-    
+    char buf[BUFSIZE];
+
+    sslog_individual_t* point = sslog_new_individual(CLASS_POINT, rand_uuid_buf("point", buf, BUFSIZE));
+    sslog_individual_t* location = sslog_new_individual(CLASS_LOCATION, rand_uuid_buf("location", buf, BUFSIZE));
+
     sslog_insert_property(location, PROPERTY_LAT, double_to_string(lat));
     sslog_insert_property(location, PROPERTY_LONG, double_to_string(lon));
 
@@ -86,16 +112,16 @@ sslog_individual_t* create_point_individual(sslog_node_t* node, double lat, doub
 }
 
 bool get_point_coordinates(sslog_node_t* node, sslog_individual_t* point, double* out_lat, double* out_lon) {
-   sslog_individual_t* location = (sslog_individual_t*) sslog_node_get_property(node, point, PROPERTY_HASLOCATION); 
-   if (location == NULL) {
-       return false;
-   }
+    sslog_individual_t* location = (sslog_individual_t*) sslog_node_get_property(node, point, PROPERTY_HASLOCATION);
+    if (location == NULL) {
+        return false;
+    }
 
-   sslog_node_populate(node, location);
-   *out_lat = parse_double((const char*) sslog_get_property(location, PROPERTY_LAT));
-   *out_lon = parse_double((const char*) sslog_get_property(location, PROPERTY_LONG));
+    sslog_node_populate(node, location);
+    *out_lat = parse_double((const char*) sslog_get_property(location, PROPERTY_LAT));
+    *out_lon = parse_double((const char*) sslog_get_property(location, PROPERTY_LONG));
 
-   return true;
+    return true;
 }
 
 #if !defined(NO_GLIB)
@@ -128,9 +154,9 @@ sslog_node_t* create_node_resolve(const char* name, const char* smartspace, cons
         fprintf(stderr, "Address %s doesn't require resolving\n", address);
         return sslog_new_node(name, smartspace, address, port);
     }
-    
+
     struct addrinfo* addrinfo = NULL;
-    
+
     if (getaddrinfo(address, NULL, NULL, &addrinfo) != 0) {
         perror("getaddrinfo");
         return NULL;
@@ -150,7 +176,7 @@ sslog_node_t* create_node_resolve(const char* name, const char* smartspace, cons
         }
     }
 
-    sslog_node_t* node = NULL; 
+    sslog_node_t* node = NULL;
 
     if (found_address != NULL) {
         char* ip_str = inet_ntoa(found_address->sin_addr);
@@ -162,7 +188,7 @@ sslog_node_t* create_node_resolve(const char* name, const char* smartspace, cons
 
     return node;
 }
- 
+
 void ptr_array_init(PtrArray* array) {
     array->size = 0;
     array->capacity = 1;

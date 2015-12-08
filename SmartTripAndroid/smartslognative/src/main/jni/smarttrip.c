@@ -64,10 +64,16 @@ static void schedule_subscription_handler(sslog_subscription_t* sub) {
         double lat, lon;
 
         get_point_coordinates(node, point_a, &lat, &lon);
-        st_init_point(&movement_array[i].point_a, point_a->entity.uri, "untitled a", lat, lon);
+        const char* title = sslog_get_property(point_a, PROPERTY_POITITLE);
+        if (title == NULL)
+            title = "Untitled";
+        st_init_point(&movement_array[i].point_a, point_a->entity.uri, title, lat, lon);
 
         get_point_coordinates(node, point_b, &lat, &lon);
-        st_init_point(&movement_array[i].point_b, point_a->entity.uri, "untitled b", lat, lon);
+        title = sslog_get_property(point_b, PROPERTY_POITITLE);
+        if (title == NULL)
+            title = "Untitled";
+        st_init_point(&movement_array[i].point_b, point_b->entity.uri, title, lat, lon);
     }
 
     st_on_schedule_request_ready(movement_array, movement_count);
@@ -103,11 +109,13 @@ static void search_subscription_handler(sslog_subscription_t* sub) {
 
         double lat, lon;
         get_point_coordinates(node, point_individual, &lat, &lon);
+        const char* title = sslog_get_property(point_individual, PROPERTY_POITITLE);
 
-        char buf[1000];
-        sprintf(buf, "id%lf%lf", lat, lon);
+        if (title == NULL) {
+            title = "Untitled";
+        }
 
-        st_init_point(&point_array[counter], buf, buf, lat, lon);
+        st_init_point(&point_array[counter], point_individual->entity.uri, title, lat, lon);
 
         counter++;
     }
@@ -297,7 +305,8 @@ void st_post_schedule_request(struct Point *points, int points_count) {
     sslog_insert_property(schedule_individual, PROPERTY_HASROUTE, route_individual);
 
     for (int i = 0; i < points_count; i++) {
-        sslog_individual_t* point_individual = create_point_individual(node, points[i].lat, points[i].lon);
+        sslog_individual_t* point_individual = create_poi_individual(node, points[i].lat, points[i].lon,
+                                                                     points[i].title, "nocategory");
         sslog_insert_property(route_individual, PROPERTY_HASPOINT, point_individual);
     }
 

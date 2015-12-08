@@ -29,7 +29,8 @@ static double TEST_POINTS[] = {
 
 static void publish_point(sslog_node_t* node, sslog_individual_t* request_individual, double lat, double lon) {
     printf("Inserting point %lf %lf\n", lat, lon);
-    sslog_individual_t* point_individual = create_point_individual(node, lat, lon);
+    //sslog_individual_t* point_individual = create_poi_individual(node, lat, lon, rand_uuid("title"), "nocategory");
+    sslog_individual_t* point_individual = create_poi_individual(node, lat, lon, rand_uuid("title"), "nocategory");
     sslog_node_insert_property(node, request_individual, PROPERTY_HASPOINT, point_individual);
 }
 
