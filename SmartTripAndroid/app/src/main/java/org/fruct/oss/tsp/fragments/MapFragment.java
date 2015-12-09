@@ -3,9 +3,15 @@ package org.fruct.oss.tsp.fragments;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.fruct.oss.tsp.R;
+import org.fruct.oss.tsp.layers.PointsLayer;
+import org.fruct.oss.tsp.viewmodel.DefaultGeoViewModel;
 import org.mapsforge.core.model.LatLong;
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
 import org.mapsforge.map.android.util.AndroidUtil;
@@ -17,11 +23,45 @@ import org.mapsforge.map.layer.download.tilesource.OpenStreetMapMapnik;
 public class MapFragment extends BaseFragment {
 	private MapView mapView;
 	private TileCache tileCache;
+
 	private TileDownloadLayer layer;
+	private PointsLayer pointsLayer;
+
+	private DefaultGeoViewModel geoViewModel;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		geoViewModel = new DefaultGeoViewModel(getActivity(), getGeoStore());
+
+		setHasOptionsMenu(true);
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.menu_point_list_fragment, menu);
+	}
+
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		menu.findItem(R.id.action_search).setVisible(false);
+		//menu.findItem(R.id.action_schedule).setVisible(geoViewModel.isAnythingChecked());
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_schedule:
+			scheduleSelection(geoViewModel);
+			break;
+
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+
+		return true;
 	}
 
 	@Nullable
@@ -49,35 +89,42 @@ public class MapFragment extends BaseFragment {
 	public void onStart() {
 		super.onStart();
 
-		this.mapView.getModel().mapViewPosition.setCenter(new LatLong(61.78, 34.35));
-		this.mapView.getModel().mapViewPosition.setZoomLevel((byte) 12);
+		mapView.getModel().mapViewPosition.setCenter(new LatLong(61.78, 34.35));
+		mapView.getModel().mapViewPosition.setZoomLevel((byte) 12);
 
 		// tile renderer layer using internal render theme
-		this.layer = new TileDownloadLayer(tileCache,
+		layer = new TileDownloadLayer(tileCache,
 				mapView.getModel().mapViewPosition,
 				OpenStreetMapMapnik.INSTANCE,
 				AndroidGraphicFactory.INSTANCE);
 
-		this.mapView.getLayerManager().getLayers().add(layer);
+		pointsLayer = new PointsLayer(getContext(), geoViewModel);
+
+		mapView.getLayerManager().getLayers().add(layer);
+		mapView.getLayerManager().getLayers().add(pointsLayer);
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
 		this.layer.onResume();
+		this.geoViewModel.start();
 	}
 
 	@Override
 	public void onPause() {
 		this.layer.onPause();
+		this.geoViewModel.stop();
 		super.onPause();
 	}
 
 	@Override
 	public void onStop() {
 		this.mapView.getLayerManager().getLayers().remove(layer);
+		this.mapView.getLayerManager().getLayers().remove(pointsLayer);
 
 		this.layer.onDestroy();
+		this.pointsLayer.onDestroy();
 
 		super.onStop();
 	}

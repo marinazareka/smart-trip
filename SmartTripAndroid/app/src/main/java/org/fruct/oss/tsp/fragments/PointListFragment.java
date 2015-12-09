@@ -81,7 +81,7 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.action_schedule:
-			scheduleSelection();
+			scheduleSelection(geoViewModel);
 			break;
 
 		case R.id.action_search:
@@ -142,19 +142,6 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 
 	private void search(int radius, String patternText) {
 		getSmartSpace().postSearchRequest(radius, patternText);
-	}
-
-	private void scheduleSelection() {
-		List<Point> checkedPoints = new ArrayList<>();
-		for (GeoViewModel.PointModel pointModel : geoViewModel.getPoints()) {
-			if (pointModel.isChecked) {
-				checkedPoints.add(pointModel.point);
-			}
-		}
-
-		log.debug("{} points searching", checkedPoints.size());
-
-		getSmartSpace().postScheduleRequest(checkedPoints);
 	}
 
 	private void setupOptionsMenu() {
