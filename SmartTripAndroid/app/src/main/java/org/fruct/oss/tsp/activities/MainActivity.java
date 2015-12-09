@@ -17,7 +17,9 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import org.fruct.oss.tsp.LocationTrackingService;
 import org.fruct.oss.tsp.R;
+import org.fruct.oss.tsp.fragments.BaseFragment;
 import org.fruct.oss.tsp.fragments.CommonFragment;
+import org.fruct.oss.tsp.fragments.MapFragment;
 import org.fruct.oss.tsp.fragments.PointListFragment;
 import org.fruct.oss.tsp.fragments.ScheduleListFragment;
 
@@ -123,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
 	private void hideTabbar() {
 		tabbar.setVisibility(View.GONE);
+		tabbar.setOnTabSelectedListener(null);
 	}
 
 	private void setupDrawer() {
@@ -132,6 +135,11 @@ public class MainActivity extends AppCompatActivity {
 						new PrimaryDrawerItem()
 								.withIdentifier(R.id.drawer_list)
 								.withName(R.string.nav_list),
+
+						new PrimaryDrawerItem()
+								.withIdentifier(R.id.drawer_map)
+								.withName(R.string.nav_map),
+
 						new PrimaryDrawerItem()
 								.withIdentifier(R.id.drawer_quit)
 								.withName(R.string.nav_quit)
@@ -152,10 +160,19 @@ public class MainActivity extends AppCompatActivity {
 			switchGeoFragment();
 			break;
 
+		case R.id.drawer_map:
+			switchMapFragment();
+			break;
+
 		case R.id.drawer_quit:
 			finish();
 			break;
 		}
+	}
+
+	private void switchMapFragment() {
+		hideTabbar();
+		switchFragment(new MapFragment());
 	}
 
 	private void switchGeoFragment() {

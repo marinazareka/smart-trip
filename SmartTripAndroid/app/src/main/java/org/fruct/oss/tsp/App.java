@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Message;
 
+import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,5 +15,6 @@ public class App extends Application {
 	public void onCreate() {
 		super.onCreate();
 		log.info("App started");
+		AndroidGraphicFactory.createInstance(this);
 	}
 }
