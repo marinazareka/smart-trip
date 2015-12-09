@@ -10,8 +10,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.fruct.oss.tsp.R;
+import org.fruct.oss.tsp.commondatatype.Movement;
+import org.fruct.oss.tsp.events.ScheduleStoreChangedEvent;
 import org.fruct.oss.tsp.layers.PointsLayer;
+import org.fruct.oss.tsp.stores.ScheduleStore;
+import org.fruct.oss.tsp.util.Utils;
 import org.fruct.oss.tsp.viewmodel.DefaultGeoViewModel;
+import org.mapsforge.core.graphics.Style;
 import org.mapsforge.core.model.LatLong;
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
 import org.mapsforge.map.android.util.AndroidUtil;
@@ -19,6 +24,12 @@ import org.mapsforge.map.android.view.MapView;
 import org.mapsforge.map.layer.cache.TileCache;
 import org.mapsforge.map.layer.download.TileDownloadLayer;
 import org.mapsforge.map.layer.download.tilesource.OpenStreetMapMapnik;
+import org.mapsforge.map.layer.overlay.Polyline;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import de.greenrobot.event.EventBus;
 
 public class MapFragment extends BaseFragment {
 	private MapView mapView;
@@ -26,6 +37,7 @@ public class MapFragment extends BaseFragment {
 
 	private TileDownloadLayer layer;
 	private PointsLayer pointsLayer;
+	private Polyline pathLayer;
 
 	private DefaultGeoViewModel geoViewModel;
 
@@ -99,14 +111,23 @@ public class MapFragment extends BaseFragment {
 				AndroidGraphicFactory.INSTANCE);
 
 		pointsLayer = new PointsLayer(getContext(), geoViewModel);
+		pathLayer = new Polyline(Utils.createPaint(
+				AndroidGraphicFactory.INSTANCE.createColor(200, 100, 100, 255), 2, Style.STROKE),
+				AndroidGraphicFactory.INSTANCE);
 
 		mapView.getLayerManager().getLayers().add(layer);
 		mapView.getLayerManager().getLayers().add(pointsLayer);
+		mapView.getLayerManager().getLayers().add(pathLayer);
+
+		updatePath();
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
+
+		EventBus.getDefault().register(this);
+
 		this.layer.onResume();
 		this.geoViewModel.start();
 	}
@@ -115,16 +136,44 @@ public class MapFragment extends BaseFragment {
 	public void onPause() {
 		this.layer.onPause();
 		this.geoViewModel.stop();
+
+		EventBus.getDefault().unregister(this);
+
 		super.onPause();
+	}
+
+	public void onEventMainThread(ScheduleStoreChangedEvent event) {
+		updatePath();
+	}
+
+	private void updatePath() {
+		List<Movement> movements = getScheduleStore().getCurrentSchedule();
+
+		List<LatLong> pathLatLong = new ArrayList<>(movements.size());
+
+		if (movements.size() > 0) {
+			Movement movement1 = movements.get(0);
+			pathLatLong.add(new LatLong(movement1.getA().getLat(), movement1.getA().getLon()));
+		}
+
+		for (Movement movement : movements) {
+			pathLatLong.add(new LatLong(movement.getB().getLat(), movement.getB().getLon()));
+		}
+
+		pathLayer.getLatLongs().clear();
+		pathLayer.getLatLongs().addAll(pathLatLong);
+
+		pathLayer.requestRedraw();
 	}
 
 	@Override
 	public void onStop() {
-		this.mapView.getLayerManager().getLayers().remove(layer);
-		this.mapView.getLayerManager().getLayers().remove(pointsLayer);
+		mapView.getLayerManager().getLayers().remove(layer);
+		mapView.getLayerManager().getLayers().remove(pointsLayer);
 
-		this.layer.onDestroy();
-		this.pointsLayer.onDestroy();
+		layer.onDestroy();
+		pointsLayer.onDestroy();
+		pathLayer.onDestroy();
 
 		super.onStop();
 	}

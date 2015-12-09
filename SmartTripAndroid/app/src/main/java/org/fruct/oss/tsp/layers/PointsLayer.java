@@ -2,6 +2,8 @@ package org.fruct.oss.tsp.layers;
 
 import android.content.Context;
 
+import com.google.android.gms.maps.model.Polyline;
+
 import org.fruct.oss.tsp.util.Utils;
 import org.fruct.oss.tsp.viewmodel.GeoViewModel;
 import org.mapsforge.core.graphics.Canvas;
