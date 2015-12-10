@@ -83,7 +83,7 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 				smartSpace.setListener(new Listener());
 				// TODO: do something with uninitialized smartspace
 			} catch (IOException e) {
-				log.error("Can't initialize smartspace", false);
+				log.error("Can't initialize smartspace", e);
 			}
 			break;
 

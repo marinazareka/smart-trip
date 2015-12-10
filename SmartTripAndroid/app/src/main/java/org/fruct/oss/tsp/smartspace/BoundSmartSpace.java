@@ -73,22 +73,20 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback {
 
 
 	@Override
-	public SearchRequest postSearchRequest(double radius, String pattern) {
+	public void postSearchRequest(double radius, String pattern) {
 		Bundle data = new Bundle();
 		data.putDouble("radius", radius);
 		data.putString("pattern", pattern);
 
 		sendSmartSpaceMessage(SmartSpaceService.MSG_ACTION_POST_SEARCH_REQUEST, data);
-		return new SearchRequest();
 	}
 
 	@Override
-	public ScheduleRequest postScheduleRequest(List<Point> pointList) {
+	public void postScheduleRequest(List<Point> pointList) {
 		Bundle data = new Bundle();
 		data.putParcelableArrayList("points", new ArrayList<>(pointList));
 
 		sendSmartSpaceMessage(SmartSpaceService.MSG_ACTION_POST_SCHEDULE_REQUEST, data);
-		return new ScheduleRequest();
 	}
 
 	@Override
