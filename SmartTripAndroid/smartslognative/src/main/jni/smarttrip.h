@@ -20,5 +20,6 @@ void st_post_schedule_request(struct Point* points, int points_count);
 
 void st_on_search_request_ready(struct Point* points, int points_count);
 void st_on_schedule_request_ready(struct Movement* movements, int movements_count);
+void st_on_request_failed(const char* description);
 
 #endif //SMARTTRIPANDROID_SMARTTRIP_H

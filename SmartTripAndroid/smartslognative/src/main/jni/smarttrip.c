@@ -243,8 +243,13 @@ void st_post_search_request(double radius, const char *pattern) {
     sslog_insert_property(location_individual, PROPERTY_LAT, double_to_string(user_lat));
     sslog_insert_property(location_individual, PROPERTY_LONG, double_to_string(user_lon));
 
-    sslog_node_insert_individual(node, location_individual);
-
+    if (sslog_node_insert_individual(node, location_individual) != SSLOG_ERROR_NO) {
+        // TODO: cleanup
+        const char* error_text = sslog_error_get_last_text();
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't insert location individual: %s", error_text);
+        st_on_request_failed(error_text);
+        return;
+    }
 
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating searchrequest individual");
 
@@ -279,9 +284,6 @@ void st_post_search_request(double radius, const char *pattern) {
         __android_log_print(ANDROID_LOG_WARN, APPNAME, "Can't subscribe response: %s", sslog_error_get_text(node));
         return;
     }
-
-    // Seems that smartslog doesn't notify if data already exists in smartspace
-    //search_subscription_handler(sub_search_request);
 }
 
 void st_post_schedule_request(struct Point *points, int points_count) {
@@ -313,7 +315,12 @@ void st_post_schedule_request(struct Point *points, int points_count) {
         sslog_insert_property(route_individual, PROPERTY_HASPOINT, point_individual);
     }
 
-    sslog_node_insert_individual(node, route_individual);
+    if (sslog_node_insert_individual(node, route_individual) != SSLOG_ERROR_NO) {
+        // TODO: cleanup
+        st_on_request_failed(sslog_error_get_last_text());
+        return;
+    }
+
     sslog_node_insert_individual(node, schedule_individual);
 
     // Subscribe response

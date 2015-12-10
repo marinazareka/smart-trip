@@ -24,14 +24,16 @@ static jmethodID method_get_point_lon;
 
 static jmethodID method_listener_on_search_request_ready;
 static jmethodID method_listener_on_schedule_request_ready;
+static jmethodID method_listener_on_request_failed;
 
 static jobject global_listener;
 
-static JNIEnv* get_jni_env() {
+static JNIEnv* get_jni_env(int* status) {
     JNIEnv* env = NULL;
 
     jint res_env = (*jvm)->GetEnv(jvm, (void **) &env, JNI_VERSION_1_2);
     if (res_env == JNI_OK) {
+        if (status) *status = 1;
         return env;
     }
 
@@ -39,9 +41,17 @@ static JNIEnv* get_jni_env() {
 
     if (res != JNI_OK) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't attach thread");
+        if (status) *status = 2;
         return NULL;
     } else {
+        if (status) *status = 0;
         return env;
+    }
+}
+
+static void release_jni_env(int status) {
+    if (status == 0) {
+        (*jvm)->DetachCurrentThread(jvm);
     }
 }
 
@@ -49,7 +59,7 @@ JNIEXPORT jint JNICALL
 JNI_OnLoad(JavaVM *vm, void *reserved) {
     jvm = vm;
 
-    JNIEnv* env = get_jni_env();
+    JNIEnv* env = get_jni_env(NULL);
 
     class_ioexception = (*env)->FindClass(env, "java/io/IOException");
     class_ioexception = (*env)->NewGlobalRef(env, class_ioexception);
@@ -81,12 +91,16 @@ JNI_OnLoad(JavaVM *vm, void *reserved) {
             = (*env)->GetMethodID(env, class_listener, "onScheduleRequestReady",
                                   "([Lorg/fruct/oss/tsp/commondatatype/Movement;)V");
 
+    method_listener_on_request_failed
+            = (*env)->GetMethodID(env, class_listener, "onRequestFailed",
+                                  "(Ljava/lang/String;)V");
+
     return JNI_VERSION_1_2;
 }
 
 JNIEXPORT void JNICALL
 JNI_OnUnload(JavaVM *vm, void *reserved) {
-    JNIEnv* env = get_jni_env();
+    JNIEnv* env = get_jni_env(NULL);
 
     (*env)->DeleteGlobalRef(env, class_ioexception);
     (*env)->DeleteGlobalRef(env, class_point);
@@ -212,7 +226,8 @@ static jobject create_point_object(JNIEnv* env, struct Point* point) {
 void st_on_search_request_ready(struct Point *points, int points_count) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "st_on_search_request_ready");
 
-    JNIEnv* env = get_jni_env();
+    int status;
+    JNIEnv* env = get_jni_env(&status);
 
     jobjectArray array = (*env)->NewObjectArray(env, points_count, class_point, NULL);
 
@@ -224,8 +239,8 @@ void st_on_search_request_ready(struct Point *points, int points_count) {
 
     (*env)->CallVoidMethod(env, global_listener, method_listener_on_search_request_ready, array);
 
-    // TODO: should be check is current thread attached
-    (*jvm)->DetachCurrentThread(jvm);
+    release_jni_env(status);
+
 }
 
 static jobject create_movement_object(JNIEnv* env, struct Movement* movement) {
@@ -235,9 +250,9 @@ static jobject create_movement_object(JNIEnv* env, struct Movement* movement) {
     return (*env)->NewObject(env, class_movement, constructor_movement, point_a, point_b);
 }
 
-void st_on_schedule_request_ready(struct Movement *movements, int movements_count) {
-    JNIEnv* env;
-    (*jvm)->AttachCurrentThread(jvm, &env, NULL);
+void st_on_schedule_request_ready(struct Movement* movements, int movements_count) {
+    int status;
+    JNIEnv* env = get_jni_env(&status);
 
     jobjectArray movement_array = (*env)->NewObjectArray(env, movements_count, class_movement, NULL);
 
@@ -248,7 +263,16 @@ void st_on_schedule_request_ready(struct Movement *movements, int movements_coun
 
     (*env)->CallVoidMethod(env, global_listener, method_listener_on_schedule_request_ready, movement_array);
 
-    // TODO: should be check is current thread attached
-    (*jvm)->DetachCurrentThread(jvm);
+    release_jni_env(status);
 }
 
+void st_on_request_failed(const char* description) {
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "st_on_request_failed called");
+
+    int status;
+    JNIEnv* env = get_jni_env(&status);
+    jstring description_jni = (*env)->NewStringUTF(env, description);
+    (*env)->CallVoidMethod(env, global_listener, method_listener_on_request_failed, description_jni);
+    release_jni_env(status);
+
+}

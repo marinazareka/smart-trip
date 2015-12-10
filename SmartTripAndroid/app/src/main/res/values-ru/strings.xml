@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_enter_request">Запрос</string>
+
+    <string name="nav_map">Карта</string>
+    <string name="nav_list">Список</string>
+    <string name="nav_quit">Выход</string>
+
+    <string name="tab_geo">Точки</string>
+    <string name="tab_trip">Маршрут</string>
+
+    <string name="action_schedule">Маршрут</string>
+    <string name="action_search">Искать</string>
+
+    <string name="hint_radius">Радиус</string>
+    <string name="hint_pattern">Шаблон</string>
+
+    <string name="str_request_failed">Не удалось выполнить запрос</string>
+
+</resources>

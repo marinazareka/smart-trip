@@ -1,16 +1,20 @@
 <resources>
     <string name="app_name">Smart Trip</string>
+    <string name="title_enter_request">Запрос</string>
 
-    <string name="nav_map">Карта</string>
-    <string name="nav_list">Список</string>
-    <string name="nav_quit">Выход</string>
+    <string name="nav_map">Map</string>
+    <string name="nav_list">List</string>
+    <string name="nav_quit">Quit</string>
 
-    <string name="tab_geo">Точки</string>
-    <string name="tab_trip">Маршрут</string>
+    <string name="tab_geo">Points</string>
+    <string name="tab_trip">Route</string>
 
-    <string name="action_schedule">Маршрут</string>
-    <string name="action_search">Искать</string>
-    <string name="title_enter_request">Request</string>
+    <string name="action_schedule">Route</string>
+    <string name="action_search">Search</string>
+
     <string name="hint_radius">Radius</string>
     <string name="hint_pattern">Pattern</string>
+
+    <string name="str_request_failed">Request failed</string>
+
 </resources>

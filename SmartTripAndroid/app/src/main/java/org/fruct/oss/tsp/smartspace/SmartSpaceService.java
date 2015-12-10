@@ -34,6 +34,7 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 
 	public static final int CALLBACK_SCHEDULE_RESULT = 5;
 	public static final int CALLBACK_SEARCH_RESULT = 6;
+	public static final int CALLBACK_REQUEST_FAILED = 7;
 
 	private Messenger messenger;
 
@@ -174,6 +175,27 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 						message.setData(data);
 
 						try {
+							callbackMessenger.send(message);
+						} catch (RemoteException e) {
+							callbackMessenger = null;
+							log.error("Callback messenger disconnected");
+						}
+					}
+				}
+			});
+		}
+
+		@Override
+		public void onRequestFailed(final String description) {
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					if (callbackMessenger != null) {
+						try {
+							Bundle data = new Bundle();
+							data.putString("description", description);
+							Message message = Message.obtain(null, CALLBACK_REQUEST_FAILED);
+							message.setData(data);
 							callbackMessenger.send(message);
 						} catch (RemoteException e) {
 							callbackMessenger = null;

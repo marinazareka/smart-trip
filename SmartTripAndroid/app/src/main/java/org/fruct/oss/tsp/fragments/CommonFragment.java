@@ -2,9 +2,13 @@ package org.fruct.oss.tsp.fragments;
 
 
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.widget.Toast;
 
+import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.events.LocationEvent;
+import org.fruct.oss.tsp.events.RequestFailedEvent;
 import org.fruct.oss.tsp.smartspace.BoundSmartSpace;
 import org.fruct.oss.tsp.smartspace.SmartSpace;
 import org.fruct.oss.tsp.stores.GeoStore;
@@ -90,5 +94,10 @@ public class CommonFragment extends Fragment {
 	// TODO: this method possibly out of place (should be placed somewhere in "LocationStore")
 	public void onEventMainThread(LocationEvent locationEvent) {
 		smartSpace.updateUserLocation(locationEvent.getLocation());
+	}
+
+	public void onEventMainThread(RequestFailedEvent event) {
+		Toast.makeText(getContext(), R.string.str_request_failed, Toast.LENGTH_SHORT).show();
+		Toast.makeText(getContext(), event.getDescription(), Toast.LENGTH_LONG).show();
 	}
 }
