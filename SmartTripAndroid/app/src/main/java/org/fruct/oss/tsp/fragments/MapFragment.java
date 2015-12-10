@@ -112,7 +112,7 @@ public class MapFragment extends BaseFragment {
 
 		pointsLayer = new PointsLayer(getContext(), geoViewModel);
 		pathLayer = new Polyline(Utils.createPaint(
-				AndroidGraphicFactory.INSTANCE.createColor(200, 100, 100, 255), 2, Style.STROKE),
+				AndroidGraphicFactory.INSTANCE.createColor(200, 100, 100, 255), Utils.getDP(4), Style.STROKE),
 				AndroidGraphicFactory.INSTANCE);
 
 		mapView.getLayerManager().getLayers().add(layer);

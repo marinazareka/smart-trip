@@ -42,11 +42,12 @@ public class PointsLayer extends Layer implements GeoViewModel.Listener {
 
 		this.geoViewModel = geoViewModel;
 
+		radius = Utils.getDP(8);
+
 		circleFill = Utils.createPaint(GRAPHIC_FACTORY.createColor(170, 100, 110, 255), 0, Style.FILL);
 		circleFillChecked = Utils.createPaint(GRAPHIC_FACTORY.createColor(170, 100, 200, 255), 0, Style.FILL);
 
-		circleStroke = Utils.createPaint(GRAPHIC_FACTORY.createColor(200, 100, 110, 210), 2, Style.STROKE);
-		radius = Utils.getDP(8);
+		circleStroke = Utils.createPaint(GRAPHIC_FACTORY.createColor(200, 100, 110, 210), Utils.getDP(2), Style.STROKE);
 	}
 
 	@Override
