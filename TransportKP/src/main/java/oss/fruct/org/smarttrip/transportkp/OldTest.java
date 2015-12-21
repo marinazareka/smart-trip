@@ -160,12 +160,12 @@ public class OldTest {
 
 		double initialTemp = 1000;
 
-		SimulatedAnnealing<GraphState> annealing = new SimulatedAnnealing<>();
+		SimulatedAnnealing<GraphState> annealing = new SimulatedAnnealing<>(random);
 		annealing.setEnergyFunction(state -> state.energy());
 		annealing.setTransitionFunction(state -> state.transition());
 		//annealing.setTemperatureFunction(i -> initialTemp * Math.pow(0.95, i));
 		annealing.setTemperatureFunction(i -> initialTemp / i);
-		annealing.setInitialState(initialTemp, 0.5, graphState, System.currentTimeMillis());
+		annealing.setInitialState(initialTemp, 0.5, graphState);
 
 		annealing.start();
 

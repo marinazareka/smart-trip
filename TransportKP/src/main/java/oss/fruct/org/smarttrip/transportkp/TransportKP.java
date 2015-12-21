@@ -7,6 +7,7 @@ import oss.fruct.org.smarttrip.transportkp.data.Point;
 import oss.fruct.org.smarttrip.transportkp.data.RouteRequest;
 import oss.fruct.org.smarttrip.transportkp.data.RouteResponse;
 import oss.fruct.org.smarttrip.transportkp.smartspace.SmartSpace;
+import oss.fruct.org.smarttrip.transportkp.tsp.ClosedStateTransition;
 import oss.fruct.org.smarttrip.transportkp.tsp.GraphhopperGraphFactory;
 import oss.fruct.org.smarttrip.transportkp.tsp.TravellingSalesman;
 
@@ -61,7 +62,8 @@ public class TransportKP {
 	}
 
 	private Point[] processRequest(RouteRequest request) {
-		TravellingSalesman tsp = new TravellingSalesman(new GraphhopperGraphFactory(graphHopper), request.getPoints(), random);
+		TravellingSalesman tsp = new TravellingSalesman(new GraphhopperGraphFactory(graphHopper),
+				new ClosedStateTransition(random), request.getPoints(), random);
 		return null;
 		//return tsp.findPath();
 	}

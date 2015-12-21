@@ -4,7 +4,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import oss.fruct.org.smarttrip.transportkp.data.Point;
+import oss.fruct.org.smarttrip.transportkp.tsp.ClosedStateTransition;
 import oss.fruct.org.smarttrip.transportkp.tsp.EuclideanGraphFactory;
+import oss.fruct.org.smarttrip.transportkp.tsp.State;
 import oss.fruct.org.smarttrip.transportkp.tsp.TravellingSalesman;
 
 import java.util.Random;
@@ -37,8 +39,10 @@ public class MainTest {
 	@Test
 	public void testClosedTspStartEndPoints() {
 		Point start = point(1, 1);
+		Random random = new Random();
 
-		TravellingSalesman salesman = new TravellingSalesman(new EuclideanGraphFactory(), POINTS1, new Random());
+		TravellingSalesman salesman = new TravellingSalesman(new EuclideanGraphFactory(),
+				new ClosedStateTransition(random), POINTS1, random);
 		TravellingSalesman.Result result = salesman.findPath(start, true);
 
 		int[] path = result.path;
@@ -55,23 +59,35 @@ public class MainTest {
 	@Test
 	public void testClosedTsp() {
 		Point start = point(1, 1);
+		Random random = new Random(3);
 
-		TravellingSalesman salesman = new TravellingSalesman(new EuclideanGraphFactory(), POINTS1, new Random(3));
+
+		TravellingSalesman salesman = new TravellingSalesman(new EuclideanGraphFactory(),
+				new ClosedStateTransition(random), POINTS1, random);
 		TravellingSalesman.Result result = salesman.findPath(start, true);
 
-		int[] path = result.path;
-		assertThat(path, anyOf(
+		assertThat(result.path, anyOf(
 				equalTo(path(0, 1, 3, 2, 0)),
-				equalTo(path(0, 3, 2, 1, 0))));
+				equalTo(path(0, 2, 3, 1, 0))));
 	}
 
 	@Test(timeout = 1000)
 	public void testClosedTspMinimal() {
-		TravellingSalesman salesman = new TravellingSalesman(new EuclideanGraphFactory(), points(2, 2), new Random(2));
+		Random random = new Random(1);
+
+		TravellingSalesman salesman = new TravellingSalesman(new EuclideanGraphFactory(),
+				new ClosedStateTransition(random), points(2, 2), random);
 		TravellingSalesman.Result result = salesman.findPath(point(1, 1), true);
 
 		assertThat(result.path, is(path(0, 1, 0)));
 	}
+
+	@Test(timeout = 1000)
+	public void testTransitionInfiniteLoop() {
+		ClosedStateTransition transition = new ClosedStateTransition(new Random());
+		transition.transition(new State(path(0, 1, 2)));
+	}
+
 
 	private static Point point(double x, double y) {
 		return new Point(0, x, y);

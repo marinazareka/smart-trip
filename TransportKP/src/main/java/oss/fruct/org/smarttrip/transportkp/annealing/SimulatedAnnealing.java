@@ -6,9 +6,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Random;
 import java.util.function.*;
 
-import static oss.fruct.org.smarttrip.transportkp.Main.log;
-import static oss.fruct.org.smarttrip.transportkp.Main.logln;
-
 /**
  * @param <S> type of state
  */
@@ -22,7 +19,6 @@ public class SimulatedAnnealing<S> {
 	private double tInit;
 	private double tMin;
 	private S stateInit;
-	private long seedInit;
 
 	private int iter;
 	private double temp;
@@ -30,7 +26,11 @@ public class SimulatedAnnealing<S> {
 	private S state;
 	private double stateEnergy;
 
-	private Random random;
+	private final Random random;
+
+	public SimulatedAnnealing(Random random) {
+		this.random = random;
+	}
 
 	public void setEnergyFunction(ToDoubleFunction<S> energyFunction) {
 		this.energyFunction = energyFunction;
@@ -44,11 +44,10 @@ public class SimulatedAnnealing<S> {
 		this.transitionFunction = transitionFunction;
 	}
 
-	public void setInitialState(double tInit, double tMin, S stateInit, long seed) {
+	public void setInitialState(double tInit, double tMin, S stateInit) {
 		this.tInit = tInit;
 		this.tMin = tMin;
 		this.stateInit = stateInit;
-		this.seedInit = seed;
 	}
 
 	public void start() {
@@ -56,7 +55,6 @@ public class SimulatedAnnealing<S> {
 		temp = tInit;
 		state = stateInit;
 		stateEnergy = energyFunction.applyAsDouble(state);
-		random = new Random(seedInit);
 	}
 
 	public boolean iter() {
@@ -64,24 +62,24 @@ public class SimulatedAnnealing<S> {
 		double stateCandidateEnergy = energyFunction.applyAsDouble(stateCandidate);
 
 		double deltaE = stateCandidateEnergy - stateEnergy;
-		log(iter + ": temp " + temp + " delta " + deltaE);
+		log.trace("{}: temp {} delta {}", iter, temp, deltaE);
+
 		if (deltaE < 0) {
-			logln(" Down ");
+			log.trace("Down");
 			// Transition
 			state = stateCandidate;
 			stateEnergy = stateCandidateEnergy;
 		} else {
 			double transitionProbability = Math.exp(-deltaE / temp);
-			log(" Up prob " + transitionProbability + " ... ");
+			log.trace(" Up prob {}...", transitionProbability);
 
 			if (transitionProbability > random.nextDouble()) {
-				log(" OK");
+				log.trace("  OK");
 				state = stateCandidate;
 				stateEnergy = stateCandidateEnergy;
 			} else {
-				log(" Fail");
+				log.trace("  Fail");
 			}
-			logln("");
 		}
 
 		iter += 1;
