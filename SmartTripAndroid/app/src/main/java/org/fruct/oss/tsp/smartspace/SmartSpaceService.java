@@ -71,8 +71,9 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 	}
 
 	private SmartSpaceNative createSmartSpaceNative() {
-		JniSmartSpaceNative.loadNativeLibrary();
-		return new JniSmartSpaceNative();
+//		JniSmartSpaceNative.loadNativeLibrary();
+//		return new JniSmartSpaceNative();
+		return new TestSmartSpaceNative();
 	}
 
 	@Override

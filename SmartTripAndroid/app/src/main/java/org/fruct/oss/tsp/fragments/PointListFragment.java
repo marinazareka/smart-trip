@@ -22,12 +22,14 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Point;
-import org.fruct.oss.tsp.viewmodel.DefaultGeoViewModel;
+import org.fruct.oss.tsp.mvp.PointListMvpView;
+import org.fruct.oss.tsp.mvp.PointListPresenter;
 import org.fruct.oss.tsp.viewmodel.GeoViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.Bind;
@@ -47,22 +49,28 @@ import butterknife.OnCheckedChanged;
  *
  * Текущее состояние выбора точек и хранится в объекте вспомогательного класса {@link GeoViewModel}.
  */
-public class PointListFragment extends BaseFragment implements GeoViewModel.Listener {
+public class PointListFragment extends BaseFragment implements GeoViewModel.Listener, PointListMvpView {
 	private static final Logger log = LoggerFactory.getLogger(PointListFragment.class);
 
 	@Bind(R.id.recycler_view)
 	RecyclerView recyclerView;
 
-	private GeoViewModel geoViewModel;
 	private PointsAdapter adapter;
+	private PointListPresenter presenter;
 
+	private boolean isScheduleMenuItemVisible;
+	private MaterialDialog waiterDialog;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+		createPresenter();
+	}
 
-		createTripModel();
-		setupOptionsMenu();
+	private void createPresenter() {
+		presenter = new PointListPresenter(getGeoStore(), getSmartSpace());
+		presenter.setView(this);
 	}
 
 	@Override
@@ -74,18 +82,19 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
-		menu.findItem(R.id.action_schedule).setVisible(geoViewModel.isAnythingChecked());
+		menu.findItem(R.id.action_schedule).setVisible(isScheduleMenuItemVisible);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.action_schedule:
-			scheduleSelection(geoViewModel);
+			//scheduleSelection(geoViewModel);
 			break;
 
 		case R.id.action_search:
-			startSearchDialog();
+			presenter.onSearchMenuAction();
+			//startSearchDialog();
 			break;
 
 		default:
@@ -95,7 +104,54 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 		return true;
 	}
 
-	private void startSearchDialog() {
+	@Nullable
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.fragment_list, container, false);
+		ButterKnife.bind(this, view);
+		setupRecyclerView();
+		return view;
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		presenter.start();
+	}
+
+	@Override
+	public void onPause() {
+		presenter.stop();
+		super.onPause();
+	}
+
+	private void setupRecyclerView() {
+		recyclerView.setHasFixedSize(true);
+		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
+				LinearLayoutManager.VERTICAL, false));
+
+		recyclerView.setAdapter(adapter = new PointsAdapter());
+	}
+
+	@Override
+	public void pointsUpdated(List<GeoViewModel.PointModel> points) {
+		adapter.notifyDataSetChanged();
+	}
+
+	@Override
+	public void setPointList(List<Point> points) {
+		adapter.points = Collections.unmodifiableList(points);
+		adapter.notifyDataSetChanged();
+	}
+
+	@Override
+	public void setScheduleMenuActionVisible() {
+		isScheduleMenuItemVisible = true;
+		getActivity().invalidateOptionsMenu();
+	}
+
+	@Override
+	public void displaySearchDialog() {
 		new MaterialDialog.Builder(getActivity())
 				.title(R.string.title_enter_request)
 				.positiveText(android.R.string.ok)
@@ -131,7 +187,7 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 						}
 
 						if (!TextUtils.isEmpty(patternText) && radius >= 0) {
-							search(radius, patternText);
+							presenter.search(radius, patternText);
 							dialog.dismiss();
 						}
 					}
@@ -140,57 +196,43 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 				.show();
 	}
 
-	private void search(int radius, String patternText) {
-		getSmartSpace().postSearchRequest(radius, patternText);
-	}
-
-	private void setupOptionsMenu() {
-		setHasOptionsMenu(true);
-	}
-
-	private void createTripModel() {
-		geoViewModel = new DefaultGeoViewModel(getActivity(), getGeoStore());
-	}
-
-	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_list, container, false);
-		ButterKnife.bind(this, view);
-		setupRecyclerView();
-		return view;
+	public void displaySearchWaiter() {
+		waiterDialog = new MaterialDialog.Builder(getActivity())
+				.progress(true, 1)
+				.show();
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-
-
-		geoViewModel.start();
-		geoViewModel.registerListener(this);
+	public void dismissSearchWaiter() {
+		if (waiterDialog != null) {
+			waiterDialog.dismiss();
+			waiterDialog = null;
+		}
 	}
 
 	@Override
-	public void onPause() {
-		geoViewModel.unregisterListener(this);
-		geoViewModel.stop();
-		super.onPause();
-	}
+	public void displayFoundPoints(List<Point> points) {
+		List<String> displayStrings = new ArrayList<>(points.size());
+		for (Point point : points) {
+			displayStrings.add(point.getTitle());
+		}
 
-	private void setupRecyclerView() {
-		recyclerView.setHasFixedSize(true);
-		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
-				LinearLayoutManager.VERTICAL, false));
-
-		recyclerView.setAdapter(adapter = new PointsAdapter());
-	}
-
-	@Override
-	public void pointsUpdated(List<GeoViewModel.PointModel> points) {
-		adapter.notifyDataSetChanged();
+		new MaterialDialog.Builder(getActivity())
+				.items(displayStrings.toArray(new String[displayStrings.size()]))
+				.itemsCallbackMultiChoice(null, new MaterialDialog.ListCallbackMultiChoice() {
+					@Override
+					public boolean onSelection(MaterialDialog materialDialog, Integer[] integers, CharSequence[] charSequences) {
+						return false;
+					}
+				})
+				.positiveText(android.R.string.ok)
+				.show();
 	}
 
 	class PointsAdapter extends RecyclerView.Adapter<PointsAdapter.Holder> {
+		private List<Point> points = Collections.emptyList();
+
 		@Override
 		public PointsAdapter.Holder onCreateViewHolder(ViewGroup parent, int viewType) {
 			return new Holder(LayoutInflater.from(parent.getContext())
@@ -199,12 +241,12 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 
 		@Override
 		public void onBindViewHolder(PointsAdapter.Holder holder, int position) {
-			holder.bind(position, geoViewModel.getPoints().get(position));
+			holder.bind(position, points.get(position));
 		}
 
 		@Override
 		public int getItemCount() {
-			return geoViewModel.getPoints().size();
+			return points.size();
 		}
 
 		class Holder extends RecyclerView.ViewHolder {
@@ -214,24 +256,22 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 			@Bind(R.id.check_box)
 			CheckBox checkBox;
 
-			GeoViewModel.PointModel pointModel;
 			int position;
+			private Point point;
 
 			public Holder(View itemView) {
 				super(itemView);
 				ButterKnife.bind(this, itemView);
 			}
 
-			public void bind(int position, GeoViewModel.PointModel pointModel) {
-				this.pointModel = pointModel;
+			public void bind(int position, Point point) {
 				this.position = position;
-				textView.setText(pointModel.point.getTitle());
-				checkBox.setChecked(pointModel.isChecked);
+				this.point = point;
+				textView.setText(point.getTitle());
 			}
 
 			@OnCheckedChanged(R.id.check_box)
 			void onCheckBoxChecked(boolean checked) {
-				geoViewModel.setCheckedState(position, checked);
 				getActivity().invalidateOptionsMenu();
 			}
 		}
