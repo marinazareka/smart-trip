@@ -61,6 +61,8 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 	private boolean isScheduleMenuItemVisible;
 	private MaterialDialog waiterDialog;
 
+	private List<Point> dialogPoints;
+
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -213,6 +215,8 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 
 	@Override
 	public void displayFoundPoints(List<Point> points) {
+		dialogPoints = points;
+
 		List<String> displayStrings = new ArrayList<>(points.size());
 		for (Point point : points) {
 			displayStrings.add(point.getTitle());
@@ -223,7 +227,12 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 				.itemsCallbackMultiChoice(null, new MaterialDialog.ListCallbackMultiChoice() {
 					@Override
 					public boolean onSelection(MaterialDialog materialDialog, Integer[] integers, CharSequence[] charSequences) {
-						return false;
+						List<Point> checkedPoints = new ArrayList<>(integers.length);
+						for (Integer index : integers) {
+							checkedPoints.add(dialogPoints.get(index));
+						}
+						presenter.onPointsChecked(checkedPoints);
+						return true;
 					}
 				})
 				.positiveText(android.R.string.ok)
