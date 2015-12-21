@@ -2,41 +2,23 @@ package oss.fruct.org.smarttrip.transportkp.tsp;
 
 import oss.fruct.org.smarttrip.transportkp.data.Point;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 
 public class State {
-	private static final Random random = new Random();
-
 	private final Graph graph;
 	private final int[] path;
+	private Random random;
 
-	public State(Graph graph, int vStart, int vEnd) {
+	public State(Graph graph, int[] path, Random random) {
 		this.graph = graph;
-
-		int size = graph.getVertexCount();
-		path = new int[size];
-
-		List<Integer> intSet = new ArrayList<>();
-		for (int i = 0; i < size; i++) {
-			intSet.add(i);
-		}
-
-		intSet.remove(Integer.valueOf(vStart));
-		path[0] = vStart;
-
-		intSet.remove(Integer.valueOf(vEnd));
-		path[size - 1] = vEnd;
-
-		for (int i = 1; i < size - 1; i++) {
-			path[i] = intSet.remove(random.nextInt(intSet.size()));
-		}
+		this.path = path;
+		this.random = random;
 	}
 
-	public State(State graphState) {
+	public State(State graphState, Random random) {
+		this.random = random;
 		graph = graphState.graph;
 		path = Arrays.copyOf(graphState.path, graphState.path.length);
 	}
@@ -50,7 +32,7 @@ public class State {
 	}
 
 	public State transition() {
-		State newState = new State(this);
+		State newState = new State(this, random);
 		int i1, i2;
 		do {
 			i1 = random.nextInt(path.length - 2) + 1;
@@ -87,5 +69,9 @@ public class State {
 		return "State{" +
 				"path=" + Arrays.toString(path) +
 				'}';
+	}
+
+	public int[] getPath() {
+		return path;
 	}
 }

@@ -23,6 +23,15 @@ public class Main {
 		//System.err.println("" + printable.toString());
 	}
 
+	public static int getRandomNumber() {
+		return 4; // chosen by fair dice roll.
+				  // guaranteed to be random.
+	}
+
+	public static void canGoWrong() {
+		throw new RuntimeException();
+	}
+
 	public static void main(String[] args) {
 		Args parsedArgs = parseOptions(args);
 		if (parsedArgs == null) {
