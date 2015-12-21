@@ -1,9 +1,14 @@
 package org.fruct.oss.tsp.mvp;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.events.GeoStoreChangedEvent;
 import org.fruct.oss.tsp.smartspace.SmartSpace;
 import org.fruct.oss.tsp.stores.GeoStore;
+import org.fruct.oss.tsp.util.Pref;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,12 +19,15 @@ public class PointListPresenter {
 	private PointListMvpView view;
 	private GeoStore geoStore;
 	private SmartSpace smartspace;
+	private SharedPreferences pref;
 
 	private List<Point> checkedPoints = new ArrayList<>();
 
-	public PointListPresenter(GeoStore geoStore, SmartSpace smartspace) {
+	public PointListPresenter(Context context, GeoStore geoStore, SmartSpace smartspace) {
 		this.geoStore = geoStore;
 		this.smartspace = smartspace;
+
+		pref = PreferenceManager.getDefaultSharedPreferences(context);
 	}
 
 	public void setView(PointListMvpView pointListMvpView) {
@@ -36,7 +44,7 @@ public class PointListPresenter {
 	}
 
 	public void onSearchMenuAction() {
-		view.displaySearchDialog();
+		view.displaySearchDialog(null, Pref.getRadius(pref));
 	}
 
 	public void onEventMainThread(GeoStoreChangedEvent event) {

@@ -72,7 +72,7 @@ public class PointListFragment extends BaseFragment implements PointListMvpView 
 	}
 
 	private void createPresenter() {
-		presenter = new PointListPresenter(getGeoStore(), getSmartSpace());
+		presenter = new PointListPresenter(getContext(), getGeoStore(), getSmartSpace());
 		presenter.setView(this);
 	}
 
@@ -148,8 +148,8 @@ public class PointListFragment extends BaseFragment implements PointListMvpView 
 	}
 
 	@Override
-	public void displaySearchDialog() {
-		new MaterialDialog.Builder(getActivity())
+	public void displaySearchDialog(@Nullable String initialPattern, int initialRadius) {
+		MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
 				.title(R.string.title_enter_request)
 				.positiveText(android.R.string.ok)
 				.negativeText(android.R.string.cancel)
@@ -191,6 +191,14 @@ public class PointListFragment extends BaseFragment implements PointListMvpView 
 				})
 				.autoDismiss(false)
 				.show();
+
+		if (TextUtils.isEmpty(initialPattern)) {
+			((EditText) ButterKnife.findById(dialog, R.id.pattern_edit_text)).setText(initialPattern);
+		}
+
+		if (initialRadius > 0) {
+			((EditText) ButterKnife.findById(dialog, R.id.radius_edit_text)).setText(String.valueOf(initialRadius));
+		}
 	}
 
 	@Override
