@@ -35,6 +35,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
+import butterknife.OnClick;
 
 /**
  * Пользовательский интерфейс для списка точек для последнего запроса пользователя
@@ -49,7 +50,7 @@ import butterknife.OnCheckedChanged;
  *
  * Текущее состояние выбора точек и хранится в объекте вспомогательного класса {@link GeoViewModel}.
  */
-public class PointListFragment extends BaseFragment implements GeoViewModel.Listener, PointListMvpView {
+public class PointListFragment extends BaseFragment implements PointListMvpView {
 	private static final Logger log = LoggerFactory.getLogger(PointListFragment.class);
 
 	@Bind(R.id.recycler_view)
@@ -91,12 +92,11 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.action_schedule:
-			//scheduleSelection(geoViewModel);
+			presenter.onScheduleMenuAction();
 			break;
 
 		case R.id.action_search:
 			presenter.onSearchMenuAction();
-			//startSearchDialog();
 			break;
 
 		default:
@@ -136,19 +136,14 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 	}
 
 	@Override
-	public void pointsUpdated(List<GeoViewModel.PointModel> points) {
-		adapter.notifyDataSetChanged();
-	}
-
-	@Override
 	public void setPointList(List<Point> points) {
 		adapter.points = Collections.unmodifiableList(points);
 		adapter.notifyDataSetChanged();
 	}
 
 	@Override
-	public void setScheduleMenuActionVisible() {
-		isScheduleMenuItemVisible = true;
+	public void setScheduleMenuActionVisibility(boolean isVisible) {
+		isScheduleMenuItemVisible = isVisible;
 		getActivity().invalidateOptionsMenu();
 	}
 
@@ -262,8 +257,8 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 			@Bind(android.R.id.text1)
 			TextView textView;
 
-			@Bind(R.id.check_box)
-			CheckBox checkBox;
+			@Bind(R.id.delete_button)
+			View deleteButton;
 
 			int position;
 			private Point point;
@@ -279,9 +274,9 @@ public class PointListFragment extends BaseFragment implements GeoViewModel.List
 				textView.setText(point.getTitle());
 			}
 
-			@OnCheckedChanged(R.id.check_box)
-			void onCheckBoxChecked(boolean checked) {
-				getActivity().invalidateOptionsMenu();
+			@OnClick(R.id.delete_button)
+			void onDeleteClicked() {
+				presenter.onDeleteItem(point);
 			}
 		}
 	}

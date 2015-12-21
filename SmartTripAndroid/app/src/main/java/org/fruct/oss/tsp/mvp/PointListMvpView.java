@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface PointListMvpView {
 	void setPointList(List<Point> points);
-	void setScheduleMenuActionVisible();
+	void setScheduleMenuActionVisibility(boolean b);
 
 	void displaySearchDialog();
 

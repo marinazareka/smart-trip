@@ -75,6 +75,6 @@ public class BaseFragment extends Fragment {
 
 		log.debug("{} points searching", checkedPoints.size());
 
-		getSmartSpace().postScheduleRequest(checkedPoints);
+
 	}
 }

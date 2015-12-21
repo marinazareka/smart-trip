@@ -21,6 +21,7 @@ import org.fruct.oss.tsp.fragments.BaseFragment;
 import org.fruct.oss.tsp.fragments.CommonFragment;
 import org.fruct.oss.tsp.fragments.MapFragment;
 import org.fruct.oss.tsp.fragments.PointListFragment;
+import org.fruct.oss.tsp.fragments.PrefFragment;
 import org.fruct.oss.tsp.fragments.ScheduleListFragment;
 
 import butterknife.Bind;
@@ -141,6 +142,10 @@ public class MainActivity extends AppCompatActivity {
 								.withName(R.string.nav_map),
 
 						new PrimaryDrawerItem()
+								.withIdentifier(R.id.drawer_pref)
+								.withName(R.string.nav_pref),
+
+						new PrimaryDrawerItem()
 								.withIdentifier(R.id.drawer_quit)
 								.withName(R.string.nav_quit)
 				)
@@ -164,10 +169,19 @@ public class MainActivity extends AppCompatActivity {
 			switchMapFragment();
 			break;
 
+		case R.id.drawer_pref:
+			switchPrefFragment();
+			break;
+
 		case R.id.drawer_quit:
 			finish();
 			break;
 		}
+	}
+
+	private void switchPrefFragment() {
+		hideTabbar();
+		switchFragment(new PrefFragment());
 	}
 
 	private void switchMapFragment() {

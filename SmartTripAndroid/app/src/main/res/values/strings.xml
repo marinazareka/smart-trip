@@ -4,6 +4,8 @@
 
     <string name="nav_map">Map</string>
     <string name="nav_list">List</string>
+    <string name="nav_pref">Preferences</string>
+
     <string name="nav_quit">Quit</string>
 
     <string name="tab_geo">Points</string>
@@ -16,5 +18,10 @@
     <string name="hint_pattern">Pattern</string>
 
     <string name="str_request_failed">Request failed</string>
+
+    <string name="pref_radius">Search radius</string>
+
+    <string name="pref_closed">Closed route</string>
+    <string name="pref_closed_summary">Find closed route by default</string>
 
 </resources>

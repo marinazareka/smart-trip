@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Message;
+import android.preference.PreferenceManager;
 
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
 import org.slf4j.Logger;
@@ -18,9 +19,11 @@ public class App extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		log.info("App started");
-		AndroidGraphicFactory.createInstance(this);
 		instance = this;
+
+		log.info("App started");
+		PreferenceManager.setDefaultValues(getContext(), R.xml.preferences, true);
+		AndroidGraphicFactory.createInstance(this);
 	}
 
 	public static Context getContext() {

@@ -27,13 +27,12 @@ public class PointListPresenter {
 	}
 
 	public void start() {
-		view.setPointList(geoStore.getPoints());
+		view.setPointList(checkedPoints);
 		EventBus.getDefault().register(this);
 	}
 
 	public void stop() {
 		EventBus.getDefault().unregister(this);
-
 	}
 
 	public void onSearchMenuAction() {
@@ -41,7 +40,6 @@ public class PointListPresenter {
 	}
 
 	public void onEventMainThread(GeoStoreChangedEvent event) {
-		//view.setPointList(geoStore.getPoints());
 		view.displayFoundPoints(geoStore.getPoints());
 		view.dismissSearchWaiter();
 	}
@@ -55,5 +53,26 @@ public class PointListPresenter {
 		this.checkedPoints.addAll(checkedPoints);
 		view.setPointList(new ArrayList<>(this.checkedPoints));
 
+		updateMenu();
+	}
+
+	private void updateMenu() {
+		if (checkedPoints.size() > 1) {
+			view.setScheduleMenuActionVisibility(true);
+		} else {
+			view.setScheduleMenuActionVisibility(false);
+		}
+	}
+
+	public void onScheduleMenuAction() {
+		if (checkedPoints.size() > 2) {
+			smartspace.postScheduleRequest(checkedPoints);
+		}
+	}
+
+	public void onDeleteItem(Point point) {
+		checkedPoints.remove(point);
+		updateMenu();
+		view.setPointList(new ArrayList<>(this.checkedPoints));
 	}
 }

@@ -16,12 +16,14 @@
         tools:text="Petrozavodsk"
         />
 
-    <CheckBox
+    <Button
+        style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/check_box"
+        android:text="Delete"
+        android:id="@+id/delete_button"
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
-        />
+        android:layout_alignParentEnd="true"/>
 
 </RelativeLayout>

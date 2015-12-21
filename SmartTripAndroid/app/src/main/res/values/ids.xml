@@ -2,6 +2,7 @@
 <resources>
     <item name="drawer_list" type="id" />
     <item name="drawer_map" type="id" />
+    <item name="drawer_pref" type="id" />
     <item name="drawer_quit" type="id" />
 
     <item name="tab_geo" type="id" />

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="pref_radius"
+        android:title="@string/pref_radius"
+        android:defaultValue="10000"
+        android:inputType="number"
+        />
+
+    <CheckBoxPreference
+        android:key="pref_closed"
+        android:title="@string/pref_closed"
+        android:defaultValue="true"
+        android:summary="@string/pref_closed_summary" />
+</PreferenceScreen>
