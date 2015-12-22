@@ -13,6 +13,7 @@ import android.os.RemoteException;
 
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
+import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.smartslognative.JniSmartSpaceNative;
 import org.fruct.oss.tsp.smartslognative.SmartSpaceNative;
 import org.slf4j.Logger;
@@ -103,7 +104,8 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 		case MSG_ACTION_POST_SCHEDULE_REQUEST:
 			msg.getData().setClassLoader(Point.class.getClassLoader());
 			List<Point> points = msg.getData().getParcelableArrayList("points");
-			handlerPostScheduleRequest(points);
+			TspType tspType = (TspType) msg.getData().getSerializable("type");
+			handlerPostScheduleRequest(points, tspType);
 			break;
 
 		case MSG_ACTION_SET_CALLBACK_MESSENGER:
@@ -122,8 +124,8 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 		smartSpace.postSearchRequest(radius, pattern);
 	}
 
-	private void handlerPostScheduleRequest(List<Point> points) {
-		smartSpace.postScheduleRequest(points.toArray(new Point[points.size()]));
+	private void handlerPostScheduleRequest(List<Point> points, TspType tspType) {
+		smartSpace.postScheduleRequest(points.toArray(new Point[points.size()]), tspType.name().toLowerCase());
 	}
 
 	private void handleSetCallbackMessenger(Messenger callbackMessenger) {

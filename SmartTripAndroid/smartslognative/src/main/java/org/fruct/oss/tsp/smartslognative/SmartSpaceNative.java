@@ -14,7 +14,7 @@ public interface SmartSpaceNative {
 
 	void postSearchRequest(double radius, String pattern);
 
-	void postScheduleRequest(Point[] points);
+	void postScheduleRequest(Point[] points, String name);
 
 	void setListener(Listener listener);
 

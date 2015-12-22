@@ -3,6 +3,7 @@ package org.fruct.oss.tsp.smartspace;
 import android.location.Location;
 
 import org.fruct.oss.tsp.commondatatype.Point;
+import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.data.User;
 
 import java.util.List;
@@ -11,14 +12,6 @@ import java.util.List;
  * Интерфейс для работы с интеллектуальным пространством
  */
 public interface SmartSpace {
-	/**
-	 * Публикация данных о пользователе
-	 *
-	 * Метод проверяет наличие пользователя в интеллектуальном пространстве и при необходимости обновляет его
-	 * @param user пользователь
-	 */
-	void publishUser(User user);
-
 	/**
 	 * Обновление местоположения пользователя
 	 *
@@ -42,5 +35,5 @@ public interface SmartSpace {
 	 * Результат запроса будет получен асинхронно в виде события {@link org.fruct.oss.tsp.events.ScheduleEvent}
 	 * @param pointList Список точек, по которым необходимо построить маршрут
 	 */
-	void postScheduleRequest(List<Point> pointList);
+	void postScheduleRequest(List<Point> pointList, TspType tspType);
 }

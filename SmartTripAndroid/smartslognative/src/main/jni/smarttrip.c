@@ -18,7 +18,8 @@
 static sslog_node_t *node;
 
 static sslog_individual_t* user_individual;
-//static sslog_individual_t* user_location;
+static sslog_individual_t* user_location;
+
 static double user_lat;
 static double user_lon;
 
@@ -145,6 +146,9 @@ static void* handle_search_request_test(void* data) {
     return NULL;
 }
 
+/**
+ * Убедиться что пользователь с заданным id присутствует в smartspace'е
+ */
 static void ensure_user_individual(const char *id) {
     sslog_individual_t* tmp = sslog_node_get_individual_by_uri(node, id);
 
@@ -158,6 +162,7 @@ static void ensure_user_individual(const char *id) {
 
 bool st_initialize(const char *user_id, const char *kp_name, const char *smart_space_name,
                    const char *address, int port) {
+    // Используем отдельный random, т.к. внутри smartslog'а где-то постоянно делается srand
     init_rand();
 
     if (sslog_init() != SSLOG_ERROR_NO) {
@@ -199,27 +204,30 @@ void st_update_user_location(double lat, double lon) {
     user_lat = lat;
     user_lon = lon;
 
-//    sslog_individual_t* new_location_individual
-//            = sslog_new_individual(CLASS_LOCATION, rand_uuid("user_location"));
-//
-//    sslog_insert_property(new_location_individual, PROPERTY_LAT, double_to_string(lat));
-//    sslog_insert_property(new_location_individual, PROPERTY_LONG, double_to_string(lon));
-//
-//    sslog_node_insert_individual(node, new_location_individual);
-//
-//    const void* existing_location = sslog_get_property(user_individual, PROPERTY_HASLOCATION);
-//    if (existing_location != NULL) {
-//        printf("Location already exists\n");
-//    } else {
-//        printf("Location not exists\n");
-//    }
-//
-//    sslog_node_update_property(node, user_individual, PROPERTY_HASLOCATION,
-//                               (void*) existing_location, new_location_individual);
-//
-//    user_location = new_location_individual;
+    sslog_individual_t* new_location_individual
+            = sslog_new_individual(CLASS_LOCATION, rand_uuid("user_location"));
 
-    // TODO: delete old location?
+    sslog_insert_property(new_location_individual, PROPERTY_LAT, double_to_string(lat));
+    sslog_insert_property(new_location_individual, PROPERTY_LONG, double_to_string(lon));
+
+    sslog_node_insert_individual(node, new_location_individual);
+
+    sslog_individual_t* existing_user_location = sslog_get_property(user_individual, PROPERTY_HASLOCATION);
+    if (existing_user_location != NULL) {
+        printf("Location already exists\n");
+    } else {
+        printf("Location not exists\n");
+    }
+
+    sslog_node_update_property(node, user_individual, PROPERTY_HASLOCATION,
+                               (void*) existing_user_location, new_location_individual);
+
+    user_location = new_location_individual;
+
+    // Delete old user location
+    if (existing_user_location != NULL) {
+        sslog_node_remove_individual_with_local(node, existing_user_location);
+    }
 }
 
 // TODO: will no work if no user location available
@@ -286,7 +294,7 @@ void st_post_search_request(double radius, const char *pattern) {
     }
 }
 
-void st_post_schedule_request(struct Point *points, int points_count) {
+void st_post_schedule_request(struct Point* points, int points_count, const char* tsp_type) {
     if (sub_schedule_request != NULL) {
         sslog_sbcr_stop(sub_schedule_request);
         sslog_sbcr_unsubscribe(sub_schedule_request);

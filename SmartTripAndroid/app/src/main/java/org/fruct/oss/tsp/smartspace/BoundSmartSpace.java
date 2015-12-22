@@ -15,6 +15,7 @@ import android.support.v4.app.FragmentActivity;
 
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
+import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.data.User;
 import org.fruct.oss.tsp.events.RequestFailedEvent;
 import org.fruct.oss.tsp.events.ScheduleEvent;
@@ -54,11 +55,6 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback {
 	}
 
 	@Override
-	public void publishUser(User user) {
-
-	}
-
-	@Override
 	public void updateUserLocation(Location location) {
 		if (messenger == null) {
 			return;
@@ -81,10 +77,10 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback {
 	}
 
 	@Override
-	public void postScheduleRequest(List<Point> pointList) {
+	public void postScheduleRequest(List<Point> pointList, TspType tspType) {
 		Bundle data = new Bundle();
 		data.putParcelableArrayList("points", new ArrayList<>(pointList));
-
+		data.putSerializable("type", tspType);
 		sendSmartSpaceMessage(SmartSpaceService.MSG_ACTION_POST_SCHEDULE_REQUEST, data);
 	}
 

@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import org.fruct.oss.tsp.commondatatype.Point;
+import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.events.GeoStoreChangedEvent;
 import org.fruct.oss.tsp.smartspace.SmartSpace;
 import org.fruct.oss.tsp.stores.GeoStore;
@@ -74,7 +75,7 @@ public class PointListPresenter {
 
 	public void onScheduleMenuAction() {
 		if (checkedPoints.size() > 2) {
-			smartspace.postScheduleRequest(checkedPoints);
+			smartspace.postScheduleRequest(checkedPoints, TspType.CLOSED);
 		}
 	}
 

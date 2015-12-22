@@ -74,7 +74,7 @@ JNI_OnLoad(JavaVM *vm, void *reserved) {
     class_listener = (*env)->NewGlobalRef(env, class_listener);
 
     constructor_movement = (*env)->GetMethodID(env, class_movement, "<init>",
-    "(Lorg/fruct/oss/tsp/commondatatype/Point;Lorg/fruct/oss/tsp/commondatatype/Point;)V");
+                                               "(Lorg/fruct/oss/tsp/commondatatype/Point;Lorg/fruct/oss/tsp/commondatatype/Point;)V");
 
     constructor_point = (*env)->GetMethodID(env, class_point, "<init>",
                                             "(Ljava/lang/String;Ljava/lang/String;DD)V");
@@ -178,8 +178,11 @@ Java_org_fruct_oss_tsp_smartslognative_JniSmartSpaceNative_postSearchRequest(JNI
 JNIEXPORT void JNICALL
 Java_org_fruct_oss_tsp_smartslognative_JniSmartSpaceNative_postScheduleRequest(JNIEnv *env,
                                                                                jobject instance,
-                                                                               jobjectArray points) {
+                                                                               jobjectArray points,
+                                                                               jstring tsp_type_) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "postScheduleRequest called");
+
+    const char *tsp_type = (*env)->GetStringUTFChars(env, tsp_type_, 0);
 
     jsize array_size = (*env)->GetArrayLength(env, points);
     struct Point array[array_size];
@@ -202,7 +205,9 @@ Java_org_fruct_oss_tsp_smartslognative_JniSmartSpaceNative_postScheduleRequest(J
         (*env)->ReleaseStringUTFChars(env, j_title, title);
     }
 
-    st_post_schedule_request(array, array_size);
+    st_post_schedule_request(array, array_size, tsp_type);
+
+    (*env)->ReleaseStringUTFChars(env, tsp_type_, tsp_type);
 }
 
 JNIEXPORT void JNICALL

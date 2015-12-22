@@ -22,7 +22,7 @@ public class JniSmartSpaceNative implements SmartSpaceNative {
 	public native void postSearchRequest(double radius, String pattern);
 
 	@Override
-	public native void postScheduleRequest(Point[] points) ;
+	public native void postScheduleRequest(Point[] points, String tspType);
 
 	@Override
 	public native void setListener(Listener listener);

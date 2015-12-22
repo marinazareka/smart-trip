@@ -1,7 +1,6 @@
 package org.fruct.oss.tsp.smartspace;
 
 import android.os.Handler;
-import android.util.Log;
 
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
@@ -72,7 +71,7 @@ public class TestSmartSpaceNative implements SmartSpaceNative {
 	}
 
 	@Override
-	public void postScheduleRequest(final Point[] points) {
+	public void postScheduleRequest(final Point[] points, String tspType) {
 		log.debug("postScheduleRequest() called with: " + "points = [" + points + "]");
 
 		handler.postDelayed(new Runnable() {
