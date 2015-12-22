@@ -671,6 +671,18 @@
     
 
 
+    <!-- http://oss.fruct.org/etourism#tspType -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#tspType">
+        <rdfs:comment>Тип маршрута
+- &quot;open&quot; маршрут без возврата в исходную точку
+- &quot;closed&quot; маршрут с возвратом в исходную точку</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Schedule"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://oss.fruct.org/etourism#uid -->
 
     <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#uid">
