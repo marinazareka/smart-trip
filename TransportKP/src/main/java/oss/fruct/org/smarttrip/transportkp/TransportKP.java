@@ -64,6 +64,7 @@ public class TransportKP {
 	private Point[] processRequest(RouteRequest request) {
 		TravellingSalesman tsp = new TravellingSalesman(new GraphhopperGraphFactory(graphHopper),
 				new ClosedStateTransition(random), request.getPoints(), random);
+
 		return null;
 		//return tsp.findPath();
 	}

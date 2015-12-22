@@ -3,8 +3,6 @@ package org.fruct.oss.tsp.smartspace;
 import android.location.Location;
 
 import org.fruct.oss.tsp.commondatatype.Point;
-import org.fruct.oss.tsp.data.ScheduleRequest;
-import org.fruct.oss.tsp.data.SearchRequest;
 import org.fruct.oss.tsp.data.User;
 
 import java.util.List;
