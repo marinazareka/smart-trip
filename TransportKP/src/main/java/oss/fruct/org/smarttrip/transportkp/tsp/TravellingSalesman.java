@@ -31,28 +31,28 @@ public class TravellingSalesman {
 		Graph graph;
 		State initialState;
 
+		pointsWithStart = new Point[points.length + 1];
+		pointsWithStart[0] = startPoint;
+		System.arraycopy(points, 0, pointsWithStart, 1, points.length);
+		graph = graphFactory.createGraph(pointsWithStart);
+
 		if (isClosed) {
-			pointsWithStart = new Point[points.length + 1];
-			pointsWithStart[0] = startPoint;
-
-			System.arraycopy(points, 0, pointsWithStart, 1, points.length);
-
-			graph = graphFactory.createGraph(pointsWithStart);
-
-			initialState = createStateClosed(graph);
+			//initialState = createStateClosed(graph);
+			initialState = createStateClosedNeighbour(graph);
 		} else {
-			throw new UnsupportedOperationException("Not implemented");
+			initialState = createStateOpen(graph);
 		}
 
 		log.debug("Graph generation took " + (System.currentTimeMillis() - startTime));
 
-		double initialTemp = 1000;
+		double initialTemp = 100;
+		int iters = 1000;
 
 		SimulatedAnnealing<State> annealing = new SimulatedAnnealing<>(random);
 		annealing.setEnergyFunction(state -> state.energy(graph));
 		annealing.setTransitionFunction(state -> transition.transition(state));
-		annealing.setTemperatureFunction(i -> initialTemp / i);
-		annealing.setInitialState(initialTemp, 0.5, initialState);
+		annealing.setTemperatureFunction(v -> initialTemp / ((v * iters) + 1));
+		annealing.setInitialState(iters, initialState);
 
 		log.info("Starting annealing");
 		annealing.start();
@@ -81,6 +81,20 @@ public class TravellingSalesman {
 		public double value;
 	}
 
+	private State createStateOpen(Graph graph) {
+		int size = graph.getVertexCount();
+
+		int[] path = new int[size];
+
+		for (int i = 1; i < size; i++) {
+			path[i] = i;
+		}
+
+		Utils.shuffle(path, 1, size, random);
+
+		return new State(path);
+	}
+
 	private State createStateClosed(Graph graph) {
 		int size = graph.getVertexCount();
 
@@ -91,7 +105,38 @@ public class TravellingSalesman {
 			path[i] = i;
 		}
 
-		Utils.shuffle(path, 1, size - 1, random);
+		Utils.shuffle(path, 1, size, random);
+
+		return new State(path);
+	}
+
+	private State createStateClosedNeighbour(Graph graph) {
+		int size = graph.getVertexCount();
+
+		int[] path = new int[size + 1];
+
+		for (int i = 1; i < size; i++) {
+			path[i] = i;
+		}
+
+		for (int i = 0; i < size; i++) {
+			double minDistance = -1;
+			int minNodeIndex = -1;
+			for (int j = i + 1; j < size; j++) {
+				double distance = graph.getDistance(path[i], path[j]);
+				if (minDistance < 0 || distance < minDistance) {
+					minDistance = distance;
+					minNodeIndex = j;
+				}
+			}
+
+			if (minDistance >= 0) {
+				// Индексы могут быть равны
+				int tmp = path[i + 1];
+				path[i + 1] = path[minNodeIndex];
+				path[minNodeIndex] = tmp;
+			}
+		}
 
 		return new State(path);
 	}

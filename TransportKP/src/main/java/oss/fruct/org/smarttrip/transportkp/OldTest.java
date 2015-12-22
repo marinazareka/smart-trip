@@ -165,7 +165,7 @@ public class OldTest {
 		annealing.setTransitionFunction(state -> state.transition());
 		//annealing.setTemperatureFunction(i -> initialTemp * Math.pow(0.95, i));
 		annealing.setTemperatureFunction(i -> initialTemp / i);
-		annealing.setInitialState(initialTemp, 0.5, graphState);
+		//annealing.setInitialState(initialTemp, 0.5, graphState);
 
 		annealing.start();
 

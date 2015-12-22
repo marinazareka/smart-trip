@@ -13,15 +13,15 @@ public class SimulatedAnnealing<S> {
 	private static final Logger log = LoggerFactory.getLogger(SimulatedAnnealing.class);
 
 	private ToDoubleFunction<S> energyFunction;
-	private IntToDoubleFunction temperatureFunction;
+	private DoubleUnaryOperator temperatureFunction;
 	private Function<S, S> transitionFunction;
 
 	private double tInit;
 	private double tMin;
 	private S stateInit;
+	private int iterMax;
 
 	private int iter;
-	private double temp;
 
 	private S state;
 	private double stateEnergy;
@@ -36,7 +36,7 @@ public class SimulatedAnnealing<S> {
 		this.energyFunction = energyFunction;
 	}
 
-	public void setTemperatureFunction(IntToDoubleFunction temperatureFunction) {
+	public void setTemperatureFunction(DoubleUnaryOperator temperatureFunction) {
 		this.temperatureFunction = temperatureFunction;
 	}
 
@@ -44,22 +44,25 @@ public class SimulatedAnnealing<S> {
 		this.transitionFunction = transitionFunction;
 	}
 
-	public void setInitialState(double tInit, double tMin, S stateInit) {
-		this.tInit = tInit;
-		this.tMin = tMin;
+	public void setInitialState(int iterMax, S stateInit) {
 		this.stateInit = stateInit;
+		this.iterMax = iterMax;
 	}
 
 	public void start() {
 		iter = 0;
-		temp = tInit;
 		state = stateInit;
 		stateEnergy = energyFunction.applyAsDouble(state);
 	}
 
 	public boolean iter() {
+		if (iterMax == 0)
+			return false;
+
 		S stateCandidate = transitionFunction.apply(state);
 		double stateCandidateEnergy = energyFunction.applyAsDouble(stateCandidate);
+
+		double temp = temperatureFunction.applyAsDouble((double) iter / iterMax);
 
 		double deltaE = stateCandidateEnergy - stateEnergy;
 		log.trace("{}: temp {} delta {}", iter, temp, deltaE);
@@ -83,9 +86,7 @@ public class SimulatedAnnealing<S> {
 		}
 
 		iter += 1;
-		temp = temperatureFunction.applyAsDouble(iter);
-
-		return temp > tMin;
+		return iter < iterMax;
 	}
 
 
