@@ -153,8 +153,13 @@ static void ensure_user_individual(const char *id) {
     sslog_individual_t* tmp = sslog_node_get_individual_by_uri(node, id);
 
     if (tmp == NULL) {
-        sslog_individual_t* user_individual = sslog_new_individual(CLASS_USER, rand_uuid("user"));
+        sslog_individual_t* user_individual = sslog_new_individual(CLASS_USER, id);
         sslog_node_insert_individual(node, user_individual);
+
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "No user found");
+    } else {
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Existing user found with id %s",
+                            tmp->entity.uri);
     }
 
     user_individual = tmp;
@@ -170,6 +175,10 @@ static void load_existing_schedule() {
     // Если schedule уже присутствует для данного пользователя, сразу подписываемся
     if (schedule_individual != NULL) {
         subscribe_schedule_processed(schedule_individual);
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Existing schedule found with id %s",
+                            schedule_individual->entity.uri);
+    } else {
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "No existing schedule found");
     }
 }
 
