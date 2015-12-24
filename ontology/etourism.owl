@@ -608,7 +608,7 @@
 
     <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#processed">
         <rdfs:comment>Маркер обработки запроса.</rdfs:comment>
-        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Schedule"/>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Route"/>
     </owl:DatatypeProperty>
     
 
@@ -677,7 +677,7 @@
         <rdfs:comment>Тип маршрута
 - &quot;open&quot; маршрут без возврата в исходную точку
 - &quot;closed&quot; маршрут с возвратом в исходную точку</rdfs:comment>
-        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Schedule"/>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Route"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
@@ -688,6 +688,15 @@
     <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#uid">
         <rdfs:comment>идентификатор</rdfs:comment>
         <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#updated -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#updated">
+        <rdfs:comment>Обновление свойства updated означает обновление Route-запроса</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Route"/>
     </owl:DatatypeProperty>
     
 
