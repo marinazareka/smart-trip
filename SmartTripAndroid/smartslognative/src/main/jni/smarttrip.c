@@ -100,6 +100,8 @@ static void search_subscription_handler(sslog_subscription_t* sub) {
         return;
     }
 
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Request with %d points", points_number);
+
     int counter = 0;
     list_head_t* iter;
     list_for_each(iter, &inserted_individuals->links) {
@@ -115,6 +117,7 @@ static void search_subscription_handler(sslog_subscription_t* sub) {
             title = "Untitled";
         }
 
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Point found %s", title);
         st_init_point(&point_array[counter], point_individual->entity.uri, title, lat, lon);
 
         counter++;

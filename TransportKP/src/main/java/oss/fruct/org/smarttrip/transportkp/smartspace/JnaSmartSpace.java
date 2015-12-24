@@ -3,17 +3,40 @@ package oss.fruct.org.smarttrip.transportkp.smartspace;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import oss.fruct.org.smarttrip.transportkp.data.Point;
 import oss.fruct.org.smarttrip.transportkp.data.RouteRequest;
 import oss.fruct.org.smarttrip.transportkp.data.RouteResponse;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class JnaSmartSpace implements SmartSpace {
 	private final String name;
 	private final String smartspace;
 	private final String address;
 	private final int port;
+
+	public static class RequestData extends Structure {
+		public int count;
+		public double[] points;
+
+		public String user_id;
+		public double user_lat;
+		public double user_lon;
+
+		public String tsp_type;
+
+		public Pointer point_individuals;
+		public Pointer route;
+
+		@Override
+		protected List getFieldOrder() {
+			return Arrays.asList("count", "points", "user_id", "user_lat", "user_lon", "tsp_type", "point_individuals", "route");
+		}
+	}
 
 	interface NativeLib extends Library {
 		boolean init(String name, String smartspace, String address, int port);
@@ -22,8 +45,8 @@ public class JnaSmartSpace implements SmartSpace {
 		boolean subscribe();
 		void unsubscribe();
 
-		boolean wait_subscription(IntByReference out_points_count, PointerByReference out_points_pairs, PointerByReference data);
-		void publish(int points_count, int[] ids, String roadType, Pointer data);
+		RequestData wait_subscription();
+		void publish(int points_count, int[] ids, String roadType, RequestData requestData);
 
 		// From libc
 		void free(Pointer pointer);
@@ -61,24 +84,20 @@ public class JnaSmartSpace implements SmartSpace {
 
 	@Override
 	public RouteRequest waitSubscription() {
-		PointerByReference array = new PointerByReference();
-		IntByReference count = new IntByReference();
-		PointerByReference data = new PointerByReference();
+		RequestData requestData;
 
-		if (!lib.wait_subscription(count, array, data)) {
+		if ((requestData = lib.wait_subscription()) == null) {
 			return null;
 		}
 
-		double[] pointPairs = array.getValue().getDoubleArray(0, count.getValue() * 2);
+		double[] pointPairs = requestData.points;
 
-		Point[] points = new Point[count.getValue()];
-		for (int i = 0; i < count.getValue(); i++) {
+		Point[] points = new Point[requestData.count];
+		for (int i = 0; i < requestData.count; i++) {
 			points[i] = new Point(i, pointPairs[i * 2], pointPairs[i * 2 + 1]);
 		}
 
-		lib.free(array.getValue());
-
-		return new RouteRequest(data.getValue(), points);
+		return new RouteRequest(requestData, points);
 	}
 
 	@Override
@@ -90,6 +109,6 @@ public class JnaSmartSpace implements SmartSpace {
 			ids[c++] = point.getId();
 		}
 
-		lib.publish(response.getRoute().length, ids, response.getRoadType(), (Pointer) response.getRequestTag());
+		lib.publish(response.getRoute().length, ids, response.getRoadType(), (RequestData) response.getRequestTag());
 	}
 }

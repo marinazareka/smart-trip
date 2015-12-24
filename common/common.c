@@ -231,3 +231,25 @@ void ptr_array_free(PtrArray* array) {
     free(array->array);
 }
 
+sslog_individual_t* st_get_subject_by_object(sslog_node_t* node, const char* object_id, sslog_property_t* property) {
+    sslog_triple_t* triple_template = sslog_new_triple_detached(SSLOG_TRIPLE_ANY,
+                                                                sslog_entity_get_uri(property), object_id,
+                                                                SSLOG_RDF_TYPE_URI, SSLOG_RDF_TYPE_URI);
+
+    list_t* triples = sslog_node_query_triple(node, triple_template);
+
+    sslog_triple_t* triple = NULL;
+    list_head_t* iter;
+    list_for_each(iter, &triples->links) {
+        triple = list_entry(iter, list_t, links)->data;
+        break;
+    }
+
+    if (triple == NULL) {
+        return NULL;
+    } else {
+        return sslog_node_get_individual_by_uri(node, triple->subject);
+    }
+
+    // TODO: Cleanup received triples
+}

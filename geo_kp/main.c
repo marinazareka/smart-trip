@@ -18,9 +18,10 @@ static volatile bool cont = true;
 static struct LoaderInterface point_loader;
 
 static void publish_point(sslog_node_t* node, sslog_individual_t* request_individual, struct Point* point) {
-    printf("Inserting point %lf %lf\n", point->lat, point->lon);
+    printf("Inserting point %lf %lf %s\n", point->lat, point->lon, point->title);
     // TODO: uuid isn't being copied
     sslog_individual_t* point_individual = create_poi_individual(node, point->lat, point->lon, point->title, "nocategory");
+    printf("URI %s\n", sslog_entity_get_uri(point_individual));
     sslog_node_insert_property(node, request_individual, PROPERTY_HASPOINT, point_individual);
 }
 
@@ -37,6 +38,7 @@ static void find_and_publish_points(sslog_node_t* node, sslog_individual_t* requ
     st_free_point_array(points, count);
     free(points);
 
+    printf("Inserting updated property\n");
     sslog_node_insert_property(node, request_individual, PROPERTY_PROCESSED, long_to_string(time(NULL)));
 }
 

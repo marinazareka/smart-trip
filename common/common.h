@@ -47,4 +47,7 @@ void ptr_array_insert(PtrArray* array, void* ptr);
 void* ptr_array_remove_last(PtrArray* array);
 void ptr_array_free(PtrArray* array);
 
+
+sslog_individual_t* st_get_subject_by_object(sslog_node_t* node, const char* object_id, sslog_property_t* property);
+
 #endif
