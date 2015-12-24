@@ -14,51 +14,34 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include <stdint.h>
 
 #include "ontology.h"
 
 #define BUFSIZE 500
 
-// Используем отдельный random, т.к. внутри smartslog'а где-то постоянно вызывается srand
-// xorshift algorithm
-static uint64_t random_state;
-
-static const int XORSHIFT_CONST_A = 13;
-static const int XORSHIFT_CONST_B = 7;
-static const int XORSHIFT_CONST_C = 17;
+static unsigned short rand_state[3];
 
 void init_rand() {
     FILE* urandom = fopen("/dev/urandom", "r");
     if (urandom == NULL) {
         fprintf(stderr, "Can't read random seed from /dev/urandom\n");
-        random_state = (uint64_t) time(NULL);
-    } else {
-        fread(&random_state, sizeof(random_state), 1, urandom);
-        fclose(urandom);
+        rand_state[0] = rand_state[1] = rand_state[2] = time(NULL);
+        return;
     }
 
-    if (random_state == 0) {
-        // xorshift can't work with zero seed
-        random_state = 1;
-    }
-}
+    fread(rand_state, sizeof(unsigned short), 3, urandom);
 
-static uint64_t rand_next_uint64(void) {
-    random_state ^= (random_state << XORSHIFT_CONST_A);
-    random_state ^= (random_state >> XORSHIFT_CONST_B);
-    random_state ^= (random_state << XORSHIFT_CONST_C);
-    return random_state;
+    fclose(urandom);
 }
 
 char* rand_uuid(const char* prefix) {
     static char rand_uuid_buffer[BUFSIZE];
-    rand_uuid_buf(prefix, rand_uuid_buffer, BUFSIZE);
+    sprintf(rand_uuid_buffer, "%s%ld", prefix, nrand48(rand_state));
     return rand_uuid_buffer;
 }
 
 char* rand_uuid_buf(const char* prefix, char* buf, size_t buf_size) {
-    snprintf(buf, buf_size, "%s%lu", prefix, (unsigned long) rand_next_uint64);
+    snprintf(buf, buf_size, "%s%ld", prefix, nrand48(rand_state));
     return buf;
 }
 
