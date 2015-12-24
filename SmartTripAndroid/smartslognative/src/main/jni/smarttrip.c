@@ -34,8 +34,6 @@ static sslog_individual_t* route_individual;
 static void schedule_subscription_handler(sslog_subscription_t* sub) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "schedule_subscription_handler");
 
-    //sslog_node_populate(node, route_individual);
-
 
     sslog_individual_t* start_movement = sslog_node_get_property(node, route_individual,
                                                                  PROPERTY_HASSTARTMOVEMENT);
@@ -128,14 +126,14 @@ static void search_subscription_handler(sslog_subscription_t* sub) {
     }
 }
 
-static void subscribe_schedule_processed(sslog_individual_t* schedule) {
+static void subscribe_route_processed(sslog_individual_t* route) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating schedule subscription");
 
     list_t* properties = list_new();
     list_add_data(properties, PROPERTY_PROCESSED);
 
     sub_schedule_request = sslog_new_subscription(node, true);
-    sslog_sbcr_add_individual(sub_schedule_request, schedule, properties);
+    sslog_sbcr_add_individual(sub_schedule_request, route, properties);
     sslog_sbcr_set_changed_handler(sub_schedule_request, &schedule_subscription_handler);
 
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Subscribing schedule request");
@@ -170,21 +168,24 @@ static void ensure_user_individual(const char *id) {
  */
 static void load_existing_schedule() {
     schedule_individual = sslog_node_get_property(node, user_individual, PROPERTY_PROVIDE);
-    route_individual = sslog_node_get_property(node, schedule_individual, PROPERTY_HASROUTE);
-
-    // Если schedule уже присутствует для данного пользователя, сразу подписываемся
     if (schedule_individual != NULL) {
-        subscribe_schedule_processed(schedule_individual);
-        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Existing schedule found with id %s",
-                            schedule_individual->entity.uri);
+        route_individual = sslog_node_get_property(node, schedule_individual, PROPERTY_HASROUTE);
     } else {
-        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "No existing schedule found");
+        route_individual = NULL;
+    }
+
+    // Если route уже присутствует для данного пользователя, сразу подписываемся
+    if (route_individual != NULL) {
+        subscribe_route_processed(route_individual);
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Existing route found with id %s",
+                            route_individual->entity.uri);
+    } else {
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "No existing route found");
     }
 }
 
 bool st_initialize(const char *user_id, const char *kp_name, const char *smart_space_name,
                    const char *address, int port) {
-    // Используем отдельный random, т.к. внутри smartslog'а где-то постоянно вызывается srand
     init_rand();
 
     if (sslog_init() != SSLOG_ERROR_NO) {
@@ -318,27 +319,34 @@ void st_post_search_request(double radius, const char *pattern) {
 }
 
 void st_post_schedule_request(struct Point* points, int points_count, const char* tsp_type) {
-    sslog_individual_t* new_route = sslog_new_individual(CLASS_ROUTE, rand_uuid("route"));
+    if (route_individual != NULL) {
+        // Удаляем все текущие параметры запроса (hasPoint)
+        sslog_node_remove_property(node, route_individual, PROPERTY_HASPOINT, NULL);
+    } else {
+        schedule_individual = sslog_new_individual(CLASS_SCHEDULE, rand_uuid("schedule"));
+        route_individual = sslog_new_individual(CLASS_ROUTE, rand_uuid("route"));
+
+        sslog_insert_property(schedule_individual, PROPERTY_HASROUTE, route_individual);
+
+        sslog_node_insert_individual(node, route_individual);
+        sslog_node_insert_individual(node, schedule_individual);
+        sslog_node_insert_property(node, user_individual, PROPERTY_PROVIDE, schedule_individual);
+
+        subscribe_route_processed(route_individual);
+    }
+
+    // Состояние smartspace'а: user->schedule->route, route не содержит точек, может содержать updated, processed и tspType
+
+    // TODO: добавлять точки в одну транзакцию
+    // TODO: удалять старые точки или придумать какой-нибудь GarbageCollectorKP
     for (int i = 0; i < points_count; i++) {
         sslog_individual_t* point_individual = create_poi_individual(node, points[i].lat, points[i].lon,
                                                                      points[i].title, "nocategory");
-        sslog_insert_property(new_route, PROPERTY_HASPOINT, point_individual);
-    }
-    sslog_node_insert_individual(node, new_route);
-
-    if (schedule_individual == NULL) {
-        schedule_individual = sslog_new_individual(CLASS_SCHEDULE, rand_uuid("schedule"));
-        sslog_insert_property(schedule_individual, PROPERTY_HASROUTE, new_route);
-        sslog_insert_property(schedule_individual, PROPERTY_TSPTYPE, (void*) tsp_type);
-        sslog_node_insert_individual(node, schedule_individual);
-
-        subscribe_schedule_processed(schedule_individual);
-    } else {
-        sslog_node_update_property(node, schedule_individual, PROPERTY_TSPTYPE, NULL, (void*) tsp_type);
-        sslog_node_update_property(node, schedule_individual, PROPERTY_HASROUTE, NULL, new_route);
+        sslog_node_insert_property(node, route_individual, PROPERTY_HASPOINT, point_individual);
     }
 
-    route_individual = new_route;
+    sslog_node_update_property(node, route_individual, PROPERTY_TSPTYPE, NULL, (void*) tsp_type);
+    sslog_node_update_property(node, route_individual, PROPERTY_UPDATED, NULL, rand_uuid("updated"));
 }
 
 
