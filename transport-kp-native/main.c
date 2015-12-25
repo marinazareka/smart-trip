@@ -108,6 +108,8 @@ static void handle_updated_request(sslog_individual_t* user, sslog_individual_t*
     sslog_individual_t* location = (sslog_individual_t*) sslog_node_get_property(node, user, PROPERTY_HASLOCATION);
 
     sslog_node_populate(node, route);
+    sslog_node_populate(node, location);
+
     list_t* points = sslog_get_properties(route, PROPERTY_HASPOINT);
     
     if (points == NULL) {
@@ -154,7 +156,7 @@ static void handle_updated_request(sslog_individual_t* user, sslog_individual_t*
 }
 
 static void handle_updated_property_update(const char* route_id) {
-    fprintf(stderr, "handle_updated_property_update\n");
+    fprintf(stderr, "handle_updated_property_update %s\n", route_id);
     sslog_individual_t* route_individual = sslog_node_get_individual_by_uri(node, route_id);
     sslog_individual_t* schedule_individual = st_get_subject_by_object(node, route_id, PROPERTY_HASROUTE);   
 
@@ -163,14 +165,15 @@ static void handle_updated_property_update(const char* route_id) {
         return;
     }
 
-    sslog_individual_t* user_individual = st_get_subject_by_object(node, sslog_entity_get_uri(schedule_individual),
-            PROPERTY_PROVIDE);
+    const char* schedule_uri = sslog_entity_get_uri(schedule_individual);
+    fprintf(stderr, "schedule uri %s\n", schedule_uri);
+
+    sslog_individual_t* user_individual = st_get_subject_by_object(node, schedule_uri, PROPERTY_PROVIDE);
 
     if (user_individual == NULL) {
-        fprintf(stderr, "Can't get user for updated route\n");
+        fprintf(stderr, "Can't get user for updated schedule\n");
         return;
     }
-
 
     handle_updated_request(user_individual, schedule_individual, route_individual);
 }
@@ -324,8 +327,16 @@ void publish(int points_count, int* ids, const char* roadType, RequestData* requ
     sslog_individual_t* point_individuals[points_count];
     sslog_individual_t* movement_individuals[movements_count];
 
+    sslog_individual_t* user_point_individual = 
+        create_poi_individual(node, request_data->user_lat, request_data->user_lon, "user-location", "system");
+
     for (int i = 0; i < points_count; i++) {
-        point_individuals[i] = request_data->point_individuals[ids[i]];
+        int id = ids[i];
+        if (id == -1) {
+            point_individuals[i] = user_point_individual;
+        } else {
+            point_individuals[i] = request_data->point_individuals[id];
+        }
     }
 
     sslog_individual_t* previous_movement = NULL;

@@ -7,9 +7,7 @@ import oss.fruct.org.smarttrip.transportkp.data.Point;
 import oss.fruct.org.smarttrip.transportkp.data.RouteRequest;
 import oss.fruct.org.smarttrip.transportkp.data.RouteResponse;
 import oss.fruct.org.smarttrip.transportkp.smartspace.SmartSpace;
-import oss.fruct.org.smarttrip.transportkp.tsp.ClosedStateTransition;
-import oss.fruct.org.smarttrip.transportkp.tsp.GraphhopperGraphFactory;
-import oss.fruct.org.smarttrip.transportkp.tsp.TravellingSalesman;
+import oss.fruct.org.smarttrip.transportkp.tsp.*;
 
 import java.util.Random;
 
@@ -48,7 +46,7 @@ public class TransportKP {
 			return true;
 		}
 
-		log.info("Received request {}", request.getId());
+		log.info("Received request {}", request.getTag());
 
 		Point[] points = processRequest(request);
 
@@ -57,15 +55,21 @@ public class TransportKP {
 			log.debug(point.getLat() + " " + point.getLon());
 		}
 
-		smartSpace.publish(new RouteResponse(points, "foot", request.getId()));
+		smartSpace.publish(new RouteResponse(points, "foot", request.getTag()));
 		return true;
 	}
 
 	private Point[] processRequest(RouteRequest request) {
-		TravellingSalesman tsp = new TravellingSalesman(new GraphhopperGraphFactory(graphHopper),
-				new ClosedStateTransition(random), request.getPoints(), random);
+		boolean isClosed = "closed".equals(request.getTspType());
+		StateTransition stateTransition = isClosed
+				? new ClosedStateTransition(random)
+				: new OpenStateTransition(random);
 
-		return null;
-		//return tsp.findPath();
+		TravellingSalesman tsp = new TravellingSalesman(new GraphhopperGraphFactory(graphHopper),
+				stateTransition, request.getPoints(), random);
+
+		TravellingSalesman.Result result = tsp.findPath(request.getUserPoint(), isClosed);
+		return result.points;
 	}
+
 }

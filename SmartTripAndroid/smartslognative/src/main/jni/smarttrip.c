@@ -154,8 +154,8 @@ static void ensure_user_individual(const char *id) {
     sslog_individual_t* tmp = sslog_node_get_individual_by_uri(node, id);
 
     if (tmp == NULL) {
-        sslog_individual_t* user_individual = sslog_new_individual(CLASS_USER, id);
-        sslog_node_insert_individual(node, user_individual);
+        tmp = sslog_new_individual(CLASS_USER, id);
+        sslog_node_insert_individual(node, tmp);
 
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "No user found");
     } else {
@@ -324,8 +324,12 @@ void st_post_search_request(double radius, const char *pattern) {
 void st_post_schedule_request(struct Point* points, int points_count, const char* tsp_type) {
     if (route_individual != NULL) {
         // Удаляем все текущие параметры запроса (hasPoint)
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Updating existing schedule and route");
+
         sslog_node_remove_property(node, route_individual, PROPERTY_HASPOINT, NULL);
     } else {
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating new schedule and route");
+
         schedule_individual = sslog_new_individual(CLASS_SCHEDULE, rand_uuid("schedule"));
         route_individual = sslog_new_individual(CLASS_ROUTE, rand_uuid("route"));
 
@@ -333,7 +337,13 @@ void st_post_schedule_request(struct Point* points, int points_count, const char
 
         sslog_node_insert_individual(node, route_individual);
         sslog_node_insert_individual(node, schedule_individual);
-        sslog_node_insert_property(node, user_individual, PROPERTY_PROVIDE, schedule_individual);
+        int res = sslog_node_insert_property(node, user_individual, PROPERTY_PROVIDE, schedule_individual);
+
+        if (res != SSLOG_ERROR_NO) {
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME,
+                                "Can't assign provide property to user %s",
+                                sslog_error_get_last_text());
+        }
 
         subscribe_route_processed(route_individual);
     }

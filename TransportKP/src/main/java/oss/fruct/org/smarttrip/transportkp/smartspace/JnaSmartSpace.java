@@ -4,8 +4,6 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.PointerByReference;
 import oss.fruct.org.smarttrip.transportkp.data.Point;
 import oss.fruct.org.smarttrip.transportkp.data.RouteRequest;
 import oss.fruct.org.smarttrip.transportkp.data.RouteResponse;
@@ -21,7 +19,7 @@ public class JnaSmartSpace implements SmartSpace {
 
 	public static class RequestData extends Structure {
 		public int count;
-		public double[] points;
+		public Pointer points;
 
 		public String user_id;
 		public double user_lat;
@@ -90,14 +88,15 @@ public class JnaSmartSpace implements SmartSpace {
 			return null;
 		}
 
-		double[] pointPairs = requestData.points;
+		double[] pointPairs = requestData.points.getDoubleArray(0, 2 * requestData.count);
 
 		Point[] points = new Point[requestData.count];
 		for (int i = 0; i < requestData.count; i++) {
 			points[i] = new Point(i, pointPairs[i * 2], pointPairs[i * 2 + 1]);
 		}
 
-		return new RouteRequest(requestData, points);
+		return new RouteRequest(requestData, points,
+				new Point(-1, requestData.user_lat, requestData.user_lon), requestData.tsp_type);
 	}
 
 	@Override
