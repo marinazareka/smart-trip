@@ -207,7 +207,7 @@ int sslog_kpi_subscribe_sparql_select(sslog_kpi_info_t *kpi_info, sslog_subs_inf
         *select_result = sslog_to_sslog_sparql(kpi_result, number_of_bindings);
     }
 
-    ss_delete_sparql_results(kpi_result, number_of_bindings);
+    //ss_delete_sparql_results(kpi_result, number_of_bindings);
 
     // This is a CKPI part.
     // ss_sparql_result_t * result_current = kpi_result;
@@ -303,8 +303,8 @@ int sslog_kpi_sparql_subscribe_indication(sslog_kpi_info_t *kpi_info, sslog_subs
     }
 
     //FIXME: delete results
-
-    ss_delete_sparql_results(new_kpi_results, bindings_count);
+///////////////////////
+    //ss_delete_sparql_results(new_kpi_results, bindings_count);
     
     // This is a CKPI part.
     // ss_sparql_result_t *result_current = new_kpi_results;
@@ -326,8 +326,8 @@ int sslog_kpi_sparql_subscribe_indication(sslog_kpi_info_t *kpi_info, sslog_subs
         // result_current = result_next;
     // }
 
-    
-    ss_delete_sparql_results(old_kpi_results, bindings_count);
+    ///////////
+    //ss_delete_sparql_results(old_kpi_results, bindings_count);
     // result_current = old_kpi_results;
     // result_next = NULL;
 
@@ -617,7 +617,7 @@ int sslog_to_sslog_triples(ss_triple_t *triples, list_t **sslog_triples)
 
     while(triples != NULL) {
         sslog_triple_t *sslog_triple = sslog_new_triple_detached(triples->subject, triples->predicate, triples->object,
-                                                                 triples->subject_type, triples->object_type);
+			(sslog_rdf_type) triples->subject_type, (sslog_rdf_type) triples->object_type);
 
         list_add_data(*sslog_triples, sslog_triple);
         triples = triples->next;
@@ -728,6 +728,26 @@ int sslog_kpi_sparql_ask_query(sslog_kpi_info_t *kpi_info, const char *query, in
 }
 
 
+int sslog_kpi_sparql_endpoint_select(const char *endpoint_address, const char *query, const char *extra_parameters, sslog_sparql_result_t **result)
+{
+    ss_sparql_result_t *kpi_results = NULL;
+    int number_of_bindings = 0;
+
+    int kpi_result = ss_sparql_endpoint_query(endpoint_address, query, extra_parameters, &kpi_results, &number_of_bindings);
+
+    if (kpi_result != 0) {
+        *result = NULL;
+        return sslog_kpi_get_error(kpi_result);
+    }
+
+    *result = sslog_to_sslog_sparql(kpi_results, number_of_bindings);
+
+    ss_delete_sparql_results(kpi_results, number_of_bindings);
+
+    return SSLOG_ERROR_NO;
+}
+
+
 int sslog_kpi_sparql_select(sslog_kpi_info_t *kpi_info, const char *query, sslog_sparql_result_t **result)
 {
     ss_sparql_result_t *kpi_results = NULL;
@@ -743,26 +763,6 @@ int sslog_kpi_sparql_select(sslog_kpi_info_t *kpi_info, const char *query, sslog
     *result = sslog_to_sslog_sparql(kpi_results, number_of_bindings);
 
     ss_delete_sparql_results(kpi_results, number_of_bindings);
-
-    // This is a CKPI part.
-    // ss_sparql_result_t * result_current = kpi_results;
-    // ss_sparql_result_t * result_next = NULL;
-
-    // while(result_current) {
-
-        // for (int i = 0; i < number_of_bindings; ++i) {
-            // free (result_current->name[i]);
-            // free (result_current->value[i]);
-        // }
-
-        // free (result_current->type);
-        // free (result_current->name);
-        // free (result_current->value);
-
-        // result_next = result_current->next;
-        // free(result_current);
-        // result_current = result_next;
-    // }
 
     return SSLOG_ERROR_NO;
 }

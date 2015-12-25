@@ -127,6 +127,7 @@
 #define SS_RECV_TIMEOUT_MSECS (10000)
 
 #define SS_END_TAG "</SSAP_message>"
+#define SS_SPARQL_END_TAG "</sparql>"
 
   /* Smart Space discovery information for hard coded discovery */
 #define SS_SPACE_ID   "X"
@@ -370,6 +371,29 @@ EXTERN int ss_sparql_construct_query(ss_info_t * ss_info, char * query, ss_tripl
    */
  EXTERN int ss_sparql_select_query(ss_info_t * ss_info, char * query, ss_sparql_result_t ** results, int * number_of_bindings);
   
+
+ 
+/**
+   * \fn int ss_sparql_endpoint_query(const char *endpoint_address, const char *query, const char *extra_parameters)
+   *
+   * \brief Creates a GET query for SPARQL-endpoint and executes query operation.
+   *
+   *  Function composes and sends HTTP-GET with SPARQL SELECT query to the SARQL-endpoint. 
+   *  Function also parses esponse and returns pointer to SPARQL-results. 
+   *  Returned triple lists must be freed with the ss_delete_sparql_results() function when no longer needed. 
+   *  Function supports only xml format of SPARQL results.
+   *
+   * \param[in] const char *endpoint_url. URL for SPARQL-endpoint, for example "http://dbpedia.org/sparql".
+   * \param[in] const char *query. SPARQL SELECT query in text format.
+   * \param[in] const char *extra_parameters. Extra parameters for endpoint, for example format=application%2Fxml.
+   * \param[out] ss_sparql_result_t **results. Pointer to results structure.
+   * \param[out] int *number_of_bindings. Pointer to variable which will contain number of variables returned by endpoint.
+   *
+   * \return int status. Status of the operation when completed (0 if successfull, otherwise -1).
+   */
+ EXTERN int ss_sparql_endpoint_query(const char *endpoint_address, const char *query, const char *extra_parameters, ss_sparql_result_t **result, int *number_of_bindings);
+
+
   /**
    * \fn int ss_insert(ss_info_t * ss_info, ss_triple_t * first_triple, ss_bnode_t * bnodes)
    *

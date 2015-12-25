@@ -79,6 +79,8 @@ int sslog_store_update_triples(sslog_store_t *store, list_t *current_triples, li
 int sslog_store_remove_triples(sslog_store_t *store, list_t *triples_templates);
 
 bool sslog_store_exists(sslog_store_t *store, sslog_triple_t *triple);
+bool sslog_store_exists_template_data(sslog_store_t *store, const char *subject, const char *predicate, const char *object,
+                                               sslog_rdf_type subject_type, sslog_rdf_type object_type);
 bool sslog_store_exists_pointer(sslog_store_t *store, sslog_triple_t *triple);
 
 

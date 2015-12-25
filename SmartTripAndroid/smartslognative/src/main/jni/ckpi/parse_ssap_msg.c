@@ -358,6 +358,54 @@ bnode_tmp_t * parse_bnodes(scew_element * uri_list)
   return first_bnode;
 }
 
+
+// SPARQL XML parsing.
+int parse_sparql_xml_result(char *xml, ss_sparql_result_t **result, int *number_of_bindings)
+{
+    scew_parser *parser = NULL;
+    scew_element *root = NULL;
+    
+    /* Creates an SCEW parser. This is the first function to call. */
+    parser = scew_parser_create();
+
+    scew_parser_ignore_whitespaces (parser, SCEW_TRUE);
+    
+    scew_reader *reader = scew_reader_buffer_create (xml, scew_strlen (xml));
+    
+    if (reader == NULL) {
+        scew_error code = scew_error_code ();
+        printf("Unable to load xml (error #%d: %s)\n", code, scew_error_string (code));
+    }
+    
+    scew_tree *tree = scew_parser_load (parser, reader);
+    
+    if (tree == NULL) {
+        scew_error code = scew_error_code ();
+        scew_printf (_XT("Unable to parse file (error #%d: %s)\n"),
+                   code, scew_error_string (code));
+
+        /* Frees the SCEW parser and reader. */
+        scew_reader_free (reader);
+        scew_parser_free (parser);
+		scew_tree_free(tree);
+
+        return -1;
+    }
+    
+    root = scew_tree_root (tree);
+
+	*result = parse_sparql_xml_select(root, number_of_bindings);
+
+	scew_reader_free (reader);
+	scew_parser_free (parser);
+	scew_tree_free(tree);
+
+	return 0;
+}
+
+
+
+
 ss_triple_t * parse_rdf_triples(scew_element *triple_list)
 {
   scew_element *triple = NULL;

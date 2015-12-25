@@ -541,6 +541,15 @@ bool sslog_store_exists(sslog_store_t *store, sslog_triple_t *triple)
 }
 
 
+bool sslog_store_exists_template_data(sslog_store_t *store, const char *subject, const char *predicate, const char *object,
+                                               sslog_rdf_type subject_type, sslog_rdf_type object_type)
+{
+	sslog_triple_t *triple = sslog_store_get_triple_by_data(store, subject, predicate, object, subject_type, object_type);
+
+	return (triple == NULL) ? false : true;
+}
+
+
 bool sslog_store_exists_pointer(sslog_store_t *store, sslog_triple_t *triple)
 {
     list_t *list_store = SSLOG_STORE_CAST(store);

@@ -285,6 +285,34 @@ SSLOG_EXTERN list_t *sslog_node_subscribe_triple(sslog_node_t *node, sslog_tripl
 
 /******************** Node functions for SPARQL queries **********************/
 /**
+ * @brief Performs SPARQL SELECT query to SPARQL-endpoint.
+ * Returns all, or a subset of, the variables bound in a query pattern match.
+ * Values  of variables are returned as a table there columns are variables and
+ * rows contains values for variables.
+ *
+ * To store triples in the local store it is need to set vriables for triples
+ * (simple form of CONSTRUCT).
+ * For example 5 variables are selected: 'SELECT ?a ?b ?c ?d ?e ...' and you wont to
+ * store triples by using variables '?a ?c ?d' and '?b ?c ?e'. Set triples_template
+ * parameters as 'a c d . b c e' (dot is used as a separator of triples).
+ * In this way function gets variables from each row and constructs 2 triples to store.
+ *
+ * Function sets information about errors (#errors.h).
+ *
+ * @param[in] endpoint_url. URL for SPARQL-endpoint, for example "http://dbpedia.org/sparql".
+ * @param[in] query. SPARQL SELECT query in text format.
+ * @param[in] extra_parameters. Extra parameters for endpoint, for example format=application%2Fxml.
+ * @param[in] triples_template. Template to construct and store triples from vriables
+ * in a form '?a ?b ?c . ?d ?e ?f . ?q ?w ?e'. If the parameter is NULL then
+ * no triples will be constructed and stored in the local store.
+ *
+ * @return result for SELECT query on success and NULL otherwise (on error).
+ * @see sslog_sparql_result_t
+ */
+sslog_sparql_result_t* sslog_node_sparql_enpoint_select(sslog_node_t *node, const char *endpoint_address, const char *query, const char *extra_parameters, const char *triples_template);
+
+
+/**
  * @brief Performs SPARQL ASK query.
  * ASK form of SPARQL query tests whether or not a query pattern has a solution.
  * No information is returned about the possible query solutions, just whether

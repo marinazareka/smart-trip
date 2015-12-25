@@ -165,6 +165,7 @@ SSLOG_EXTERN int sslog_kpi_graph_update(char *inserted_graph, char *removed_grap
  */
 SSLOG_EXTERN int sslog_kpi_remove_triples(sslog_kpi_info_t *kpi_info, list_t *triples_templates);
 
+
 /**
  * @brief Executes the SSAP format update operation.
  * This function makes a removing and inserting triples as a one atomic operation.
@@ -175,12 +176,6 @@ SSLOG_EXTERN int sslog_kpi_remove_triples(sslog_kpi_info_t *kpi_info, list_t *tr
  * @return SSLOG_ERROR_NO on success or error code otherwise.
  */
 SSLOG_EXTERN int sslog_kpi_update_triples(sslog_kpi_info_t *kpi_info, list_t *current_triples, list_t *new_triples);
-
-
-
-
-
-
 
 
 /**
@@ -235,6 +230,25 @@ void sslog_kpi_close_subscription(ss_subs_info_t *subs_info);
 
 
 /****************************** SPARQL queries *******************************/
+/**
+  * @brief Creates a GET query for SPARQL-endpoint and executes query operation.
+  *
+  *  Function composes and sends HTTP-GET with SPARQL SELECT query to the SARQL-endpoint.
+  *  Function also parses esponse and returns pointer to SPARQL-results.
+  *  Returned triple lists must be freed with the ss_delete_sparql_results() function when no longer needed.
+  *  Function supports only xml format of SPARQL results.
+  *
+  * @param[in] const char *endpoint_url. URL for SPARQL-endpoint, for example "http://dbpedia.org/sparql".
+  * @param[in] const char *query. SPARQL SELECT query in text format.
+  * @param[in] const char *extra_parameters. Extra parameters for endpoint, for example format=application%2Fxml.
+  * @param[out] results. Out structure to store results.
+  *
+  * @return int status. Status of the operation when completed (0 if successfull, otherwise -1).
+  * @see sslog_sparql_result_t
+  */
+int sslog_kpi_sparql_endpoint_select(const char *endpoint_address, const char *query, const char *extra_parameters,
+                                     sslog_sparql_result_t **result);
+
 /**
  * @brief Executes the SSAP format sparql ask query operation.
  *

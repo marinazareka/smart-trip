@@ -154,9 +154,10 @@ static void update_subscription(sslog_subscription_t *subscription,
         list_t *old_triples, list_t *new_triples);
 static void update_sparql_subscription(sslog_subscription_t *subscription,
                                        sslog_sparql_result_t *old_result, sslog_sparql_result_t *new_result);
-static void update_individual(sslog_node_t *node, sslog_triple_t *individual_triple,
-        list_t *old_triples, list_t *new_triples,
-        sslog_sbcr_changes_t *changes);
+// TODO: Now comments, late rewrite or remove
+// static void update_individual(sslog_node_t *node, sslog_triple_t *individual_triple,
+        // list_t *old_triples, list_t *new_triples,
+        // sslog_sbcr_changes_t *changes);
 
 static list_t* convert_triples_to_list_by_filter(list_t *triples,
         char *subject, char *predicate, char *object);
@@ -1608,29 +1609,7 @@ static void update_subscription(sslog_subscription_t *subscription,
     list_free(copy_list);
     sslog_free_triples(new_triples);
 
-    //update_classes(old_triples, new_triples, subscription->last_changes);
-
     list_head_t *list_walker = NULL;
-
-    // Get subscribed data (pairs: individual - properties) and update
-    // individuals.
-
-    list_for_each(list_walker, &subscription->sbrc_data.links){
-        list_t *node = list_entry(list_walker, list_t, links);
-        subscription_data_t *sbcr_data = (subscription_data_t *) node->data;
-
-//        update_individual(subscription->linked_node, sbcr_data->individual_triple, &subscription->last_changes->removed_triples,
-//                          &subscription->last_changes->inserted_triples,
-//                subscription->last_changes);
-    }
-
-	// Now the callback is called from propcess_async_subscription
-	// It is need to unsubscribe from handler 
-   /* if (subscription->changed_handler != NULL) {
-        subscription->changed_handler(subscription);
-    }*/
-
-
 
     list_walker = NULL;
     list_for_each(list_walker, &subscription->last_changes->inserted_triples.links) {
@@ -1679,10 +1658,11 @@ static void update_subscription(sslog_subscription_t *subscription,
  * @param[in] new_triples triples that were inserted to the smart space.
  * @param[in] changes information about changes.
  */
-static void update_individual(sslog_node_t *node, sslog_triple_t *individual_triple,
+
+ static void update_individual(sslog_node_t *node, sslog_triple_t *individual_triple,
                               list_t *old_triples, list_t *new_triples,
                               sslog_sbcr_changes_t *changes)
-{
+{    
 
     // Gets triples by individual's UUID.
     list_t *new_triples_list = convert_triples_to_list_by_filter(new_triples, individual_triple->subject, NULL, NULL);
@@ -1775,6 +1755,11 @@ static void update_individual(sslog_node_t *node, sslog_triple_t *individual_tri
 static list_t *convert_triples_to_list_by_filter(list_t *triples,
                                                  char *subject, char *predicate, char *object)
 {
+    //TODO: remove
+    if (false) {
+    update_individual(NULL, NULL, NULL, NULL, NULL);
+    }
+
     list_t *triples_list = list_new();
 
     if (list_is_null_or_empty(triples)) {

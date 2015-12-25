@@ -42,8 +42,10 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #if defined(WIN32) || defined(WINCE)
+#include <ws2tcpip.h>
 #else
 #include <netinet/in.h>
+#include <netdb.h>
 #include <arpa/inet.h>
 #include <unistd.h> /* close() */
 #include <stdlib.h>
@@ -186,6 +188,102 @@ int ss_recv(int socket, char * recv_buf, int to_msecs)
 
 
   return bytes;
+}
+
+
+/**
+ * \fn int ss_recv()
+ *
+ * \brief Receives data to the Smart Space (SIB).
+ *
+ * \param[in] int socket. The socket descriptor of the socket where data is received from.
+ * \param[in] char * recv_buf. A pointer to the data to be received.
+ * \param[in] int to_msecs. Timeout value in milliseconds.
+ *
+ * \return int. Success: 1
+ *              Timeout: 0
+ *              ERROR:  -1
+ */
+int ss_recv_sparql(int socket, char * recv_buf, int to_msecs)
+{
+  int offset = 0;
+  int bytes = 0;
+  char * msg_end = NULL;
+  int len = SS_MAX_MESSAGE_SIZE - 1;
+
+  do{
+    bytes = timeout_recv(socket, recv_buf + offset, len, to_msecs);
+    if(bytes <= 0)
+      return bytes;
+
+    offset += bytes;
+    len -= bytes;
+
+    msg_end = strstr(recv_buf, SS_SPARQL_END_TAG);
+
+  }while(!msg_end && len > 1);
+
+
+  return bytes;
+}
+
+
+/**
+ * \fn ss_send_to_address()
+ *
+ * \brief Sends data to the some URL-address.
+ *
+ * \param[in] const char *addrrss. Address (without protocol and path) to get IP address and send (ya.ru, google.ru).
+ * \param[in] int port. Port to send.
+ * \param[in] char *request. Request to send.
+ * \param[in] char **result_buf. Buffer for response.
+ *
+ * \return int. 0 if successful, otherwise -1.
+ */
+int ss_send_to_address(const char *addrrss, const char *port, const char *request, char **result_buf)
+{
+	struct addrinfo hints;
+	struct addrinfo *ai = NULL;//  ss_get_ip_address((char*)addrrss, (char*)port);  
+	
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+
+	int result = getaddrinfo(addrrss, port, &hints, &ai);
+
+	if (result != 0) {
+		fprintf(stderr, "getaddrinfo() error: %s\n", gai_strerror(result));
+		return -1;
+	}
+
+	struct sockaddr_in *sin = (struct sockaddr_in *) (ai->ai_addr);
+
+	const char *addr = inet_ntoa(sin->sin_addr);
+	if (addr == NULL) { 
+		return -1;
+	}
+
+	sib_address_t sa;
+	strncpy(sa.ip, addr, MAX_IP_LEN);
+	sa.port = atoi(port);
+
+	freeaddrinfo(ai);
+
+	int sockfd = ss_open(&sa);
+
+	if (ss_send(sockfd, (char *)request) < 0) 
+	{
+		fprintf(stderr, "Sending error.");
+		return -1;
+	}
+
+	if (ss_recv_sparql(sockfd, *result_buf, SS_RECV_TIMEOUT_MSECS) <= 0) {
+		fprintf(stderr, "Receiving error.");		
+		return -1;
+	}
+
+	return 0;
 }
 
 /**

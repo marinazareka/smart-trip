@@ -82,6 +82,10 @@
 #include "pthread.h"
 #endif
 
+#define SS_HTTP_PROTOOL "http://"
+#define SS_HTTP_SIZE 7
+#define SS_HTTP_PORT "80"
+
 /*
 *****************************************************************************
 *  EXPORTED FUNCTION IMPLEMENTATIONS
@@ -341,6 +345,133 @@ EXTERN int ss_query(ss_info_t * ss_info, ss_triple_t * requested_triples, ss_tri
 
   return handle_sparql_construct_response(ss_info, &msg_i, returned_triples);
 }
+
+
+static char *special_convert_sparql_query(const char *sparql_query){
+  int i = 0; int j = 0;
+
+  char *result_query = (char *) malloc(strlen(sparql_query)*3*sizeof(char) + 1);
+  memset(result_query, 0, sizeof(char)*strlen(sparql_query)*3 + 1);
+
+  while (i < strlen(sparql_query)) 
+  {
+    if (sparql_query[i] == ' ') 
+    { 
+      result_query[j] = '+'; 
+      j++;
+    } 
+    else if (sparql_query[i] == '?') 
+    { 
+      result_query[j] = '%'; 
+      result_query[j + 1] = '3'; 
+      result_query[j + 2] = 'F';
+      j += 3;
+    } 
+    else if (sparql_query[i] == ':') 
+    { 
+      result_query[j] = '%';	
+      result_query[j + 1] = '3'; 
+      result_query[j + 2] = 'A';
+      j += 3;
+    } 
+    else if (sparql_query[i] == '"') 
+    { 
+      result_query[j] = '%';	
+      result_query[j + 1] = '2'; 
+      result_query[j + 2] = '2';
+      j+=3;
+    } 
+    else if (sparql_query[i] == '@')
+    { 
+      result_query[j] = '%';	
+      result_query[j + 1] = '4';
+      result_query[j + 2] = '0';
+      j += 3;
+    } 
+    else 
+    {
+      result_query[j] = sparql_query[i]; 
+      j++;
+    }
+    
+    i++;
+  }
+
+  return result_query;
+}
+
+
+ /**
+   * \fn int ss_sparql_endpoint_query(const char *endpoint_address, const char *query, const char *extra_parameters)
+   *
+   * \brief Creates a GET query for SPARQL-endpoint and executes query operation.
+   *
+   *  Function composes and sends HTTP-GET with SPARQL SELECT query to the SARQL-endpoint. 
+   *  Function also parses esponse and returns pointer to SPARQL-results. 
+   *  Returned triple lists must be freed with the ss_delete_sparql_results() function when no longer needed. 
+   *  Function supports only xml format of SPARQL results.
+   *
+   * \param[in] const char *endpoint_url. URL for SPARQL-endpoint, for example "http://dbpedia.org/sparql".
+   * \param[in] const char *query. SPARQL SELECT query in text format.
+   * \param[in] const char *extra_parameters. Extra parameters for endpoint, for example format=application%2Fxml.
+   * \param[out] ss_sparql_result_t **results. Pointer to results structure.
+   * \param[out] int *number_of_bindings. Pointer to variable which will contain number of variables returned by endpoint.
+   *
+   * \return int status. Status of the operation when completed (0 if successfull, otherwise -1).
+   */
+ EXTERN int ss_sparql_endpoint_query(const char *endpoint_url, const char *query, const char *extra_parameters, ss_sparql_result_t **result, int *number_of_bindings)
+ {
+	 char *endpoint_query = special_convert_sparql_query(query);
+	 char *extra = special_convert_sparql_query(extra_parameters);
+
+	 // 74 for "&format=application%2FxmlHTTP/1.1\r\n\r\n". Chenge it to extra_parameters
+	 int query_len = 74 + strlen(endpoint_query) + strlen(endpoint_url) + strlen(extra_parameters) + 1;
+	 char *endpoint_request = (char *) malloc(query_len * sizeof(char));
+	 endpoint_request[0] = '\0';
+
+	 strcat(endpoint_request, "GET ");
+	 strcat(endpoint_request, endpoint_url);
+	 strcat(endpoint_request, "?default-graph-uri=&query=");
+	 strcat(endpoint_request, endpoint_query);
+	 strcat(endpoint_request, extra);
+	 strcat(endpoint_request, "HTTP/1.1\r\n\r\n");
+
+	 free(endpoint_query);
+	 free(extra);
+
+	 // Make 'dbpedia.org' from 'http://dbpedia.com/search'
+	 char *pointer = strstr((char *) endpoint_url, SS_HTTP_PROTOOL);
+
+	 int http_shift = 0;
+	 if (pointer != NULL) {
+		 http_shift += sizeof(char) * SS_HTTP_SIZE; 
+	 }
+
+	 char *address = (char *) malloc(strlen(endpoint_url) * sizeof(char));
+	 address[0] = '\0';
+
+	 // Copy string without protocol (http://)
+	 strcat(address, endpoint_url + SS_HTTP_SIZE);
+
+	 // Set first '/' to '0' (dbpedia.org/search -> dbpedia.org\0search)
+	 pointer = strstr(address, "/");
+	 *pointer = '\0';
+	 
+	 char *buf = (char*) malloc(SS_MAX_MESSAGE_SIZE * sizeof(char));
+	
+	 int func_res = ss_send_to_address(address, SS_HTTP_PORT, endpoint_request, &buf);
+
+	 if (func_res == 0) {
+		 func_res = parse_sparql_xml_result(buf, result, number_of_bindings);
+	 }
+
+	 free(endpoint_request);
+	 free(address);
+	 free(buf);
+
+	 return (func_res == 0) ? 0 : -1;
+ }
+
  
 /**
    * \fn int ss_sparql_ask_query(ss_info_t * ss_info, char * query, int * result)

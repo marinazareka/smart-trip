@@ -43,6 +43,7 @@
 
 #include "entity_internal.h"
 #include "kpi_api.h"
+#include "triplestore.h"
 
 #include "property_changes.h"
 #include "subscription_changes_internal.h"
@@ -680,6 +681,46 @@ bool add_individual_uuid_to_changes(sslog_sbcr_changes_t *changes,
 
     return true;
 }
+
+
+int initchanges(sslog_sbcr_changes_t *changes)
+{
+//{
+//	list_head_t *list_walker = NULL;
+//	list_head_t *list_walker2 = NULL;
+
+//	list_walker = NULL;
+	
+//	if (list)
+    
+//	list_for_each(list_walker, &changes->inserted_triples.links) {
+//        list_t *node = list_entry(list_walker, list_t, links);
+//        sslog_triple_t *triple = (sslog_triple_t *) node->data;
+		
+//		list_for_each(list_walker2, &changes->removed_triples.links) {
+//        list_t *node2 = list_entry(list_walker2, list_t, links);
+//        sslog_triple_t *triple2 = (sslog_triple_t *) node2->data;
+
+
+
+//		sslog_compare_triple_with_any(triple, triple2, SSLOG_TRIPLE_ANY);
+
+//		list_has_data_with_equals(changes->removed_triples, NULL, sslog_equal_triples
+
+
+//        if (sslog_triple_is_individual(triple) == true) {
+//            list_add_data(&subscription->last_changes->inserted_individuals, triple->subject);
+//        } else if (sslog_triple_is_class(triple) == true) {
+//            list_add_data(&subscription->last_changes->inserted_classes, triple->subject);
+//        } else if (sslog_triple_is_property(triple) == true) {
+//            list_add_data(&subscription->last_changes->inserted_props, triple->subject);
+//        }
+
+//      }
+
+return 0;
+}
+
 
 /**
  * @fn bool add_property_to_changes(subscription_changes_data_t *changes, individual_t *owner, property_t* property, const void *new_data, const void *old_data, action_type action)

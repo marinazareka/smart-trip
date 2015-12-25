@@ -811,6 +811,55 @@ list_t *sslog_node_subscribe_triple(sslog_node_t *node, sslog_triple_t *triple_t
 
 
 /******************** Node functions for SPARQL queries **********************/
+sslog_sparql_result_t* sslog_node_sparql_enpoint_select(sslog_node_t *node, const char *endpoint_address, const char *query, const char *extra_parameters, const char *triples_template)
+{
+    if (node == NULL) {
+        sslog_error_set(&node->last_error, SSLOG_ERROR_NULL_ARGUMENT, SSLOG_ERROR_TEXT_NULL_ARGUMENT "node.");
+        return NULL;
+    }
+
+    if (sslog_is_str_null_empty(endpoint_address) == true) {
+        sslog_error_set(&node->last_error, SSLOG_ERROR_INCORRECT_ARGUMENT, SSLOG_ERROR_TEXT_INCORRECT_ARGUMENT "'endpoint_address' is NULL or empty.");
+        return NULL;
+    }
+
+    if (sslog_is_str_null_empty(query) == true) {
+        sslog_error_set(&node->last_error, SSLOG_ERROR_INCORRECT_ARGUMENT, SSLOG_ERROR_TEXT_INCORRECT_ARGUMENT "'query' is NULL or empty.");
+        return NULL;
+    }
+
+    sslog_sparql_result_t *sparql_result = NULL;
+
+    int result = SSLOG_ERROR_NO;
+
+    if (sslog_is_str_null_empty(extra_parameters) == true) {
+        result = sslog_kpi_sparql_endpoint_select(endpoint_address, query, "", &sparql_result);
+    } else {
+        result = sslog_kpi_sparql_endpoint_select(endpoint_address, query, extra_parameters, &sparql_result);
+    }
+
+    if (result != SSLOG_ERROR_NO) {
+        sslog_error_set(&node->last_error, result, sslog_kpi_get_error_text(result));
+        return NULL;
+    }
+
+    if (sslog_is_str_null_empty(triples_template) == true) {
+        sslog_error_reset(&node->last_error);
+        return sparql_result;
+    }
+
+    list_t *variable_triples = sslog_sparql_template_to_triples(triples_template);
+
+    sslog_store_sparql_results(sparql_result, variable_triples);
+
+    sslog_free_triples(variable_triples);
+
+    sslog_error_reset(&node->last_error);
+
+    return sparql_result;
+}
+
+
 bool sslog_node_sparql_ask(sslog_node_t *node, const char *query)
 {
     if (node == NULL) {
@@ -837,11 +886,6 @@ bool sslog_node_sparql_ask(sslog_node_t *node, const char *query)
 
     return (query_result == 1) ? true : false;
 }
-
-
-
-
-
 
 
 sslog_sparql_result_t* sslog_node_sparql_select(sslog_node_t *node, const char *query, const char *triples_template)

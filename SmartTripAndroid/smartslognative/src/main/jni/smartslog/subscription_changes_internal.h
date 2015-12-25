@@ -79,6 +79,7 @@ struct sslog_sbcr_changes_s {
     list_t removed_classes;        /**< UUIDs of Individuals that were inserted to the smart space. */
     list_t inserted_triples;       /**< Triples that were inserted to the smart space. */
     list_t removed_triples;        /**< Triples that were removed from the smart space. */
+	list_t updated_triples;		   /**< Triples that were updated in the smart space. */
 
     sslog_sparql_result_t *new_result;   /**< New result for SPARQL SELECT subscription. */
     sslog_sparql_result_t *old_result;   /**< New result for SPARQL SELECT subscription. */

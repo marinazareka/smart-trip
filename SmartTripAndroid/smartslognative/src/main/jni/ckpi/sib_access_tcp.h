@@ -111,6 +111,19 @@ int ss_open(sib_address_t *tcpip_i);
  */
 int ss_send(int socket, char * send_buf);
 
+/**
+ * \fn ss_send_to_address()
+ *
+ * \brief Sends data to the some URL-address.
+ *
+ * \param[in] const char *addrrss. Address (without protocol and path) to get IP address and send (ya.ru, google.ru).
+ * \param[in] int port. Port to send.
+ * \param[in] char *request. Request to send.
+ * \param[in] char **result_buf. Buffer for response.
+ *
+ * \return int. 0 if successful, otherwise -1.
+ */
+int ss_send_to_address(const char *addrrss, const char *port, const char *request, char **result_buf);
 
 /**
  * \fn int ss_recv()

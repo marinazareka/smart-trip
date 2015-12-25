@@ -74,6 +74,10 @@ extern "C" {
 #endif
 
 
+//#if defined (  )
+#define __func__ __FUNCTION__
+//#endif
+
 #ifdef SSLOG_DEBUG_ON
 /** @brief Debug macros */
 #define SSLOG_DEBUG(...) printf("%s", SSLOG_DEBUG_PREFIX); printf(__VA_ARGS__); printf(__VA_ARGS__); printf("\n"); fflush(stdout);

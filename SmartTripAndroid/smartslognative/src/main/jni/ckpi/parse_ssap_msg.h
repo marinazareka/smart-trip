@@ -96,5 +96,6 @@ typedef struct ssap_msg {
 */
 
 int parse_ssap_msg(char *xml, int len, struct ssap_msg *msg);
+int parse_sparql_xml_result(char *xml, ss_sparql_result_t **result, int *number_of_bindings);
 
 #endif
