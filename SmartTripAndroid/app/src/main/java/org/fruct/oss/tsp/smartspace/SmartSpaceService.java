@@ -13,9 +13,8 @@ import android.os.RemoteException;
 
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
+import org.fruct.oss.tsp.commondatatype.SmartSpaceNative;
 import org.fruct.oss.tsp.commondatatype.TspType;
-import org.fruct.oss.tsp.smartslognative.JniSmartSpaceNative;
-import org.fruct.oss.tsp.smartslognative.SmartSpaceNative;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,9 +71,7 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 	}
 
 	private SmartSpaceNative createSmartSpaceNative() {
-		JniSmartSpaceNative.loadNativeLibrary();
-		return new JniSmartSpaceNative();
-//		return new TestSmartSpaceNative();
+		return SmartSpaceNativeLoader.createSmartSpaceNative();
 	}
 
 	@Override

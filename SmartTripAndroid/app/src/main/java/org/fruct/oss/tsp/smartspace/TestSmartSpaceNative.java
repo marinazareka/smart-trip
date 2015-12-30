@@ -4,7 +4,7 @@ import android.os.Handler;
 
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
-import org.fruct.oss.tsp.smartslognative.SmartSpaceNative;
+import org.fruct.oss.tsp.commondatatype.SmartSpaceNative;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +17,7 @@ public class TestSmartSpaceNative implements SmartSpaceNative {
 	private boolean isSearchFinished;
 	private Handler handler;
 
-	private Listener listener;
+	private SmartSpaceNative.Listener listener;
 	private double lat;
 	private double lon;
 

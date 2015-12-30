@@ -17,6 +17,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    productFlavors {
+        full {
+        }
+
+        noss {
+        }
+    }
 }
 
 dependencies {
@@ -41,7 +48,7 @@ dependencies {
         transitive = true
     }
 
-    compile project(":smartslognative")
+    fullCompile project(":smartslognative")
     compile project(":commondata")
 
     compile 'de.greenrobot:eventbus:2.4.0'

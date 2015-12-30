@@ -1,4 +1,4 @@
-package org.fruct.oss.tsp.smartslognative;
+package org.fruct.oss.tsp.commondatatype;
 
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;

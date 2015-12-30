@@ -1,6 +1,7 @@
 package org.fruct.oss.tsp.smartslognative;
 
 import org.fruct.oss.tsp.commondatatype.Point;
+import org.fruct.oss.tsp.commondatatype.SmartSpaceNative;
 
 import java.io.IOException;
 
