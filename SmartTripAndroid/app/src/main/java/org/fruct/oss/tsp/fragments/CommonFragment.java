@@ -2,12 +2,10 @@ package org.fruct.oss.tsp.fragments;
 
 
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.widget.Toast;
 
 import org.fruct.oss.tsp.R;
-import org.fruct.oss.tsp.data.User;
 import org.fruct.oss.tsp.events.LocationEvent;
 import org.fruct.oss.tsp.events.RequestFailedEvent;
 import org.fruct.oss.tsp.smartspace.BoundSmartSpace;

@@ -16,7 +16,6 @@ import android.support.v4.app.FragmentActivity;
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.commondatatype.TspType;
-import org.fruct.oss.tsp.data.User;
 import org.fruct.oss.tsp.events.RequestFailedEvent;
 import org.fruct.oss.tsp.events.ScheduleEvent;
 import org.fruct.oss.tsp.events.SearchEvent;
