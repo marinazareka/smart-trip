@@ -27,4 +27,6 @@
     <string name="pref_closed">Closed route</string>
     <string name="pref_closed_summary">Find closed route by default</string>
 
+    <string name="action_add_current_schedule">Add to current schedule</string>
+    <string name="action_add_new_schedule">Add to new schedule</string>
 </resources>

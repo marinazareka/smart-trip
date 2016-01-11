@@ -9,9 +9,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -195,14 +197,56 @@ public class SearchFragment extends BaseFragment implements SearchMvpView {
 			@Bind(android.R.id.text1)
 			TextView textView;
 
+			private final View view;
+
+			private Point point;
+
 			public Holder(View itemView) {
 				super(itemView);
+
 				ButterKnife.bind(this, itemView);
+
+				this.view = itemView;
 			}
 
 			public void bind(Point point) {
 				textView.setText(point.getTitle());
+				this.point = point;
 			}
+
+			@OnClick(R.id.root)
+			void onItemClicked() {
+				PopupMenu popupMenu = new PopupMenu(getContext(), view);
+				popupMenu.inflate(R.menu.point);
+				popupMenu.setOnMenuItemClickListener(new PointMenuListener(point));
+				popupMenu.show();
+			}
+		}
+	}
+
+	private class PointMenuListener implements PopupMenu.OnMenuItemClickListener {
+		private final Point point;
+
+		public PointMenuListener(Point point) {
+			this.point = point;
+		}
+
+		@Override
+		public boolean onMenuItemClick(MenuItem item) {
+			switch (item.getItemId()) {
+			case R.id.action_add_current_schedule:
+				presenter.onPointAddToCurrentSchedule(point);
+				break;
+
+			case R.id.action_add_new_schedule:
+				presenter.onPointAddToNewSchedule(point);
+				break;
+
+			default:
+				return false;
+			}
+
+			return true;
 		}
 	}
 }

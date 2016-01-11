@@ -13,7 +13,6 @@ import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.events.ScheduleStoreChangedEvent;
 import org.fruct.oss.tsp.layers.PointsLayer;
-import org.fruct.oss.tsp.stores.ScheduleStore;
 import org.fruct.oss.tsp.util.Utils;
 import org.fruct.oss.tsp.viewmodel.DefaultGeoViewModel;
 import org.mapsforge.core.graphics.Style;
@@ -52,7 +51,7 @@ public class MapFragment extends BaseFragment {
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.menu_point_list_fragment, menu);
+		inflater.inflate(R.menu.point_list_fragment, menu);
 	}
 
 	@Override

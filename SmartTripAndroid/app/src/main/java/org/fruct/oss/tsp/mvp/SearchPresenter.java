@@ -9,12 +9,16 @@ import org.fruct.oss.tsp.events.SearchStoreChangedEvent;
 import org.fruct.oss.tsp.smartspace.SmartSpace;
 import org.fruct.oss.tsp.stores.SearchStore;
 import org.fruct.oss.tsp.util.Pref;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
 public class SearchPresenter implements Presenter<SearchMvpView> {
+	private static final Logger log = LoggerFactory.getLogger(SearchPresenter.class);
+
 	private final SharedPreferences pref;
 	private final SearchStore searchStore;
 	private final SmartSpace smartspace;
@@ -55,11 +59,11 @@ public class SearchPresenter implements Presenter<SearchMvpView> {
 	}
 
 	public void onPointAddToCurrentSchedule(Point point) {
-
+		log.debug("onPointAddToCurrentSchedule " + point.getTitle());
 	}
 
 	public void onPointAddToNewSchedule(Point point) {
-
+		log.debug("onPointAddToNewSchedule " + point.getTitle());
 	}
 
 	public void search(int radius, String patternText) {
