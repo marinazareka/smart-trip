@@ -10,18 +10,29 @@ import android.widget.TextView;
 
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Schedule;
+import org.fruct.oss.tsp.mvp.SchedulesMvpView;
+import org.fruct.oss.tsp.mvp.SchedulesPresenter;
 
 import java.util.Collections;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-public class SchedulesFragment extends BaseFragment {
+public class SchedulesFragment extends BaseFragment implements SchedulesMvpView {
 	@Bind(R.id.recycler_view)
 	RecyclerView recyclerView;
 
+	private SchedulesPresenter presenter;
+
 	private ScheduleAdapter adapter;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		createPresenter();
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -31,14 +42,21 @@ public class SchedulesFragment extends BaseFragment {
 		return view;
 	}
 
+	private void createPresenter() {
+		presenter = new SchedulesPresenter(getDatabase());
+		presenter.setView(this);
+	}
+
 	@Override
 	public void onResume() {
 		super.onResume();
-		loadAdDisplaySchedules();
+		presenter.start();
 	}
 
-	private void loadAdDisplaySchedules() {
-		adapter.setScheduleList(getDatabase().loadSchedules());
+	@Override
+	public void onPause() {
+		presenter.stop();
+		super.onPause();
 	}
 
 	private void setupRecyclerView() {
@@ -47,6 +65,11 @@ public class SchedulesFragment extends BaseFragment {
 				LinearLayoutManager.VERTICAL, false));
 
 		recyclerView.setAdapter(adapter = new ScheduleAdapter());
+	}
+
+	@Override
+	public void setScheduleList(List<Schedule> scheduleList) {
+		adapter.setScheduleList(scheduleList);
 	}
 
 	class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.Holder> {
@@ -77,13 +100,21 @@ public class SchedulesFragment extends BaseFragment {
 			@Bind(android.R.id.text1)
 			TextView textView;
 
+			private Schedule schedule;
+
 			public Holder(View itemView) {
 				super(itemView);
 				ButterKnife.bind(this, itemView);
 			}
 
 			public void bind(Schedule schedule) {
+				this.schedule = schedule;
 				textView.setText(schedule.getTitle());
+			}
+
+			@OnClick(R.id.root)
+			void onItemClicked() {
+				presenter.onSheduleClicked(schedule);
 			}
 		}
 	}
