@@ -114,7 +114,7 @@ public class SchedulesFragment extends BaseFragment implements SchedulesMvpView 
 
 			@OnClick(R.id.root)
 			void onItemClicked() {
-				presenter.onSheduleClicked(schedule);
+				presenter.onScheduleClicked(schedule);
 			}
 		}
 	}

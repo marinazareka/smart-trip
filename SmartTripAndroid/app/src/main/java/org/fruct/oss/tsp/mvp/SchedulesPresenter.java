@@ -24,9 +24,10 @@ public class SchedulesPresenter {
 	}
 
 	public void stop() {
+
 	}
 
-	public void onSheduleClicked(Schedule schedule) {
+	public void onScheduleClicked(Schedule schedule) {
 		log.debug("{} schedule clicked", schedule.getTitle());
 	}
 }
