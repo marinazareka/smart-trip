@@ -24,6 +24,7 @@ import org.fruct.oss.tsp.fragments.PointListFragment;
 import org.fruct.oss.tsp.fragments.PrefFragment;
 import org.fruct.oss.tsp.fragments.ScheduleListFragment;
 import org.fruct.oss.tsp.fragments.SchedulesFragment;
+import org.fruct.oss.tsp.fragments.SearchFragment;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 		setupToolbar();
 		setupDrawer();
 
-		switchGeoFragment();
+		switchSearchFragment();
 	}
 
 	private void setupCommonFragment() {
@@ -138,6 +139,9 @@ public class MainActivity extends AppCompatActivity {
 								.withIdentifier(R.id.drawer_schedules)
 								.withName(R.string.nav_schedules),
 						new PrimaryDrawerItem()
+								.withIdentifier(R.id.drawer_search)
+								.withName(R.string.nav_search),
+						new PrimaryDrawerItem()
 								.withIdentifier(R.id.drawer_list)
 								.withName(R.string.nav_list),
 
@@ -169,6 +173,10 @@ public class MainActivity extends AppCompatActivity {
 			switchSchedulesFragment();
 			break;
 
+		case R.id.drawer_search:
+			switchSearchFragment();
+			break;
+
 		case R.id.drawer_list:
 			switchGeoFragment();
 			break;
@@ -185,6 +193,11 @@ public class MainActivity extends AppCompatActivity {
 			finish();
 			break;
 		}
+	}
+
+	private void switchSearchFragment() {
+		hideTabbar();
+		switchFragment(new SearchFragment());
 	}
 
 	private void switchSchedulesFragment() {

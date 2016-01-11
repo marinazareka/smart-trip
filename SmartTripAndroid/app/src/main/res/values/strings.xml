@@ -3,6 +3,8 @@
     <string name="title_enter_request">Запрос</string>
 
     <string name="nav_schedules">Schedules</string>
+    <string name="nav_search">Search</string>
+
     <string name="nav_map">Map</string>
     <string name="nav_list">List</string>
     <string name="nav_pref">Preferences</string>

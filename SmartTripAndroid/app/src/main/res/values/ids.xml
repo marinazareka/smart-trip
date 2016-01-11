@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="drawer_schedules" type="id" />
+    <item name="drawer_search" type="id" />
+
     <item name="drawer_list" type="id" />
     <item name="drawer_map" type="id" />
     <item name="drawer_pref" type="id" />
