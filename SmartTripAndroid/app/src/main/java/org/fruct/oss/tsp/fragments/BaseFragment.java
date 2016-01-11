@@ -11,6 +11,7 @@ import org.fruct.oss.tsp.database.DatabaseRepo;
 import org.fruct.oss.tsp.smartspace.SmartSpace;
 import org.fruct.oss.tsp.stores.GeoStore;
 import org.fruct.oss.tsp.stores.ScheduleStore;
+import org.fruct.oss.tsp.stores.SearchStore;
 import org.fruct.oss.tsp.viewmodel.GeoViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,14 @@ public class BaseFragment extends Fragment {
 	protected ScheduleStore getScheduleStore() {
 		return commonFragment.getScheduleStore();
 	}
+
+	/**
+	 * @return хранилище результатов поиска
+	 */
+	protected SearchStore getSearchStore() {
+		return commonFragment.getSearchStore();
+	}
+
 
 	/**
 	 * @return интерфейс интеллектуального пространства

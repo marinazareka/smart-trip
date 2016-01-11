@@ -12,6 +12,7 @@ import org.fruct.oss.tsp.smartspace.BoundSmartSpace;
 import org.fruct.oss.tsp.smartspace.SmartSpace;
 import org.fruct.oss.tsp.stores.GeoStore;
 import org.fruct.oss.tsp.stores.ScheduleStore;
+import org.fruct.oss.tsp.stores.SearchStore;
 
 import de.greenrobot.event.EventBus;
 
@@ -22,6 +23,7 @@ import de.greenrobot.event.EventBus;
 public class CommonFragment extends Fragment {
 	private GeoStore geoStore;
 	private ScheduleStore scheduleStore;
+	private SearchStore searchStore;
 
 	private BoundSmartSpace smartSpace;
 
@@ -35,6 +37,7 @@ public class CommonFragment extends Fragment {
 
 		createGeoStore();
 		createScheduleStore();
+		createSearchStore();
 
 		createSmartspace();
 	}
@@ -51,6 +54,10 @@ public class CommonFragment extends Fragment {
 		geoStore = new GeoStore();
 	}
 
+	private void createSearchStore() {
+		searchStore = new SearchStore();
+	}
+
 	@Override
 	public void onStart() {
 		super.onStart();
@@ -58,10 +65,12 @@ public class CommonFragment extends Fragment {
 		geoStore.start();
 		scheduleStore.start();
 		smartSpace.start();
+		searchStore.start();
 	}
 
 	@Override
 	public void onStop() {
+		searchStore.stop();
 		smartSpace.stop();
 		scheduleStore.stop();
 		geoStore.stop();
@@ -81,6 +90,13 @@ public class CommonFragment extends Fragment {
 	 */
 	public ScheduleStore getScheduleStore() {
 		return scheduleStore;
+	}
+
+	/**
+	 * @return хранилище результатов поиска
+	 */
+	public SearchStore getSearchStore() {
+		return searchStore;
 	}
 
 	/**
