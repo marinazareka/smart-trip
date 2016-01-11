@@ -23,6 +23,7 @@ import org.fruct.oss.tsp.fragments.MapFragment;
 import org.fruct.oss.tsp.fragments.PointListFragment;
 import org.fruct.oss.tsp.fragments.PrefFragment;
 import org.fruct.oss.tsp.fragments.ScheduleListFragment;
+import org.fruct.oss.tsp.fragments.SchedulesFragment;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -53,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
 	@Bind(R.id.container)
 	FrameLayout container;
-	
+
 	@Bind(R.id.tabbar)
 	TabLayout tabbar;
 
@@ -134,6 +135,9 @@ public class MainActivity extends AppCompatActivity {
 				.withToolbar(toolbar)
 				.addDrawerItems(
 						new PrimaryDrawerItem()
+								.withIdentifier(R.id.drawer_schedules)
+								.withName(R.string.nav_schedules),
+						new PrimaryDrawerItem()
 								.withIdentifier(R.id.drawer_list)
 								.withName(R.string.nav_list),
 
@@ -161,6 +165,10 @@ public class MainActivity extends AppCompatActivity {
 
 	private void onDrawerItemClicked(int position, IDrawerItem drawerItem) {
 		switch (drawerItem.getIdentifier()) {
+		case R.id.drawer_schedules:
+			switchSchedulesFragment();
+			break;
+
 		case R.id.drawer_list:
 			switchGeoFragment();
 			break;
@@ -177,6 +185,11 @@ public class MainActivity extends AppCompatActivity {
 			finish();
 			break;
 		}
+	}
+
+	private void switchSchedulesFragment() {
+		hideTabbar();
+		switchFragment(new SchedulesFragment());
 	}
 
 	private void switchPrefFragment() {

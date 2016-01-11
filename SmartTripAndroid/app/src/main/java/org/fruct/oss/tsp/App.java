@@ -8,6 +8,7 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 
 import org.fruct.oss.tsp.database.DatabaseOpenHelper;
+import org.fruct.oss.tsp.database.DatabaseRepo;
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +60,10 @@ public class App extends Application {
 
 	public static App getInstance() {
 		return instance;
+	}
+
+	public DatabaseRepo getDatabase() {
+		return databaseOpenHelper;
 	}
 
 	private void setupDatabase() {

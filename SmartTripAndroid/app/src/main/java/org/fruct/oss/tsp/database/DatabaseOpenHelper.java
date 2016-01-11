@@ -1,11 +1,17 @@
 package org.fruct.oss.tsp.database;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 
-public class DatabaseOpenHelper extends SQLiteOpenHelper {
+import org.fruct.oss.tsp.commondatatype.Schedule;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class DatabaseOpenHelper extends SQLiteOpenHelper implements DatabaseRepo {
 	private static final int VERSION = 1;
 
 	public DatabaseOpenHelper(Context context) {
@@ -27,5 +33,22 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
+	}
+
+	@Override
+	@SuppressWarnings("TryFinallyCanBeTryWithResources")
+	public List<Schedule> loadSchedules() {
+		Cursor cursor = getReadableDatabase().query(ScheduleTable.TABLE,
+				ScheduleTable.COLUMN_ALL, null, null, null, null, null, null);
+
+		try {
+			ArrayList<Schedule> schedules = new ArrayList<>();
+			while (cursor.moveToNext()) {
+				schedules.add(ScheduleTable.fromCursor(cursor));
+			}
+			return schedules;
+		} finally {
+			cursor.close();
+		}
 	}
 }

@@ -3,9 +3,11 @@ package org.fruct.oss.tsp.fragments;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 
+import org.fruct.oss.tsp.App;
 import org.fruct.oss.tsp.BuildConfig;
 import org.fruct.oss.tsp.activities.MainActivity;
 import org.fruct.oss.tsp.commondatatype.Point;
+import org.fruct.oss.tsp.database.DatabaseRepo;
 import org.fruct.oss.tsp.smartspace.SmartSpace;
 import org.fruct.oss.tsp.stores.GeoStore;
 import org.fruct.oss.tsp.stores.ScheduleStore;
@@ -37,6 +39,10 @@ public class BaseFragment extends Fragment {
 	public void onDetach() {
 		commonFragment = null;
 		super.onDetach();
+	}
+
+	protected DatabaseRepo getDatabase() {
+		return App.getInstance().getDatabase();
 	}
 
 	/**
