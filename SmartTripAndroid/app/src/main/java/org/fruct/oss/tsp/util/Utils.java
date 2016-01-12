@@ -7,7 +7,11 @@ import org.mapsforge.core.graphics.Paint;
 import org.mapsforge.core.graphics.Style;
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
 
+import java.util.Random;
+
 public class Utils {
+	private static final Random random = new Random();
+
 	public static int getDP(float dp) {
 		Context context = App.getContext();
 
@@ -28,5 +32,30 @@ public class Utils {
 		paint.setStrokeWidth(width);
 		paint.setStyle(style);
 		return paint;
+	}
+
+	public static String randomName() {
+		StringBuilder sb = new StringBuilder();
+
+		final String vow = "aeiouy";
+		final String cons = "qwrtpsdfghjklzxcvbnm";
+		final String[] endings = {
+			"berg", "kva", "zero", "tie", "yarvi", "burg", "borg", "grad", "-city", "hell", "fall"
+		};
+
+		int length = random.nextInt(2) + 3;
+		for (int i = 0; i < length; i++) {
+			if (random.nextBoolean()) {
+				sb.append(vow.charAt(random.nextInt(vow.length())));
+				sb.append(cons.charAt(random.nextInt(cons.length())));
+			} else {
+				sb.append(cons.charAt(random.nextInt(cons.length())));
+				sb.append(vow.charAt(random.nextInt(vow.length())));
+			}
+		}
+		sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
+		sb.append(endings[random.nextInt(endings.length)]);
+
+		return sb.toString();
 	}
 }

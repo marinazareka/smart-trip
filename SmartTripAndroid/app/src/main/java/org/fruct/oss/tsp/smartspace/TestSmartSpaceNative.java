@@ -5,6 +5,7 @@ import android.os.Handler;
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.commondatatype.SmartSpaceNative;
+import org.fruct.oss.tsp.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +58,7 @@ public class TestSmartSpaceNative implements SmartSpaceNative {
 					double lat1 = lat + (2 * Math.random() - 1) * 0.01;
 					double lon1 = lon + (2 * Math.random() - 1) * 0.01;
 					String id = "id" + lat1 + ":" + lon1;
-					String title = "title" + lat1+ ":" + lon1;
+					String title = Utils.randomName();
 					points.add(new Point(id, title, lat1, lon1));
 				}
 
