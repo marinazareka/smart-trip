@@ -7,6 +7,6 @@ import java.util.List;
 import rx.Observable;
 
 public interface DatabaseRepo {
-	@SuppressWarnings("TryFinallyCanBeTryWithResources")
 	Observable<List<Schedule>> loadSchedules();
+	long insertSchedule(Schedule schedule);
 }

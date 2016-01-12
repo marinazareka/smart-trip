@@ -8,6 +8,10 @@ public class Schedule {
 	private final String title;
 	private final TspType tspType;
 
+	public Schedule(String title, TspType tspType) {
+		this(0, title, tspType);
+	}
+
 	public Schedule(long id, String title, TspType tspType) {
 		this.id = id;
 		this.title = title;

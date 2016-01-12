@@ -28,7 +28,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL(PointsTable.getCreateQuery());
 		db.execSQL(ScheduleTable.queryCreate());
-		db.execSQL(SchedulePointsTable.getCreateQuery());
+		// db.execSQL(SchedulePointsTable.getCreateQuery());
 	}
 
 	@Override

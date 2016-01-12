@@ -12,8 +12,10 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.PopupMenu;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -21,6 +23,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Point;
+import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.mvp.SearchMvpView;
 import org.fruct.oss.tsp.mvp.SearchPresenter;
 
@@ -51,7 +54,7 @@ public class SearchFragment extends BaseFragment implements SearchMvpView {
 	}
 
 	private void setupPresenter() {
-		presenter = new SearchPresenter(getContext(), getSearchStore(), getSmartSpace());
+		presenter = new SearchPresenter(getContext(), getSearchStore(), getSmartSpace(), getDatabase());
 		presenter.setView(this);
 	}
 
@@ -167,6 +170,48 @@ public class SearchFragment extends BaseFragment implements SearchMvpView {
 			waiterDialog.dismiss();
 			waiterDialog = null;
 		}
+	}
+
+	@Override
+	public void displayNewScheduleDialog() {
+		final MaterialDialog dialog = new MaterialDialog.Builder(getContext())
+				.title(R.string.title_new_schedule)
+				.positiveText(android.R.string.ok)
+				.negativeText(android.R.string.cancel)
+				.customView(R.layout.dialog_new_schedule, false)
+				.onNegative(new MaterialDialog.SingleButtonCallback() {
+					@Override
+					public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction dialogAction) {
+						dialog.dismiss();
+					}
+				})
+				.onPositive(new MaterialDialog.SingleButtonCallback() {
+					@Override
+					public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction dialogAction) {
+						Spinner spinner = ButterKnife.findById(dialog, R.id.tsp_type_spinner);
+						EditText editText = ButterKnife.findById(dialog, R.id.title_edit_text);
+
+						String title = editText.getText().toString();
+						TspType tspType = spinner.getSelectedItemPosition() == 0
+								? TspType.OPEN : TspType.CLOSED;
+
+						if (!TextUtils.isEmpty(title)) {
+							presenter.onNewScheduleDialogFinished(title, tspType);
+							dialog.dismiss();
+						}
+					}
+				})
+				.autoDismiss(false)
+				.build();
+
+		// Setup tsp type spinner
+		Spinner spinner = ButterKnife.findById(dialog, R.id.tsp_type_spinner);
+		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
+				R.array.tsp_types_array, android.R.layout.simple_spinner_item);
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinner.setAdapter(adapter);
+
+		dialog.show();
 	}
 
 	class Adapter extends RecyclerView.Adapter<Adapter.Holder> {

@@ -29,4 +29,6 @@
 
     <string name="action_add_current_schedule">Add to current schedule</string>
     <string name="action_add_new_schedule">Add to new schedule</string>
+    <string name="hint_title">Title</string>
+    <string name="title_new_schedule">New schedule</string>
 </resources>

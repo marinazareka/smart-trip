@@ -13,4 +13,6 @@ public interface SearchMvpView {
 	void displaySearchDialog(@Nullable String initialPattern, int initialRadius);
 	void displaySearchWaiter();
 	void dismissSearchWaiter();
+
+	void displayNewScheduleDialog();
 }

@@ -20,4 +20,13 @@ public class BriteDatabaseRepo implements DatabaseRepo {
 		return db.createQuery(ScheduleTable.TABLE, ScheduleTable.queryGet())
 				.mapToList(ScheduleTable.MAPPER);
 	}
+
+	@Override
+	public long insertSchedule(Schedule schedule) {
+		if (schedule.getId() != 0) {
+			throw new IllegalArgumentException("Schedule must not be in database");
+		}
+
+		return db.insert(ScheduleTable.TABLE, ScheduleTable.toContentValues(schedule));
+	}
 }

@@ -3,26 +3,23 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-
               android:paddingLeft="@dimen/activity_horizontal_margin"
               android:paddingRight="@dimen/activity_horizontal_margin" >
 
-
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
-        android:hint="@string/hint_radius"
+        android:hint="@string/hint_title"
 
         android:inputType="number"
         android:ems="10"
-        android:id="@+id/radius_edit_text"/>
+        android:id="@+id/title_edit_text"/>
 
-    <EditText
+    <Spinner
+        android:id="@+id/tsp_type_spinner"
+
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="wrap_content" />
 
-        android:hint="@string/hint_pattern"
-
-        android:id="@+id/pattern_edit_text"/>
 </LinearLayout>
