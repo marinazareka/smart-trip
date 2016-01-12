@@ -40,7 +40,7 @@ public class SearchStore implements Store {
 	 */
 	@NonNull
 	public List<Point> getPoints() {
-		return points;
+		return Collections.unmodifiableList(points);
 	}
 
 	public void onEventMainThread(SearchEvent searchEvent) {

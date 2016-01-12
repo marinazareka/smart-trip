@@ -17,6 +17,8 @@ import org.fruct.oss.tsp.util.UserPref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 import de.greenrobot.event.EventBus;
 
 public class SearchPresenter implements Presenter<SearchMvpView> {
@@ -47,7 +49,9 @@ public class SearchPresenter implements Presenter<SearchMvpView> {
 	@Override
 	public void start() {
 		EventBus.getDefault().register(this);
-		view.setPointList(searchStore.getPoints());
+		List<Point> points = searchStore.getPoints();
+		view.setEmptyMode(points.isEmpty());
+		view.setPointList(points);
 	}
 
 	@Override
