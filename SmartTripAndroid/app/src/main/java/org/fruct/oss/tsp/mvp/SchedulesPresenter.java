@@ -60,6 +60,7 @@ public class SchedulesPresenter implements Presenter<SchedulesMvpView> {
 
 	public void onScheduleClicked(Schedule schedule) {
 		Pref.setCurrentSchedule(pref, schedule.getId());
+		databaseRepo.setCurrentSchedule(schedule.getId());
 		updateCurrentSchedule();
 	}
 

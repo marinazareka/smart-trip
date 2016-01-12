@@ -1,4 +1,4 @@
-package org.fruct.oss.tsp.database;
+package org.fruct.oss.tsp.database.tables;
 
 import java.util.Locale;
 

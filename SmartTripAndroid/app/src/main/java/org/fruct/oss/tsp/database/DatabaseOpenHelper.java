@@ -1,16 +1,12 @@
 package org.fruct.oss.tsp.database;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import org.fruct.oss.tsp.commondatatype.Schedule;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import rx.Observable;
+import org.fruct.oss.tsp.database.tables.CurrentScheduleTable;
+import org.fruct.oss.tsp.database.tables.PointsTable;
+import org.fruct.oss.tsp.database.tables.ScheduleTable;
 
 public class DatabaseOpenHelper extends SQLiteOpenHelper {
 	private static final int VERSION = 1;
@@ -28,6 +24,10 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL(PointsTable.getCreateQuery());
 		db.execSQL(ScheduleTable.queryCreate());
+
+		db.execSQL(CurrentScheduleTable.getCreateQuery());
+		db.execSQL(CurrentScheduleTable.getInitializeQuery());
+
 		// db.execSQL(SchedulePointsTable.getCreateQuery());
 	}
 

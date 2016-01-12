@@ -1,4 +1,4 @@
-package org.fruct.oss.tsp.database;
+package org.fruct.oss.tsp.database.tables;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -23,6 +23,13 @@ public class ScheduleTable {
 		@Override
 		public Schedule call(Cursor cursor) {
 			return fromCursor(cursor);
+		}
+	};
+
+	public static final Func1<Cursor, TspType> TSP_TYPE_MAPPER = new Func1<Cursor, TspType>() {
+		@Override
+		public TspType call(Cursor cursor) {
+			return TspType.valueOf(cursor.getString(0));
 		}
 	};
 

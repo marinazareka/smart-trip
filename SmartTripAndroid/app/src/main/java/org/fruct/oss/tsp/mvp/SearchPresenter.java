@@ -97,6 +97,7 @@ public class SearchPresenter implements Presenter<SearchMvpView> {
 		log.debug("New schedule {} {}", title, tspType);
 		long insertedId = databaseRepo.insertSchedule(new Schedule(title, tspType));
 		Pref.setCurrentSchedule(pref, insertedId);
+		databaseRepo.setCurrentSchedule(insertedId);
 
 		onPointAddToCurrentSchedule(lastSelectedPoint);
 	}
