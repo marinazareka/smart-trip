@@ -9,7 +9,7 @@ import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.events.GeoStoreChangedEvent;
 import org.fruct.oss.tsp.smartspace.SmartSpace;
 import org.fruct.oss.tsp.stores.GeoStore;
-import org.fruct.oss.tsp.util.Pref;
+import org.fruct.oss.tsp.util.UserPref;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,7 @@ public class PointListPresenter {
 	}
 
 	public void onSearchMenuAction() {
-		view.displaySearchDialog(null, Pref.getRadius(pref));
+		view.displaySearchDialog(null, UserPref.getRadius(pref));
 	}
 
 	public void onEventMainThread(GeoStoreChangedEvent event) {

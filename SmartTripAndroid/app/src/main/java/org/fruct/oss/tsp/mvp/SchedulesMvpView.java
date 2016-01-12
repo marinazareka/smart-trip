@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface SchedulesMvpView {
 	void setScheduleList(List<Schedule> scheduleList);
+	void setSelectedSchedule(Schedule schedule);
 }

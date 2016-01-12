@@ -8,11 +8,9 @@ import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.events.SearchStoreChangedEvent;
 import org.fruct.oss.tsp.smartspace.SmartSpace;
 import org.fruct.oss.tsp.stores.SearchStore;
-import org.fruct.oss.tsp.util.Pref;
+import org.fruct.oss.tsp.util.UserPref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
@@ -55,7 +53,7 @@ public class SearchPresenter implements Presenter<SearchMvpView> {
 	}
 
 	public void onSearchAction() {
-		view.displaySearchDialog(null, Pref.getRadius(pref));
+		view.displaySearchDialog(null, UserPref.getRadius(pref));
 	}
 
 	public void onPointAddToCurrentSchedule(Point point) {

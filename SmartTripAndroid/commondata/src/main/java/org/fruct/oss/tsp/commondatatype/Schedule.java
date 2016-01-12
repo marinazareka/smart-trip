@@ -4,12 +4,18 @@ package org.fruct.oss.tsp.commondatatype;
  * Сохраненный маршрут
  */
 public class Schedule {
-	private String title;
-	private TspType tspType;
+	private final long id;
+	private final String title;
+	private final TspType tspType;
 
-	public Schedule(String title, TspType tspType) {
+	public Schedule(long id, String title, TspType tspType) {
+		this.id = id;
 		this.title = title;
 		this.tspType = tspType;
+	}
+
+	public long getId() {
+		return id;
 	}
 
 	public String getTitle() {

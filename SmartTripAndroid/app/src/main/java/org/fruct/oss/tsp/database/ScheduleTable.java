@@ -28,7 +28,7 @@ public class ScheduleTable {
 	}
 
 	public static Schedule fromCursor(Cursor cursor) {
-		return new Schedule(cursor.getString(1), TspType.valueOf(cursor.getString(2)));
+		return new Schedule(cursor.getLong(0), cursor.getString(1), TspType.valueOf(cursor.getString(2)));
 	}
 
 	public static ContentValues toContentValues(Schedule schedule) {

@@ -72,8 +72,14 @@ public class SchedulesFragment extends BaseFragment implements SchedulesMvpView 
 		adapter.setScheduleList(scheduleList);
 	}
 
+	@Override
+	public void setSelectedSchedule(Schedule schedule) {
+		adapter.setSelectedSchedule(schedule);
+	}
+
 	class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.Holder> {
 		private List<Schedule> scheduleList = Collections.emptyList();
+		private Schedule selectedSchedule;
 
 		@Override
 		public Holder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -96,6 +102,11 @@ public class SchedulesFragment extends BaseFragment implements SchedulesMvpView 
 			notifyDataSetChanged();
 		}
 
+		public void setSelectedSchedule(Schedule schedule) {
+			selectedSchedule = schedule;
+			notifyDataSetChanged();
+		}
+
 		class Holder extends RecyclerView.ViewHolder {
 			@Bind(android.R.id.text1)
 			TextView textView;
@@ -110,6 +121,7 @@ public class SchedulesFragment extends BaseFragment implements SchedulesMvpView 
 			public void bind(Schedule schedule) {
 				this.schedule = schedule;
 				textView.setText(schedule.getTitle());
+				itemView.setSelected(schedule == selectedSchedule);
 			}
 
 			@OnClick(R.id.root)

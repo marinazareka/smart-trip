@@ -2,22 +2,16 @@ package org.fruct.oss.tsp.util;
 
 import android.content.SharedPreferences;
 
+import org.fruct.oss.tsp.commondatatype.Schedule;
+
 public class Pref {
-	public static final String PREF_RADIUS = "pref_radius";
-	public static final String PREF_RADIUS_DEFAULT = "10000";
+	public static final String PREF_CURRENT_SCHEDULE = "pref_current_schedule";
 
-	public static final String PREF_CLOSED = "pref_closed";
-	public static final boolean PREF_CLOSED_DEFAULT = true;
-
-	public static int getRadius(SharedPreferences pref) {
-		try {
-			return Integer.parseInt(pref.getString(PREF_RADIUS, PREF_RADIUS_DEFAULT));
-		} catch (NumberFormatException ex) {
-			return Integer.parseInt(PREF_RADIUS_DEFAULT);
-		}
+	public static void setCurrentSchedule(SharedPreferences pref, long scheduleId) {
+		pref.edit().putLong(PREF_CURRENT_SCHEDULE, scheduleId).apply();
 	}
 
-	public static boolean isClosedRoute(SharedPreferences preferences) {
-		return preferences.getBoolean(PREF_CLOSED, PREF_CLOSED_DEFAULT);
+	public static long getCurrentSchedule(SharedPreferences pref) {
+		return pref.getLong(PREF_CURRENT_SCHEDULE, 0);
 	}
 }

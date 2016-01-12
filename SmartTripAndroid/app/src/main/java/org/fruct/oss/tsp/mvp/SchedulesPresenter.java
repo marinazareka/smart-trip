@@ -32,5 +32,6 @@ public class SchedulesPresenter implements Presenter<SchedulesMvpView> {
 
 	public void onScheduleClicked(Schedule schedule) {
 		log.debug("{} schedule clicked", schedule.getTitle());
+		view.setSelectedSchedule(schedule);
 	}
 }
