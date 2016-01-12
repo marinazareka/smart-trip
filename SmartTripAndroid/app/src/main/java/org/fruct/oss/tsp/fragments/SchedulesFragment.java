@@ -43,7 +43,7 @@ public class SchedulesFragment extends BaseFragment implements SchedulesMvpView 
 	}
 
 	private void createPresenter() {
-		presenter = new SchedulesPresenter(getDatabase());
+		presenter = new SchedulesPresenter(getContext(), getDatabase());
 		presenter.setView(this);
 	}
 
@@ -73,13 +73,13 @@ public class SchedulesFragment extends BaseFragment implements SchedulesMvpView 
 	}
 
 	@Override
-	public void setSelectedSchedule(Schedule schedule) {
-		adapter.setSelectedSchedule(schedule);
+	public void setSelectedScheduleId(long scheduleId) {
+		adapter.setSelectedScheduleId(scheduleId);
 	}
 
 	class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.Holder> {
 		private List<Schedule> scheduleList = Collections.emptyList();
-		private Schedule selectedSchedule;
+		private long selectedScheduleId;
 
 		@Override
 		public Holder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -102,8 +102,8 @@ public class SchedulesFragment extends BaseFragment implements SchedulesMvpView 
 			notifyDataSetChanged();
 		}
 
-		public void setSelectedSchedule(Schedule schedule) {
-			selectedSchedule = schedule;
+		public void setSelectedScheduleId(long id) {
+			selectedScheduleId = id;
 			notifyDataSetChanged();
 		}
 
@@ -121,7 +121,7 @@ public class SchedulesFragment extends BaseFragment implements SchedulesMvpView 
 			public void bind(Schedule schedule) {
 				this.schedule = schedule;
 				textView.setText(schedule.getTitle());
-				itemView.setSelected(schedule == selectedSchedule);
+				itemView.setSelected(schedule.getId() == selectedScheduleId);
 			}
 
 			@OnClick(R.id.root)

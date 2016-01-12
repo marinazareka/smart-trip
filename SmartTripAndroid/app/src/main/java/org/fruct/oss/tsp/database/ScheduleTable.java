@@ -52,6 +52,4 @@ public class ScheduleTable {
 		cv.put(COLUMN_TSP_TYPE, schedule.getTspType().name());
 		return cv;
 	}
-
-
 }
