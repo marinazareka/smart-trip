@@ -2,6 +2,7 @@ package org.fruct.oss.tsp.database;
 
 import com.squareup.sqlbrite.BriteDatabase;
 
+import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.commondatatype.Schedule;
 
 import java.util.List;
@@ -28,5 +29,10 @@ public class BriteDatabaseRepo implements DatabaseRepo {
 		}
 
 		return db.insert(ScheduleTable.TABLE, ScheduleTable.toContentValues(schedule));
+	}
+
+	@Override
+	public void insertPoint(long scheduleId, Point point) {
+		db.insert(PointsTable.TABLE, PointsTable.toContentValues(point, scheduleId));
 	}
 }

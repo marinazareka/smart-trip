@@ -67,6 +67,13 @@ public class SearchPresenter implements Presenter<SearchMvpView> {
 
 	public void onPointAddToCurrentSchedule(Point point) {
 		lastSelectedPoint = point;
+
+		long currentScheduleId = Pref.getCurrentSchedule(pref);
+		if (currentScheduleId != 0) {
+			databaseRepo.insertPoint(currentScheduleId, point);
+		} else {
+			// TODO: notify user or disallow point adding without current schedule
+		}
 	}
 
 	public void onPointAddToNewSchedule(Point point) {
