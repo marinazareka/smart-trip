@@ -4,14 +4,15 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Build;
 
 import org.fruct.oss.tsp.commondatatype.Schedule;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatabaseOpenHelper extends SQLiteOpenHelper implements DatabaseRepo {
+import rx.Observable;
+
+public class DatabaseOpenHelper extends SQLiteOpenHelper {
 	private static final int VERSION = 1;
 
 	public DatabaseOpenHelper(Context context) {
@@ -26,18 +27,17 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper implements DatabaseRepo
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL(PointsTable.getCreateQuery());
-		db.execSQL(ScheduleTable.getCreateQuery());
+		db.execSQL(ScheduleTable.queryCreate());
 		db.execSQL(SchedulePointsTable.getCreateQuery());
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
 	}
 
-	@Override
+	/*@Override
 	@SuppressWarnings("TryFinallyCanBeTryWithResources")
-	public List<Schedule> loadSchedules() {
+	public Observable<List<Schedule>> loadSchedules() {
 		Cursor cursor = getReadableDatabase().query(ScheduleTable.TABLE,
 				ScheduleTable.COLUMN_ALL, null, null, null, null, null, null);
 
@@ -50,5 +50,5 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper implements DatabaseRepo
 		} finally {
 			cursor.close();
 		}
-	}
+	}*/
 }

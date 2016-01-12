@@ -15,3 +15,13 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+-dontwarn org.xmlpull.v1.**
+-dontwarn sun.misc.Unsafe
+-dontwarn org.slf4j.impl.**
+-dontwarn com.caverock.**
+
+-include proguard/proguard-butterknife-7.pro
+-include proguard/proguard-eventbus.pro
+-include proguard/proguard-rx-java.pro
+-include proguard/proguard-facebook-stetho.pro

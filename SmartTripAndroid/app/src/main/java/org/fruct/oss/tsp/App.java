@@ -7,6 +7,10 @@ import android.content.Intent;
 import android.os.Message;
 import android.preference.PreferenceManager;
 
+import com.squareup.sqlbrite.BriteDatabase;
+import com.squareup.sqlbrite.SqlBrite;
+
+import org.fruct.oss.tsp.database.BriteDatabaseRepo;
 import org.fruct.oss.tsp.database.DatabaseOpenHelper;
 import org.fruct.oss.tsp.database.DatabaseRepo;
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
@@ -21,7 +25,11 @@ public class App extends Application {
 
 	private static App instance;
 
+	private SqlBrite sqlbrite;
+
 	private DatabaseOpenHelper databaseOpenHelper;
+	private BriteDatabase briteDatabase;
+	private BriteDatabaseRepo briteDatabaseRepo;
 
 	@Override
 	public void onCreate() {
@@ -63,11 +71,16 @@ public class App extends Application {
 	}
 
 	public DatabaseRepo getDatabase() {
-		return databaseOpenHelper;
+		return briteDatabaseRepo;
 	}
 
 	private void setupDatabase() {
+		sqlbrite = SqlBrite.create();
+
 		databaseOpenHelper = new DatabaseOpenHelper(getApplicationContext());
 		databaseOpenHelper.getWritableDatabase();
+
+		briteDatabase = sqlbrite.wrapDatabaseHelper(databaseOpenHelper);
+		briteDatabaseRepo = new BriteDatabaseRepo(briteDatabase);
 	}
 }

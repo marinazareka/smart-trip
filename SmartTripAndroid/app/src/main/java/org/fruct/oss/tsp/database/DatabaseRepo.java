@@ -4,7 +4,9 @@ import org.fruct.oss.tsp.commondatatype.Schedule;
 
 import java.util.List;
 
+import rx.Observable;
+
 public interface DatabaseRepo {
 	@SuppressWarnings("TryFinallyCanBeTryWithResources")
-	List<Schedule> loadSchedules();
+	Observable<List<Schedule>> loadSchedules();
 }
