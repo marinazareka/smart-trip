@@ -1,10 +1,7 @@
 package org.fruct.oss.tsp;
 
 import android.app.Application;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.os.Message;
 import android.preference.PreferenceManager;
 
 import com.squareup.sqlbrite.BriteDatabase;

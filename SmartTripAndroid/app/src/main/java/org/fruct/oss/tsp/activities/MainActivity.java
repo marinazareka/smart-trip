@@ -17,12 +17,11 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import org.fruct.oss.tsp.LocationTrackingService;
 import org.fruct.oss.tsp.R;
-import org.fruct.oss.tsp.fragments.BaseFragment;
 import org.fruct.oss.tsp.fragments.CommonFragment;
 import org.fruct.oss.tsp.fragments.MapFragment;
 import org.fruct.oss.tsp.fragments.PointListFragment;
 import org.fruct.oss.tsp.fragments.PrefFragment;
-import org.fruct.oss.tsp.fragments.ScheduleListFragment;
+import org.fruct.oss.tsp.fragments.MovementsListFragment;
 import org.fruct.oss.tsp.fragments.SchedulesFragment;
 import org.fruct.oss.tsp.fragments.SearchFragment;
 
@@ -142,9 +141,12 @@ public class MainActivity extends AppCompatActivity {
 								.withIdentifier(R.id.drawer_search)
 								.withName(R.string.nav_search),
 						new PrimaryDrawerItem()
+								.withIdentifier(R.id.drawer_movements)
+								.withName(R.string.nav_movements),
+
+						new PrimaryDrawerItem()
 								.withIdentifier(R.id.drawer_list)
 								.withName(R.string.nav_list),
-
 						new PrimaryDrawerItem()
 								.withIdentifier(R.id.drawer_map)
 								.withName(R.string.nav_map),
@@ -177,6 +179,11 @@ public class MainActivity extends AppCompatActivity {
 			switchSearchFragment();
 			break;
 
+		case R.id.drawer_movements:
+			switchMovementsFragment();
+			break;
+
+
 		case R.id.drawer_list:
 			switchGeoFragment();
 			break;
@@ -193,6 +200,11 @@ public class MainActivity extends AppCompatActivity {
 			finish();
 			break;
 		}
+	}
+
+	private void switchMovementsFragment() {
+		hideTabbar();
+		switchFragment(new MovementsListFragment());
 	}
 
 	private void switchSearchFragment() {
@@ -228,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
 			setupTabbar();
 			tripTab.select();
 		}
-		switchFragment(new ScheduleListFragment());
+		switchFragment(new MovementsListFragment());
 	}
 
 	private void switchFragment(Fragment fragment) {

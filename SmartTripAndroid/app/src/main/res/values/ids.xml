@@ -2,6 +2,7 @@
 <resources>
     <item name="drawer_schedules" type="id" />
     <item name="drawer_search" type="id" />
+    <item name="drawer_movements" type="id" />
 
     <item name="drawer_list" type="id" />
     <item name="drawer_map" type="id" />

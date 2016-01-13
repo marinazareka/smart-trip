@@ -22,7 +22,7 @@ import de.greenrobot.event.EventBus;
  *
  * Фрагмент подписывает на изменение хранилища маршрута и обновляет список при получении обновлений данных.
  */
-public class ScheduleListFragment extends BaseFragment {
+public class MovementsListFragment extends BaseFragment {
 	@Bind(R.id.recycler_view)
 	RecyclerView recyclerView;
 
@@ -60,7 +60,6 @@ public class ScheduleListFragment extends BaseFragment {
 
 		recyclerView.setAdapter(adapter = new PointsAdapter());
 	}
-
 
 	class PointsAdapter extends RecyclerView.Adapter<PointsAdapter.Holder> {
 		@Override
