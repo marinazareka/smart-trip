@@ -85,7 +85,7 @@ public class TestSmartSpaceNative implements SmartSpaceNative {
 					movements.add(new Movement(points[i - 1], points[i]));
 				}
 
-				if (tspType.equals("CLOSED")) {
+				if (tspType.equalsIgnoreCase("CLOSED")) {
 					movements.add(new Movement(points[points.length - 1],
 							new Point("user", "Untitled", lat, lon)));
 				}

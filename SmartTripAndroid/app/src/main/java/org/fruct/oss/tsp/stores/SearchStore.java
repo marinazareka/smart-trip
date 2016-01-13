@@ -30,7 +30,7 @@ public class SearchStore implements Store {
 	@Override
 	public void start() {
 		EventBus.getDefault().register(this);
-		pointsSubject.onNext(Collections.<Point>emptyList());
+		clear();
 	}
 
 	@Override
@@ -45,5 +45,9 @@ public class SearchStore implements Store {
 	public void onEvent(SearchEvent searchEvent) {
 		log.debug("Search store updated");
 		pointsSubject.onNext(searchEvent.getPoints());
+	}
+
+	public void clear() {
+		pointsSubject.onNext(Collections.<Point>emptyList());
 	}
 }

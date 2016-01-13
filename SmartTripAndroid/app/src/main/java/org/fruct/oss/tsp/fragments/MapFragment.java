@@ -30,6 +30,9 @@ import java.util.Collections;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 
 public class MapFragment extends BaseFragment {
 	private MapView mapView;
@@ -38,35 +41,33 @@ public class MapFragment extends BaseFragment {
 	private TileDownloadLayer layer;
 	private PointsLayer pointsLayer;
 	private Polyline pathLayer;
+	private Subscription movementsSubscribe;
 
-	private DefaultGeoViewModel geoViewModel;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		geoViewModel = new DefaultGeoViewModel(getActivity(), getGeoStore());
-
 		setHasOptionsMenu(true);
 	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.point_list_fragment, menu);
+		inflater.inflate(R.menu.map, menu);
 	}
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
-		menu.findItem(R.id.action_search).setVisible(false);
+		//menu.findItem(R.id.action_search).setVisible(false);
 		//menu.findItem(R.id.action_schedule).setVisible(geoViewModel.isAnythingChecked());
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.action_schedule:
-			scheduleSelection(geoViewModel);
+		case R.id.action_clear_search:
+			getSearchStore().clear();
 			break;
 
 		default:
@@ -110,7 +111,8 @@ public class MapFragment extends BaseFragment {
 				OpenStreetMapMapnik.INSTANCE,
 				AndroidGraphicFactory.INSTANCE);
 
-		pointsLayer = new PointsLayer(getContext(), geoViewModel);
+		pointsLayer = new PointsLayer(getContext(), getDatabase(), getSearchStore());
+
 		pathLayer = new Polyline(Utils.createPaint(
 				AndroidGraphicFactory.INSTANCE.createColor(200, 100, 100, 255), Utils.getDP(4), Style.STROKE),
 				AndroidGraphicFactory.INSTANCE);
@@ -118,38 +120,34 @@ public class MapFragment extends BaseFragment {
 		mapView.getLayerManager().getLayers().add(layer);
 		mapView.getLayerManager().getLayers().add(pointsLayer);
 		mapView.getLayerManager().getLayers().add(pathLayer);
-
-		updatePath();
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
 
-		EventBus.getDefault().register(this);
+		movementsSubscribe = getScheduleStore().getObservable()
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(new Action1<List<Movement>>() {
+					@Override
+					public void call(List<Movement> movements) {
+						updatePath(movements);
+					}
+				});
 
 		this.layer.onResume();
-		this.geoViewModel.start();
 	}
 
 	@Override
 	public void onPause() {
 		this.layer.onPause();
-		this.geoViewModel.stop();
 
-		EventBus.getDefault().unregister(this);
+		movementsSubscribe.unsubscribe();
 
 		super.onPause();
 	}
 
-	public void onEventMainThread(ScheduleStoreChangedEvent event) {
-		updatePath();
-	}
-
-	private void updatePath() {
-		//List<Movement> movements = getScheduleStore().getCurrentSchedule();
-		List<Movement> movements = Collections.emptyList();
-
+	private void updatePath(List<Movement> movements) {
 		List<LatLong> pathLatLong = new ArrayList<>(movements.size());
 
 		if (movements.size() > 0) {
