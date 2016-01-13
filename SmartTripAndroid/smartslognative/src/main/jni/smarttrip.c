@@ -322,6 +322,11 @@ void st_post_search_request(double radius, const char *pattern) {
 }
 
 void st_post_schedule_request(struct Point* points, int points_count, const char* tsp_type) {
+    if (points_count == 0) {
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "No points in schedule request");
+        return;
+    }
+
     if (route_individual != NULL) {
         // Удаляем все текущие параметры запроса (hasPoint)
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Updating existing schedule and route");
@@ -337,7 +342,8 @@ void st_post_schedule_request(struct Point* points, int points_count, const char
 
         sslog_node_insert_individual(node, route_individual);
         sslog_node_insert_individual(node, schedule_individual);
-        int res = sslog_node_insert_property(node, user_individual, PROPERTY_PROVIDE, schedule_individual);
+        int res = sslog_node_insert_property(node, user_individual, PROPERTY_PROVIDE,
+                                             schedule_individual);
 
         if (res != SSLOG_ERROR_NO) {
             __android_log_print(ANDROID_LOG_ERROR, APPNAME,
@@ -353,13 +359,15 @@ void st_post_schedule_request(struct Point* points, int points_count, const char
     // TODO: добавлять точки в одну транзакцию
     // TODO: удалять старые точки или придумать какой-нибудь GarbageCollectorKP
     for (int i = 0; i < points_count; i++) {
-        sslog_individual_t* point_individual = create_poi_individual(node, points[i].lat, points[i].lon,
+        sslog_individual_t* point_individual = create_poi_individual(node, points[i].lat,
+                                                                     points[i].lon,
                                                                      points[i].title, "nocategory");
         sslog_node_insert_property(node, route_individual, PROPERTY_HASPOINT, point_individual);
     }
 
     sslog_node_update_property(node, route_individual, PROPERTY_TSPTYPE, NULL, (void*) tsp_type);
-    sslog_node_update_property(node, route_individual, PROPERTY_UPDATED, NULL, rand_uuid("updated"));
+    sslog_node_update_property(node, route_individual, PROPERTY_UPDATED, NULL,
+                               rand_uuid("updated"));
 }
 
 
