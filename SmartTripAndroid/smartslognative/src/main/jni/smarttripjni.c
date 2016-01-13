@@ -70,7 +70,7 @@ JNI_OnLoad(JavaVM *vm, void *reserved) {
     class_movement = (*env)->FindClass(env, "org/fruct/oss/tsp/commondatatype/Movement");
     class_movement = (*env)->NewWeakGlobalRef(env, class_movement);
 
-    class_listener = (*env)->FindClass(env, "org/fruct/oss/tsp/smartslognative/SmartSpaceNative$Listener");
+    class_listener = (*env)->FindClass(env, "org/fruct/oss/tsp/commondatatype/SmartSpaceNative$Listener");
     class_listener = (*env)->NewGlobalRef(env, class_listener);
 
     constructor_movement = (*env)->GetMethodID(env, class_movement, "<init>",
