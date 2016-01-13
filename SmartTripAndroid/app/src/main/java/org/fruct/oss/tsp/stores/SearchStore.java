@@ -2,6 +2,7 @@ package org.fruct.oss.tsp.stores;
 
 import android.support.annotation.NonNull;
 
+import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.events.GeoStoreChangedEvent;
 import org.fruct.oss.tsp.events.SearchEvent;
@@ -13,6 +14,8 @@ import java.util.Collections;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
+import rx.Observable;
+import rx.subjects.BehaviorSubject;
 
 /**
  * Локальное хранилище данных о загруженных географических объектах.
@@ -22,11 +25,12 @@ import de.greenrobot.event.EventBus;
 public class SearchStore implements Store {
 	private static final Logger log = LoggerFactory.getLogger(SearchStore.class);
 
-	private List<Point> points = Collections.emptyList();
+	private BehaviorSubject<List<Point>> pointsSubject = BehaviorSubject.create();
 
 	@Override
 	public void start() {
 		EventBus.getDefault().register(this);
+		pointsSubject.onNext(Collections.<Point>emptyList());
 	}
 
 	@Override
@@ -34,18 +38,12 @@ public class SearchStore implements Store {
 		EventBus.getDefault().unregister(this);
 	}
 
-	/**
-	 * Получить текущие объекты.
-	 * @return список текущих объектов. Может быть немодифицируемым.
-	 */
-	@NonNull
-	public List<Point> getPoints() {
-		return Collections.unmodifiableList(points);
+	public Observable<List<Point>> getObservable() {
+		return pointsSubject;
 	}
 
-	public void onEventMainThread(SearchEvent searchEvent) {
+	public void onEvent(SearchEvent searchEvent) {
 		log.debug("Search store updated");
-		points = searchEvent.getPoints();
-		EventBus.getDefault().post(new SearchStoreChangedEvent());
+		pointsSubject.onNext(searchEvent.getPoints());
 	}
 }

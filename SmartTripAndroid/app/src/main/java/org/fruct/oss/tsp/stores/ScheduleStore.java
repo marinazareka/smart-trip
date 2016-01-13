@@ -12,6 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
+import rx.Observable;
+import rx.Subscriber;
+import rx.functions.Action0;
+import rx.subjects.BehaviorSubject;
+import rx.subjects.Subject;
+import rx.subscriptions.Subscriptions;
 
 /**
  * Локальное хранилище данных о маршруте.
@@ -19,9 +25,7 @@ import de.greenrobot.event.EventBus;
  * Подписывается на событие обновления и обновляет свое состояние при получении события.
  */
 public class ScheduleStore implements Store {
-	private static final Logger log = LoggerFactory.getLogger(ScheduleStore.class);
-
-	private List<Movement> currentSchedule = new ArrayList<>();
+	private BehaviorSubject<List<Movement>> movementsSubject = BehaviorSubject.create();
 
 	@Override
 	public void start() {
@@ -33,19 +37,12 @@ public class ScheduleStore implements Store {
 		EventBus.getDefault().unregister(this);
 	}
 
-	public void onEventMainThread(ScheduleEvent event) {
-		currentSchedule.clear();
-		currentSchedule.addAll(event.getMovements());
-
-		log.debug("Schedule store updated");
-		EventBus.getDefault().post(new ScheduleStoreChangedEvent());
+	public void onEvent(ScheduleEvent event) {
+		movementsSubject.onNext(event.getMovements());
 	}
 
-	/**
-	 * Получить текущие отрезки маршрута.
-	 * @return список текущих отрезков маршрута. Может быть немодифицируемым.
-	 */
-	public List<Movement> getCurrentSchedule() {
-		return currentSchedule;
+	public Observable<List<Movement>> getObservable() {
+		return movementsSubject;
 	}
+
 }

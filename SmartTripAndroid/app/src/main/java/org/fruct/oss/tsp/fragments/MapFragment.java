@@ -26,6 +26,7 @@ import org.mapsforge.map.layer.download.tilesource.OpenStreetMapMapnik;
 import org.mapsforge.map.layer.overlay.Polyline;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
@@ -146,7 +147,8 @@ public class MapFragment extends BaseFragment {
 	}
 
 	private void updatePath() {
-		List<Movement> movements = getScheduleStore().getCurrentSchedule();
+		//List<Movement> movements = getScheduleStore().getCurrentSchedule();
+		List<Movement> movements = Collections.emptyList();
 
 		List<LatLong> pathLatLong = new ArrayList<>(movements.size());
 

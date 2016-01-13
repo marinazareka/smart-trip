@@ -12,10 +12,18 @@ import android.widget.TextView;
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.events.ScheduleStoreChangedEvent;
+import org.fruct.oss.tsp.stores.ScheduleStore;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
+import rx.Observer;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 
 /**
  * Пользовательский интерфейс для маршрута.
@@ -27,6 +35,7 @@ public class MovementsListFragment extends BaseFragment {
 	RecyclerView recyclerView;
 
 	private PointsAdapter adapter;
+	private Subscription subscribe;
 
 	@Nullable
 	@Override
@@ -40,17 +49,15 @@ public class MovementsListFragment extends BaseFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-		EventBus.getDefault().register(this);
+		this.subscribe = getScheduleStore().getObservable()
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(adapter.OBSERVER);
 	}
 
 	@Override
 	public void onPause() {
-		EventBus.getDefault().unregister(this);
+		subscribe.unsubscribe();
 		super.onPause();
-	}
-
-	public void onEventMainThread(ScheduleStoreChangedEvent event) {
-		adapter.notifyDataSetChanged();
 	}
 
 	private void setupRecyclerView() {
@@ -62,6 +69,16 @@ public class MovementsListFragment extends BaseFragment {
 	}
 
 	class PointsAdapter extends RecyclerView.Adapter<PointsAdapter.Holder> {
+		private List<Movement> movements = new ArrayList<>();
+
+		public final Action1<? super List<Movement>> OBSERVER = new Action1<List<Movement>>() {
+			@Override
+			public void call(List<Movement> movements) {
+				PointsAdapter.this.movements = movements;
+				notifyDataSetChanged();
+			}
+		};
+
 		@Override
 		public PointsAdapter.Holder onCreateViewHolder(ViewGroup parent, int viewType) {
 			return new Holder(LayoutInflater.from(parent.getContext())
@@ -70,12 +87,12 @@ public class MovementsListFragment extends BaseFragment {
 
 		@Override
 		public void onBindViewHolder(PointsAdapter.Holder holder, int position) {
-			holder.bind(getScheduleStore().getCurrentSchedule().get(position));
+			holder.bind(movements.get(position));
 		}
 
 		@Override
 		public int getItemCount() {
-			return getScheduleStore().getCurrentSchedule().size();
+			return movements.size();
 		}
 
 		class Holder extends RecyclerView.ViewHolder {

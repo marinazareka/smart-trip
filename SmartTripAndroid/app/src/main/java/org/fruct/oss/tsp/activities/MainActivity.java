@@ -143,10 +143,6 @@ public class MainActivity extends AppCompatActivity {
 						new PrimaryDrawerItem()
 								.withIdentifier(R.id.drawer_movements)
 								.withName(R.string.nav_movements),
-
-						new PrimaryDrawerItem()
-								.withIdentifier(R.id.drawer_list)
-								.withName(R.string.nav_list),
 						new PrimaryDrawerItem()
 								.withIdentifier(R.id.drawer_map)
 								.withName(R.string.nav_map),

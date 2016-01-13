@@ -20,6 +20,9 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 
 public class SearchPresenter implements Presenter<SearchMvpView> {
 	private static final Logger log = LoggerFactory.getLogger(SearchPresenter.class);
@@ -31,6 +34,7 @@ public class SearchPresenter implements Presenter<SearchMvpView> {
 
 	private SearchMvpView view;
 	private Point lastSelectedPoint;
+	private Subscription foundPointsSubscription;
 
 	public SearchPresenter(Context context, SearchStore searchStore,
 						   SmartSpace smartspace, DatabaseRepo databaseRepo) {
@@ -48,21 +52,21 @@ public class SearchPresenter implements Presenter<SearchMvpView> {
 
 	@Override
 	public void start() {
-		EventBus.getDefault().register(this);
-		List<Point> points = searchStore.getPoints();
-		view.setEmptyMode(points.isEmpty());
-		view.setPointList(points);
+		foundPointsSubscription = searchStore.getObservable()
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(new Action1<List<Point>>() {
+					@Override
+					public void call(List<Point> points) {
+						view.setEmptyMode(points.isEmpty());
+						view.setPointList(points);
+						view.dismissSearchWaiter();
+					}
+				});
 	}
 
 	@Override
 	public void stop() {
-		EventBus.getDefault().unregister(this);
-	}
-
-	public void onEventMainThread(SearchStoreChangedEvent event) {
-		view.setEmptyMode(false);
-		view.setPointList(searchStore.getPoints());
-		view.dismissSearchWaiter();
+		foundPointsSubscription.unsubscribe();
 	}
 
 	public void onSearchAction() {

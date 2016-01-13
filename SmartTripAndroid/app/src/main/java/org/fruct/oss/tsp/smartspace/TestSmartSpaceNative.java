@@ -72,20 +72,28 @@ public class TestSmartSpaceNative implements SmartSpaceNative {
 	}
 
 	@Override
-	public void postScheduleRequest(final Point[] points, String tspType) {
+	public void postScheduleRequest(final Point[] points, final String tspType) {
 		log.debug("postScheduleRequest() called with: " + "points = [" + points + "]");
 
 		handler.postDelayed(new Runnable() {
 			@Override
 			public void run() {
 				List<Movement> movements = new ArrayList<>();
+				movements.add(new Movement(new Point("user", "Untitled", lat, lon), points[0]));
+
 				for (int i = 1; i < points.length; i++) {
 					movements.add(new Movement(points[i - 1], points[i]));
+				}
+
+				if (tspType.equals("CLOSED")) {
+					movements.add(new Movement(points[points.length - 1],
+							new Point("user", "Untitled", lat, lon)));
 				}
 
 				if (listener != null) {
 					listener.onScheduleRequestReady(movements.toArray(new Movement[movements.size()]));
 				}
+
 
 				//NativeTest.divide(5, movements.size() - 1);
 			}
