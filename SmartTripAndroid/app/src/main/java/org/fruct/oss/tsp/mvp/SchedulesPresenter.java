@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import org.fruct.oss.tsp.commondatatype.Schedule;
+import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.database.DatabaseRepo;
 import org.fruct.oss.tsp.util.Pref;
 import org.slf4j.Logger;
@@ -58,13 +59,25 @@ public class SchedulesPresenter implements Presenter<SchedulesMvpView> {
 		subscription.unsubscribe();
 	}
 
-	public void onScheduleClicked(Schedule schedule) {
+	private void updateCurrentSchedule() {
+		view.setSelectedScheduleId(Pref.getCurrentSchedule(pref));
+	}
+
+	public void onActivateSchedule(Schedule schedule) {
 		Pref.setCurrentSchedule(pref, schedule.getId());
 		databaseRepo.setCurrentSchedule(schedule.getId());
 		updateCurrentSchedule();
 	}
 
-	private void updateCurrentSchedule() {
-		view.setSelectedScheduleId(Pref.getCurrentSchedule(pref));
+	public void onEditSchedule(Schedule schedule) {
+		view.displayEditDialog(schedule.getTitle(), schedule.getTspType());
+	}
+
+	public void onDeleteSchedule(Schedule schedule) {
+
+	}
+
+	public void onScheduleEdited(String title, TspType tspType) {
+
 	}
 }

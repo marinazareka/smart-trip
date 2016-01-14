@@ -33,4 +33,7 @@
     <string name="hint_title">Title</string>
     <string name="title_new_schedule">New schedule</string>
     <string name="action_clear_search">Clear search</string>
+    <string name="action_activate_schedule">Activate</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_delete">Delete</string>
 </resources>

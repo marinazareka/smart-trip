@@ -4,14 +4,20 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Schedule;
+import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.mvp.SchedulesMvpView;
 import org.fruct.oss.tsp.mvp.SchedulesPresenter;
+import org.fruct.oss.tsp.util.EditScheduleDialog;
 
 import java.util.Collections;
 import java.util.List;
@@ -77,6 +83,19 @@ public class SchedulesFragment extends BaseFragment implements SchedulesMvpView 
 		adapter.setSelectedScheduleId(scheduleId);
 	}
 
+	@Override
+	public void displayEditDialog(String title, TspType tspType) {
+		MaterialDialog dialog = EditScheduleDialog.create(getContext(), title, tspType,
+				new EditScheduleDialog.Listener() {
+					@Override
+					public void onScheduleDialogFinished(String title, TspType tspType) {
+						presenter.onScheduleEdited(title, tspType);
+					}
+				});
+		dialog.show();
+
+	}
+
 	class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.Holder> {
 		private List<Schedule> scheduleList = Collections.emptyList();
 		private long selectedScheduleId;
@@ -126,9 +145,41 @@ public class SchedulesFragment extends BaseFragment implements SchedulesMvpView 
 
 			@OnClick(R.id.root)
 			void onItemClicked() {
-				presenter.onScheduleClicked(schedule);
+				PopupMenu popupMenu = new PopupMenu(getContext(), textView);
+				popupMenu.inflate(R.menu.schedule);
+				popupMenu.setOnMenuItemClickListener(new ScheduleMenuListener(schedule));
+				popupMenu.show();
 			}
 		}
 	}
 
+	private class ScheduleMenuListener implements PopupMenu.OnMenuItemClickListener {
+		private final Schedule schedule;
+
+		public ScheduleMenuListener(Schedule schedule) {
+			this.schedule = schedule;
+		}
+
+		@Override
+		public boolean onMenuItemClick(MenuItem item) {
+			switch (item.getItemId()) {
+			case R.id.action_activate_schedule:
+				presenter.onActivateSchedule(schedule);
+				break;
+
+			case R.id.action_edit:
+				presenter.onEditSchedule(schedule);
+				break;
+
+			case R.id.action_delete:
+				presenter.onDeleteSchedule(schedule);
+				break;
+
+			default:
+				return false;
+			}
+
+			return true;
+		}
+	}
 }

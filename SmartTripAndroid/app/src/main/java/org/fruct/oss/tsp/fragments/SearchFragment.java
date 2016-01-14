@@ -26,6 +26,7 @@ import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.mvp.SearchMvpView;
 import org.fruct.oss.tsp.mvp.SearchPresenter;
+import org.fruct.oss.tsp.util.EditScheduleDialog;
 
 import java.util.Collections;
 import java.util.List;
@@ -174,43 +175,13 @@ public class SearchFragment extends BaseFragment implements SearchMvpView {
 
 	@Override
 	public void displayNewScheduleDialog() {
-		final MaterialDialog dialog = new MaterialDialog.Builder(getContext())
-				.title(R.string.title_new_schedule)
-				.positiveText(android.R.string.ok)
-				.negativeText(android.R.string.cancel)
-				.customView(R.layout.dialog_new_schedule, false)
-				.onNegative(new MaterialDialog.SingleButtonCallback() {
-					@Override
-					public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction dialogAction) {
-						dialog.dismiss();
-					}
-				})
-				.onPositive(new MaterialDialog.SingleButtonCallback() {
-					@Override
-					public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction dialogAction) {
-						Spinner spinner = ButterKnife.findById(dialog, R.id.tsp_type_spinner);
-						EditText editText = ButterKnife.findById(dialog, R.id.title_edit_text);
-
-						String title = editText.getText().toString();
-						TspType tspType = spinner.getSelectedItemPosition() == 0
-								? TspType.OPEN : TspType.CLOSED;
-
-						if (!TextUtils.isEmpty(title)) {
-							presenter.onNewScheduleDialogFinished(title, tspType);
-							dialog.dismiss();
-						}
-					}
-				})
-				.autoDismiss(false)
-				.build();
-
-		// Setup tsp type spinner
-		Spinner spinner = ButterKnife.findById(dialog, R.id.tsp_type_spinner);
-		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
-				R.array.tsp_types_array, android.R.layout.simple_spinner_item);
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		spinner.setAdapter(adapter);
-
+		MaterialDialog dialog = EditScheduleDialog.create(getContext(), null, null,
+				new EditScheduleDialog.Listener() {
+			@Override
+			public void onScheduleDialogFinished(String title, TspType tspType) {
+				presenter.onNewScheduleDialogFinished(title, tspType);
+			}
+		});
 		dialog.show();
 	}
 
