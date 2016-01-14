@@ -16,6 +16,8 @@
 #   public *;
 #}
 
+-dontobfuscate
+
 -dontwarn org.xmlpull.v1.**
 -dontwarn sun.misc.Unsafe
 -dontwarn org.slf4j.impl.**

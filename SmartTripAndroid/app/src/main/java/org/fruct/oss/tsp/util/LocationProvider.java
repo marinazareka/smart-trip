@@ -49,7 +49,7 @@ public class LocationProvider {
 			subscriber.add(Subscriptions.create(new Action0() {
 				@Override
 				public void call() {
-					if (apiClient.isConnected() && apiClient.isConnecting()) {
+					if (apiClient.isConnected() || apiClient.isConnecting()) {
 						apiClient.disconnect();
 					}
 				}
