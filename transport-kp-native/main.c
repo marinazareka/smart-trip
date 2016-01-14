@@ -107,18 +107,19 @@ static RequestData* process_request(sslog_individual_t* route) {
 static void handle_updated_request(sslog_individual_t* user, sslog_individual_t* schedule, sslog_individual_t* route) {
     sslog_individual_t* location = (sslog_individual_t*) sslog_node_get_property(node, user, PROPERTY_HASLOCATION);
 
-    sslog_node_populate(node, route);
     sslog_node_populate(node, location);
+    sslog_node_populate(node, route);
 
     list_t* points = sslog_get_properties(route, PROPERTY_HASPOINT);
-    
-    if (points == NULL) {
+    int count;
+
+    // TODO: free list if not null
+    if (points == NULL || (count = list_count(points)) == 0) {
         fprintf(stderr, "Route received but has no points\n");
         return;
     }
 
     RequestData* request_data = malloc(sizeof(RequestData));
-    int count = list_count(points);
 
     double* points_array = malloc(count * 2 * sizeof(double));
     sslog_individual_t** point_individuals = malloc(count * sizeof(sslog_individual_t*));
@@ -270,8 +271,8 @@ bool subscribe() {
             SSLOG_TRIPLE_ANY, SSLOG_RDF_TYPE_URI, SS_RDF_TYPE_LIT);
     sslog_sbcr_add_triple_template(sub, updated_triple);
 
-    sslog_triple_t* location_triple = sslog_new_triple_detached(SSLOG_TRIPLE_ANY, sslog_entity_get_uri(PROPERTY_HASLOCATION),
-            SSLOG_TRIPLE_ANY, SSLOG_RDF_TYPE_URI, SSLOG_RDF_TYPE_URI);
+    //sslog_triple_t* location_triple = sslog_new_triple_detached(SSLOG_TRIPLE_ANY, sslog_entity_get_uri(PROPERTY_HASLOCATION),
+    //        SSLOG_TRIPLE_ANY, SSLOG_RDF_TYPE_URI, SSLOG_RDF_TYPE_URI);
 //    sslog_sbcr_add_triple_template(sub, location_triple);
 
     ptr_array_init(&requests_array);
@@ -318,11 +319,19 @@ RequestData* wait_subscription() {
     return request_data;
 }
 
+static void clear_current_results(sslog_individual_t* route_individual) {
+    // TODO: remove old movements
+    sslog_node_remove_property(node, route_individual, PROPERTY_HASMOVEMENT, NULL);
+    sslog_node_remove_property(node, route_individual, PROPERTY_HASSTARTMOVEMENT, NULL);
+}
+
 void publish(int points_count, int* ids, const char* roadType, RequestData* request_data) {
     pthread_mutex_lock(&requests_mutex);
     int movements_count = points_count - 1;
 
     sslog_individual_t* route_individual = request_data->route;
+
+    clear_current_results(route_individual);
 
     sslog_individual_t* point_individuals[points_count];
     sslog_individual_t* movement_individuals[movements_count];
@@ -373,4 +382,8 @@ void publish(int points_count, int* ids, const char* roadType, RequestData* requ
     free(request_data->user_id);
     free(request_data->tsp_type);
     free(request_data);
+    
+    // Clean local stored points
+    // This is required, because populate doesn't remove local points, that was removed in sib
+    sslog_remove_properties(route_individual, PROPERTY_HASPOINT);
 }

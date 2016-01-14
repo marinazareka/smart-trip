@@ -76,6 +76,7 @@ static void schedule_subscription_handler(sslog_subscription_t* sub) {
         st_init_point(&movement_array[i].point_b, point_b->entity.uri, title, lat, lon);
     }
 
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%d movements found", movement_count);
     st_on_schedule_request_ready(movement_array, movement_count);
 
     ptr_array_free(&ptr_array);
@@ -331,7 +332,12 @@ void st_post_schedule_request(struct Point* points, int points_count, const char
         // Удаляем все текущие параметры запроса (hasPoint)
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Updating existing schedule and route");
 
-        sslog_node_remove_property(node, route_individual, PROPERTY_HASPOINT, NULL);
+        int res = sslog_node_remove_property(node, route_individual, PROPERTY_HASPOINT, NULL);
+        if (res != SSLOG_ERROR_NO) {
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME,
+                                "Can't remove existing points from schedule request %s",
+                                sslog_error_get_last_text());
+        }
     } else {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating new schedule and route");
 
@@ -358,6 +364,8 @@ void st_post_schedule_request(struct Point* points, int points_count, const char
 
     // TODO: добавлять точки в одну транзакцию
     // TODO: удалять старые точки или придумать какой-нибудь GarbageCollectorKP
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Inserting %d points", points_count);
+
     for (int i = 0; i < points_count; i++) {
         sslog_individual_t* point_individual = create_poi_individual(node, points[i].lat,
                                                                      points[i].lon,

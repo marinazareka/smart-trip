@@ -46,7 +46,7 @@ public class TransportKP {
 			return true;
 		}
 
-		log.info("Received request {}", request.getTag());
+		log.info("Received request {} with {} points", request.getTag(), request.getPoints().length);
 
 		Point[] points = processRequest(request);
 
