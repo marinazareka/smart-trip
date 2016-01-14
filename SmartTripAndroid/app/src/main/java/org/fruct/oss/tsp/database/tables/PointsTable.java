@@ -36,7 +36,7 @@ public class PointsTable {
 						"%s REAL NOT NULL," +
 						"%s INTEGER NOT NULL," +
 
-						"FOREIGN KEY (%s) REFERENCES %s (%s)" +
+						"FOREIGN KEY (%s) REFERENCES %s (%s) ON DELETE CASCADE" +
 						");",
 				TABLE, COLUMN_ID, COLUMN_REMOTE_ID, COLUMN_TITLE, COLUMN_LAT, COLUMN_LON, COLUMN_SCHEDULE_ID,
 				COLUMN_SCHEDULE_ID, ScheduleTable.TABLE, ScheduleTable.COLUMN_ID );

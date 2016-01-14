@@ -18,4 +18,6 @@ public interface DatabaseRepo {
 	void setCurrentSchedule(long scheduleId);
 
 	void updateSchedule(long scheduleId, Schedule newSchedule);
+
+	void deleteSchedule(long scheduleId);
 }

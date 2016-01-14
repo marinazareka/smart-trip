@@ -21,7 +21,7 @@ public class CurrentScheduleTable {
 	public static String getInitializeQuery() {
 		return String.format(Locale.US,
 				"INSERT INTO %s VALUES (%s);",
-				TABLE, 0);
+				TABLE, "null");
 	}
 
 }

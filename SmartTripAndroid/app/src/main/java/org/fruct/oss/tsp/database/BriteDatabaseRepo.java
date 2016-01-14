@@ -74,4 +74,18 @@ public class BriteDatabaseRepo implements DatabaseRepo {
 		ContentValues cv = ScheduleTable.toContentValues(newSchedule);
 		db.update(ScheduleTable.TABLE, cv, "_id = ?", String.valueOf(scheduleId));
 	}
+
+	@Override
+	public void deleteSchedule(long scheduleId) {
+		BriteDatabase.Transaction transaction = db.newTransaction();
+		try {
+			ContentValues cv = new ContentValues(1);
+			cv.putNull(CurrentScheduleTable.COLUMN_SCHEDULE_ID);
+			db.update(CurrentScheduleTable.TABLE, cv, "scheduleId = ?", String.valueOf(scheduleId));
+			db.delete(ScheduleTable.TABLE, "_id = ?", String.valueOf(scheduleId));
+			transaction.markSuccessful();
+		} finally {
+			transaction.end();
+		}
+	}
 }
