@@ -642,6 +642,16 @@
     
 
 
+    <!-- http://oss.fruct.org/etourism#searchPattern -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#searchPattern">
+        <rdfs:comment>Шаблон поиска</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#SearchRequest"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://oss.fruct.org/etourism#start -->
 
     <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#start">
