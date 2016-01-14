@@ -98,7 +98,6 @@ static void search_subscription_handler(sslog_subscription_t* sub) {
 
     if (points_number == 0) {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Empty search response");
-        return;
     }
 
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Request with %d points", points_number);
@@ -300,6 +299,7 @@ void st_post_search_request(double radius, const char *pattern) {
                                                                     rand_uuid("search_request"));
     sslog_insert_property(request_individual_l, PROPERTY_USELOCATION, location_individual);
     sslog_insert_property(request_individual_l, PROPERTY_INREGION, region_individual);
+    sslog_insert_property(request_individual_l, PROPERTY_SEARCHPATTERN, pattern);
 
     sslog_node_insert_individual(node, request_individual_l);
     request_individual = request_individual_l;
@@ -381,5 +381,3 @@ void st_post_schedule_request(struct Point* points, int points_count, const char
     sslog_node_update_property(node, route_individual, PROPERTY_UPDATED, NULL,
                                rand_uuid("updated"));
 }
-
-

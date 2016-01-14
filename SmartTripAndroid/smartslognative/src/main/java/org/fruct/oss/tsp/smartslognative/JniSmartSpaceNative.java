@@ -11,20 +11,20 @@ public class JniSmartSpaceNative implements SmartSpaceNative {
 	}
 
 	@Override
-	public native void initialize(String userId, String kpName, String smartSpaceName, String address, int port) throws IOException;
+	public synchronized native void initialize(String userId, String kpName, String smartSpaceName, String address, int port) throws IOException;
 
 	@Override
-	public native void shutdown();
+	public synchronized native void shutdown();
 
 	@Override
-	public native void updateUserLocation(double lat, double lon);
+	public synchronized native void updateUserLocation(double lat, double lon);
 
 	@Override
-	public native void postSearchRequest(double radius, String pattern);
+	public synchronized native void postSearchRequest(double radius, String pattern);
 
 	@Override
-	public native void postScheduleRequest(Point[] points, String tspType);
+	public synchronized native void postScheduleRequest(Point[] points, String tspType);
 
 	@Override
-	public native void setListener(Listener listener);
+	public synchronized native void setListener(Listener listener);
 }

@@ -25,11 +25,12 @@ static void publish_point(sslog_node_t* node, sslog_individual_t* request_indivi
     sslog_node_insert_property(node, request_individual, PROPERTY_HASPOINT, point_individual);
 }
 
-static void find_and_publish_points(sslog_node_t* node, sslog_individual_t* request_individual, double lat, double lon, double radius) {
+static void find_and_publish_points(sslog_node_t* node, sslog_individual_t* request_individual, 
+        double lat, double lon, double radius, const char* pattern) {
     struct Point* points = NULL;
     int count = 0;
 
-    point_loader.load_points(lat, lon, radius, &points, &count);
+    point_loader.load_points(lat, lon, radius, pattern,  &points, &count);
 
     for (int i = 0; i < count; i++) {
         publish_point(node, request_individual, &points[i]);
@@ -68,9 +69,10 @@ static void process_inserted_request(sslog_node_t* node, const char* request_uui
     double lat = parse_double(sslog_get_property(location_individual, PROPERTY_LAT));
     double lon = parse_double(sslog_get_property(location_individual, PROPERTY_LONG));
     double radius = parse_double(sslog_node_get_property(node, region_individual, PROPERTY_RADIUS));
+    const char* pattern = sslog_node_get_property(node, request_individual, PROPERTY_SEARCHPATTERN);
 
     printf("User location: %lf %lf. Search radius: %lf\n", lat, lon, radius);
-    find_and_publish_points(node, request_individual, lat, lon, radius);
+    find_and_publish_points(node, request_individual, lat, lon, radius, pattern);
 }
 
 static void process_subscription_request(sslog_node_t* node, sslog_subscription_t* subscription) {

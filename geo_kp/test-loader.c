@@ -23,7 +23,7 @@ static double TEST_POINTS[] = {
     61.78779439737812,34.37544822692871
 };
 
-static void test_load_points(double lat, double lon, double radius, struct Point** out_points, int* out_point_count) {
+static void test_load_points(double lat, double lon, double radius, const char* pattern, struct Point** out_points, int* out_point_count) {
     int count = (sizeof(TEST_POINTS) / sizeof(double)) / 2;
     struct Point* points = malloc(count * sizeof(struct Point));
 
