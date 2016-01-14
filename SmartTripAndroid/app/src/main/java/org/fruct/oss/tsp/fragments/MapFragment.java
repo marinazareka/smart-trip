@@ -13,6 +13,7 @@ import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.events.ScheduleStoreChangedEvent;
 import org.fruct.oss.tsp.layers.PointsLayer;
+import org.fruct.oss.tsp.layers.UserLayer;
 import org.fruct.oss.tsp.util.Utils;
 import org.fruct.oss.tsp.viewmodel.DefaultGeoViewModel;
 import org.mapsforge.core.graphics.Style;
@@ -41,6 +42,8 @@ public class MapFragment extends BaseFragment {
 	private TileDownloadLayer layer;
 	private PointsLayer pointsLayer;
 	private Polyline pathLayer;
+	private UserLayer userLayer;
+
 	private Subscription movementsSubscribe;
 
 
@@ -117,9 +120,12 @@ public class MapFragment extends BaseFragment {
 				AndroidGraphicFactory.INSTANCE.createColor(200, 100, 100, 255), Utils.getDP(4), Style.STROKE),
 				AndroidGraphicFactory.INSTANCE);
 
+		userLayer = new UserLayer(getContext());
+
 		mapView.getLayerManager().getLayers().add(layer);
 		mapView.getLayerManager().getLayers().add(pointsLayer);
 		mapView.getLayerManager().getLayers().add(pathLayer);
+		mapView.getLayerManager().getLayers().add(userLayer);
 	}
 
 	@Override
@@ -167,6 +173,7 @@ public class MapFragment extends BaseFragment {
 
 	@Override
 	public void onStop() {
+		mapView.getLayerManager().getLayers().remove(userLayer);
 		mapView.getLayerManager().getLayers().remove(layer);
 		mapView.getLayerManager().getLayers().remove(pointsLayer);
 
