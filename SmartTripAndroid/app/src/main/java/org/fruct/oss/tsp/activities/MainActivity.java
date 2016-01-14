@@ -15,7 +15,6 @@ import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
-import org.fruct.oss.tsp.LocationTrackingService;
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.fragments.CommonFragment;
 import org.fruct.oss.tsp.fragments.MapFragment;
@@ -95,12 +94,12 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		LocationTrackingService.actionStartTracking(this);
+		//LocationTrackingService.actionStartTracking(this);
 	}
 
 	@Override
 	protected void onPause() {
-		LocationTrackingService.actionStopTracking(this);
+		//LocationTrackingService.actionStopTracking(this);
 		super.onPause();
 	}
 

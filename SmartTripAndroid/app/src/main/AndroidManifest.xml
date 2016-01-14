@@ -25,12 +25,6 @@
         </activity>
 
         <service
-            android:name=".LocationTrackingService"
-            android:enabled="true"
-            android:exported="false">
-        </service>
-
-        <service
             android:name=".smartspace.SmartSpaceService"
             android:enabled="true"
             android:exported="false"
