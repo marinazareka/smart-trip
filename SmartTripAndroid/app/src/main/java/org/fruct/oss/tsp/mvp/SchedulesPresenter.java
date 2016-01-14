@@ -27,6 +27,7 @@ public class SchedulesPresenter implements Presenter<SchedulesMvpView> {
 
 	private SchedulesMvpView view;
 	private Subscription subscription;
+	private Schedule editingSchedule;
 
 	public SchedulesPresenter(Context context, DatabaseRepo databaseRepo) {
 		this.context = context;
@@ -70,6 +71,8 @@ public class SchedulesPresenter implements Presenter<SchedulesMvpView> {
 	}
 
 	public void onEditSchedule(Schedule schedule) {
+		editingSchedule = schedule;
+
 		view.displayEditDialog(schedule.getTitle(), schedule.getTspType());
 	}
 
@@ -78,6 +81,6 @@ public class SchedulesPresenter implements Presenter<SchedulesMvpView> {
 	}
 
 	public void onScheduleEdited(String title, TspType tspType) {
-
+		databaseRepo.updateSchedule(editingSchedule.getId(), new Schedule(title, tspType));
 	}
 }

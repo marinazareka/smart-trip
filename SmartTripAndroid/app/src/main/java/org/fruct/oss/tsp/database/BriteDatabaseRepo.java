@@ -68,4 +68,10 @@ public class BriteDatabaseRepo implements DatabaseRepo {
 		cv.put(CurrentScheduleTable.COLUMN_SCHEDULE_ID, scheduleId);
 		db.update(CurrentScheduleTable.TABLE, cv, null);
 	}
+
+	@Override
+	public void updateSchedule(long scheduleId, Schedule newSchedule) {
+		ContentValues cv = ScheduleTable.toContentValues(newSchedule);
+		db.update(ScheduleTable.TABLE, cv, "_id = ?", String.valueOf(scheduleId));
+	}
 }

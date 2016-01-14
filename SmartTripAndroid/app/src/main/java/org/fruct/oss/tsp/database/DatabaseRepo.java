@@ -16,4 +16,6 @@ public interface DatabaseRepo {
 	long insertSchedule(Schedule schedule);
 	void insertPoint(long scheduleId, Point point);
 	void setCurrentSchedule(long scheduleId);
+
+	void updateSchedule(long scheduleId, Schedule newSchedule);
 }
