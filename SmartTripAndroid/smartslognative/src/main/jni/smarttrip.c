@@ -364,7 +364,7 @@ void st_post_schedule_request(struct Point* points, int points_count, const char
 
     // TODO: добавлять точки в одну транзакцию
     // TODO: удалять старые точки или придумать какой-нибудь GarbageCollectorKP
-    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Inserting %d points", points_count);
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Inserting %d points with tsptype %s", points_count, tsp_type);
 
     for (int i = 0; i < points_count; i++) {
         sslog_individual_t* point_individual = create_poi_individual(node, points[i].lat,
@@ -373,7 +373,11 @@ void st_post_schedule_request(struct Point* points, int points_count, const char
         sslog_node_insert_property(node, route_individual, PROPERTY_HASPOINT, point_individual);
     }
 
+    // Update with NULL doesn't delete existing property
+    sslog_node_remove_property(node, route_individual, PROPERTY_TSPTYPE, NULL);
     sslog_node_update_property(node, route_individual, PROPERTY_TSPTYPE, NULL, (void*) tsp_type);
+
+    sslog_node_remove_property(node, route_individual, PROPERTY_UPDATED, NULL);
     sslog_node_update_property(node, route_individual, PROPERTY_UPDATED, NULL,
                                rand_uuid("updated"));
 }

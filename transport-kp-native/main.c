@@ -384,6 +384,7 @@ void publish(int points_count, int* ids, const char* roadType, RequestData* requ
     free(request_data);
     
     // Clean local stored points
-    // This is required, because populate doesn't remove local points, that was removed in sib
+    // This is required, because populate doesn't remove local properties, that was removed in sib
     sslog_remove_properties(route_individual, PROPERTY_HASPOINT);
+    sslog_remove_properties(route_individual, PROPERTY_TSPTYPE);
 }
