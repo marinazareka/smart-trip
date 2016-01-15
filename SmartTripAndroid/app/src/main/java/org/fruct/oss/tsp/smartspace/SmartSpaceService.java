@@ -2,6 +2,7 @@ package org.fruct.oss.tsp.smartspace;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,11 +11,13 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.commondatatype.SmartSpaceNative;
 import org.fruct.oss.tsp.commondatatype.TspType;
+import org.fruct.oss.tsp.util.Pref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +39,8 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 	public static final int CALLBACK_SEARCH_RESULT = 6;
 	public static final int CALLBACK_REQUEST_FAILED = 7;
 
+	private SharedPreferences pref;
+
 	private Messenger messenger;
 
 	private Handler handler;
@@ -51,6 +56,8 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+
+		pref = PreferenceManager.getDefaultSharedPreferences(this);
 
 		handlerThread = new HandlerThread("smart-space-handler");
 		handlerThread.start();
@@ -79,7 +86,7 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 		switch (msg.what) {
 		case MSG_ACTION_INITIALIZE:
 			try {
-				smartSpace.initialize("test-user-id", "android-user-kp", "X", "172.20.2.240", 10010);
+				smartSpace.initialize(Pref.getUserId(pref), "android-user-kp", "X", "172.20.2.240", 10010);
 				smartSpace.setListener(new Listener());
 				// TODO: do something with uninitialized smartspace
 			} catch (IOException e) {

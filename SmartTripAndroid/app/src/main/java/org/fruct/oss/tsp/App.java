@@ -2,6 +2,7 @@ package org.fruct.oss.tsp;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.squareup.sqlbrite.BriteDatabase;
@@ -10,12 +11,14 @@ import com.squareup.sqlbrite.SqlBrite;
 import org.fruct.oss.tsp.database.BriteDatabaseRepo;
 import org.fruct.oss.tsp.database.DatabaseOpenHelper;
 import org.fruct.oss.tsp.database.DatabaseRepo;
+import org.fruct.oss.tsp.util.Pref;
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.UUID;
 
 public class App extends Application {
 	private static final Logger log = LoggerFactory.getLogger(App.class);
@@ -37,8 +40,16 @@ public class App extends Application {
 		PreferenceManager.setDefaultValues(getContext(), R.xml.preferences, true);
 		AndroidGraphicFactory.createInstance(this);
 
+		setupUserId();
 		setupStetho();
 		setupDatabase();
+	}
+
+	private void setupUserId() {
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getContext());
+		if (Pref.getUserId(pref) == null) {
+			Pref.setUserId(pref, UUID.randomUUID().toString());
+		}
 	}
 
 	@SuppressWarnings("TryWithIdenticalCatches")
