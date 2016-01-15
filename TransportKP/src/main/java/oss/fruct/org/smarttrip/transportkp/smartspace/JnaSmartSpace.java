@@ -95,7 +95,7 @@ public class JnaSmartSpace implements SmartSpace {
 			points[i] = new Point(i, pointPairs[i * 2], pointPairs[i * 2 + 1]);
 		}
 
-		return new RouteRequest(requestData, points,
+		return new RouteRequest(requestData, requestData.user_id, points,
 				new Point(-1, requestData.user_lat, requestData.user_lon), requestData.tsp_type);
 	}
 
