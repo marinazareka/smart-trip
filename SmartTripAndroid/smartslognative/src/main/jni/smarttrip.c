@@ -31,15 +31,19 @@ static sslog_subscription_t* sub_schedule_request;
 static sslog_individual_t* schedule_individual;
 static sslog_individual_t* route_individual;
 
+// Search subscription handler can crash when runs simultaneous with location update, so lock it all
+static pthread_mutex_t ss_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 static void schedule_subscription_handler(sslog_subscription_t* sub) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "schedule_subscription_handler");
-
+    pthread_mutex_lock(&ss_mutex);
 
     sslog_individual_t* start_movement = sslog_node_get_property(node, route_individual,
                                                                  PROPERTY_HASSTARTMOVEMENT);
 
     if (start_movement == NULL) {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Empty schedule response");
+        pthread_mutex_unlock(&ss_mutex);
         return;
     }
 
@@ -84,10 +88,13 @@ static void schedule_subscription_handler(sslog_subscription_t* sub) {
         st_free_point(&movement_array[i].point_a);
         st_free_point(&movement_array[i].point_b);
     }
+
+    pthread_mutex_unlock(&ss_mutex);
 }
 
 static void search_subscription_handler(sslog_subscription_t* sub) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "search_subscription_handler");
+    pthread_mutex_lock(&ss_mutex);
 
     sslog_node_populate(node, request_individual);
 
@@ -127,6 +134,8 @@ static void search_subscription_handler(sslog_subscription_t* sub) {
     for (int i = 0; i < points_number; i++) {
         st_free_point(&point_array[i]);
     }
+
+    pthread_mutex_unlock(&ss_mutex);
 }
 
 static void subscribe_route_processed(sslog_individual_t* route) {
@@ -228,6 +237,8 @@ void st_shutdown() {
 }
 
 void st_update_user_location(double lat, double lon) {
+    pthread_mutex_lock(&ss_mutex);
+
     user_lat = lat;
     user_lon = lon;
 
@@ -259,6 +270,8 @@ void st_update_user_location(double lat, double lon) {
                                    rand_uuid("updated"));
     }
 
+    pthread_mutex_unlock(&ss_mutex);
+
 // TODO: Delete old user location
 //if (existing_user_location != NULL) {
 //    sslog_node_remove_individual_with_local(node, existing_user_location);
@@ -267,6 +280,8 @@ void st_update_user_location(double lat, double lon) {
 
 // TODO: will not work if no user location available
 void st_post_search_request(double radius, const char *pattern) {
+    pthread_mutex_lock(&ss_mutex);
+
     if (sub_search_request != NULL) {
         sslog_sbcr_stop(sub_search_request);
         sslog_sbcr_unsubscribe(sub_search_request);
@@ -291,6 +306,7 @@ void st_post_search_request(double radius, const char *pattern) {
         const char* error_text = sslog_error_get_last_text();
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't insert location individual: %s", error_text);
         st_on_request_failed(error_text);
+        pthread_mutex_unlock(&ss_mutex);
         return;
     }
 
@@ -326,8 +342,9 @@ void st_post_search_request(double radius, const char *pattern) {
     if (sslog_sbcr_subscribe(sub_search_request) != SSLOG_ERROR_NO) {
         sslog_free_subscription(sub_search_request);
         __android_log_print(ANDROID_LOG_WARN, APPNAME, "Can't subscribe response: %s", sslog_error_get_text(node));
-        return;
     }
+
+    pthread_mutex_unlock(&ss_mutex);
 }
 
 void st_post_schedule_request(struct Point* points, int points_count, const char* tsp_type) {
@@ -335,6 +352,8 @@ void st_post_schedule_request(struct Point* points, int points_count, const char
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "No points in schedule request");
         return;
     }
+
+    pthread_mutex_lock(&ss_mutex);
 
     if (route_individual != NULL) {
         // Удаляем все текущие параметры запроса (hasPoint)
@@ -388,4 +407,6 @@ void st_post_schedule_request(struct Point* points, int points_count, const char
     sslog_node_remove_property(node, route_individual, PROPERTY_UPDATED, NULL);
     sslog_node_update_property(node, route_individual, PROPERTY_UPDATED, NULL,
                                rand_uuid("updated"));
+
+    pthread_mutex_unlock(&ss_mutex);
 }
