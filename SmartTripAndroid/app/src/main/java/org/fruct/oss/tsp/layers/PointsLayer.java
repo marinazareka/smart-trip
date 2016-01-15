@@ -94,7 +94,7 @@ public class PointsLayer extends Layer {
 		super.onRemove();
 	}
 
-	public void updatePoints(List<Point> points) {
+	public synchronized void updatePoints(List<Point> points) {
 		pointLayers.clear();
 		int c = 0;
 		for (Point point : points) {
