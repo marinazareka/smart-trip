@@ -1,19 +1,27 @@
 package oss.fruct.org.smarttrip.transportkp;
 
 import com.graphhopper.GraphHopper;
+import com.graphhopper.util.DistanceCalcEarth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oss.fruct.org.smarttrip.transportkp.data.Point;
 import oss.fruct.org.smarttrip.transportkp.data.RouteRequest;
 import oss.fruct.org.smarttrip.transportkp.data.RouteResponse;
+import oss.fruct.org.smarttrip.transportkp.data.RouteState;
 import oss.fruct.org.smarttrip.transportkp.smartspace.SmartSpace;
 import oss.fruct.org.smarttrip.transportkp.tsp.*;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class TransportKP {
+	private static final double RECALCULATE_DISTANCE = 20; // meters
+
 	private Logger log = LoggerFactory.getLogger(TransportKP.class);
 
+	private DistanceCalcEarth distanceCalcEarth;
+
+	private RequestCache requestCache;
 	private SmartSpace smartSpace;
 	private GraphHopper graphHopper;
 	private Random random = new Random();
@@ -21,6 +29,8 @@ public class TransportKP {
 	public TransportKP(SmartSpace smartSpace, GraphHopper graphHopper) {
 		this.smartSpace = smartSpace;
 		this.graphHopper = graphHopper;
+		requestCache = new RequestCache();
+		distanceCalcEarth = new DistanceCalcEarth();
 	}
 
 	public void start() {
@@ -50,16 +60,56 @@ public class TransportKP {
 
 		Point[] points = processRequest(request);
 
-		// TODO: handle empty request
-		for (Point point : points) {
-			log.debug(point.getLat() + " " + point.getLon());
+		if (points != null && points.length > 0) {
+			for (Point point : points) {
+				log.debug(point.getLat() + " " + point.getLon());
+			}
+
+			requestCache.insert(request.getUserId(), new RouteState(request));
+
+			smartSpace.publish(new RouteResponse(points, "foot", request.getTag()));
 		}
 
-		smartSpace.publish(new RouteResponse(points, "foot", request.getTag()));
 		return true;
 	}
 
 	private Point[] processRequest(RouteRequest request) {
+		RouteState routeState = requestCache.find(request.getUserId());
+
+		// No previous request
+		if (routeState == null) {
+			log.debug("Process request: not previous request");
+			return forcedProcessRequest(request);
+		}
+
+		RouteRequest lastProcessedRequest = routeState.getRouteRequest();
+
+		// Tsp type changed
+		if (!lastProcessedRequest.getTspType().equals(request.getTspType())) {
+			log.debug("Process request: Tsp type changed");
+			return forcedProcessRequest(request);
+		}
+
+		// User too far from initial position
+		// TODO: path should be tracked to optimize recalculation
+		if (distanceCalcEarth.calcDist(request.getUserPoint().getLat(),
+				request.getUserPoint().getLon(),
+				lastProcessedRequest.getUserPoint().getLat(),
+				lastProcessedRequest.getUserPoint().getLon()) > RECALCULATE_DISTANCE) {
+			log.debug("Process request: User went too far");
+			return forcedProcessRequest(request);
+		}
+
+		// Point set changed
+		if (!Arrays.equals(request.getPoints(), lastProcessedRequest.getPoints())) {
+			log.debug("Process request: Point set changed");
+			return forcedProcessRequest(request);
+		}
+
+		return null;
+	}
+
+	private Point[] forcedProcessRequest(RouteRequest request) {
 		boolean isClosed = "closed".equals(request.getTspType());
 		StateTransition stateTransition = isClosed
 				? new ClosedStateTransition(random)
