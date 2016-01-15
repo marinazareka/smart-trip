@@ -106,9 +106,14 @@ static RequestData* process_request(sslog_individual_t* route) {
 
 static void handle_updated_request(sslog_individual_t* user, sslog_individual_t* schedule, sslog_individual_t* route) {
     sslog_individual_t* location = (sslog_individual_t*) sslog_node_get_property(node, user, PROPERTY_HASLOCATION);
+    
+    // Clean local stored points
+    // This is required, because populate doesn't remove local properties, that was removed in sib
+    sslog_remove_properties(route, PROPERTY_HASPOINT);
+    sslog_remove_properties(route, PROPERTY_TSPTYPE);
+    sslog_node_populate(node, route);
 
     sslog_node_populate(node, location);
-    sslog_node_populate(node, route);
 
     list_t* points = sslog_get_properties(route, PROPERTY_HASPOINT);
     int count;
@@ -271,6 +276,7 @@ bool subscribe() {
             SSLOG_TRIPLE_ANY, SSLOG_RDF_TYPE_URI, SS_RDF_TYPE_LIT);
     sslog_sbcr_add_triple_template(sub, updated_triple);
 
+
     //sslog_triple_t* location_triple = sslog_new_triple_detached(SSLOG_TRIPLE_ANY, sslog_entity_get_uri(PROPERTY_HASLOCATION),
     //        SSLOG_TRIPLE_ANY, SSLOG_RDF_TYPE_URI, SSLOG_RDF_TYPE_URI);
 //    sslog_sbcr_add_triple_template(sub, location_triple);
@@ -383,8 +389,4 @@ void publish(int points_count, int* ids, const char* roadType, RequestData* requ
     free(request_data->tsp_type);
     free(request_data);
     
-    // Clean local stored points
-    // This is required, because populate doesn't remove local properties, that was removed in sib
-    sslog_remove_properties(route_individual, PROPERTY_HASPOINT);
-    sslog_remove_properties(route_individual, PROPERTY_TSPTYPE);
 }

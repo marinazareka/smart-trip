@@ -239,7 +239,8 @@ void st_update_user_location(double lat, double lon) {
 
     sslog_node_insert_individual(node, new_location_individual);
 
-    sslog_individual_t* existing_user_location = sslog_get_property(user_individual, PROPERTY_HASLOCATION);
+    sslog_individual_t* existing_user_location = sslog_get_property(user_individual,
+                                                                    PROPERTY_HASLOCATION);
     if (existing_user_location != NULL) {
         printf("Location already exists\n");
     } else {
@@ -251,10 +252,17 @@ void st_update_user_location(double lat, double lon) {
 
     user_location = new_location_individual;
 
-    // TODO: Delete old user location
-    //if (existing_user_location != NULL) {
-    //    sslog_node_remove_individual_with_local(node, existing_user_location);
-    //}
+    if (route_individual != NULL) {
+        // Update route, so transport_kp can easily subscribe to updates with one subscription
+        sslog_node_remove_property(node, route_individual, PROPERTY_UPDATED, NULL);
+        sslog_node_update_property(node, route_individual, PROPERTY_UPDATED, NULL,
+                                   rand_uuid("updated"));
+    }
+
+// TODO: Delete old user location
+//if (existing_user_location != NULL) {
+//    sslog_node_remove_individual_with_local(node, existing_user_location);
+//}
 }
 
 // TODO: will not work if no user location available
