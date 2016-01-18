@@ -343,19 +343,38 @@ bool st_update_user_location(double lat, double lon) {
 //}
 }
 
-// TODO: will not work if no user location available
-bool st_post_search_request(double radius, const char *pattern) {
-    pthread_mutex_lock(&ss_mutex);
-
+static bool cancel_search_subscription() {
     if (sub_search_request != NULL) {
-        sslog_sbcr_unsubscribe(sub_search_request);
+        if (sslog_sbcr_unsubscribe(sub_search_request) != SSLOG_ERROR_NO) {
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Error unsubscribing existing subscripton: %d %s",
+                                sslog_error_get_last_code(), sslog_error_get_last_text());
+            // FIXME: sslog_sbcr_unsubscribe always returns 305 error, ignore for now
+            //return false;
+        }
+
         sslog_free_subscription(sub_search_request);
         sub_search_request = NULL;
     }
 
     if (request_individual != NULL) {
-        sslog_node_remove_individual(node, request_individual);
+        if (sslog_node_remove_individual(node, request_individual) != SSLOG_ERROR_NO) {
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Error removing request individual: %s",
+                                sslog_error_get_last_text());
+            return false;
+        }
+
         request_individual = NULL;
+    }
+
+    return true;
+}
+
+// TODO: will not work if no user location available
+bool st_post_search_request(double radius, const char *pattern) {
+    pthread_mutex_lock(&ss_mutex);
+
+    if (!cancel_search_subscription()) {
+        goto failure;
     }
 
     // Create location individual
@@ -367,11 +386,9 @@ bool st_post_search_request(double radius, const char *pattern) {
 
     if (sslog_node_insert_individual(node, location_individual) != SSLOG_ERROR_NO) {
         // TODO: cleanup
-        const char* error_text = sslog_error_get_last_text();
-        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't insert location individual: %s", error_text);
-        st_on_request_failed(error_text);
-        pthread_mutex_unlock(&ss_mutex);
-        return false;
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't insert location individual: %s",
+                            sslog_error_get_last_text());
+        goto failure;
     }
 
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating searchrequest individual");
@@ -380,7 +397,11 @@ bool st_post_search_request(double radius, const char *pattern) {
     sslog_individual_t* region_individual = sslog_new_individual(CLASS_CIRCLEREGION,
                                                                  rand_uuid("circle_search_region"));
     sslog_insert_property(region_individual, PROPERTY_RADIUS, double_to_string(radius));
-    sslog_node_insert_individual(node, region_individual);
+    if (sslog_node_insert_individual(node, region_individual) != SSLOG_ERROR_NO) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't insert region individual: %s",
+                            sslog_error_get_last_text());
+        goto failure;
+    }
 
     // Create request individual
     sslog_individual_t* request_individual_l = sslog_new_individual(CLASS_SEARCHREQUEST,
@@ -389,7 +410,12 @@ bool st_post_search_request(double radius, const char *pattern) {
     sslog_insert_property(request_individual_l, PROPERTY_INREGION, region_individual);
     sslog_insert_property(request_individual_l, PROPERTY_SEARCHPATTERN, pattern);
 
-    sslog_node_insert_individual(node, request_individual_l);
+    if (sslog_node_insert_individual(node, request_individual_l) != SSLOG_ERROR_NO) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't insert request individual: %s",
+                            sslog_error_get_last_text());
+        goto failure;
+    }
+
     request_individual = request_individual_l;
 
     // Subscribe to update
@@ -404,12 +430,17 @@ bool st_post_search_request(double radius, const char *pattern) {
 
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Subscribing search request");
     if (sslog_sbcr_subscribe(sub_search_request) != SSLOG_ERROR_NO) {
-        sslog_free_subscription(sub_search_request);
-        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Can't subscribe response: %s", sslog_error_get_text(node));
+        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Can't subscribe response: %s",
+                            sslog_error_get_text(node));
+        goto failure;
     }
 
     pthread_mutex_unlock(&ss_mutex);
     return true;
+
+    failure:
+    pthread_mutex_unlock(&ss_mutex);
+    return false;
 }
 
 bool st_post_schedule_request(struct Point* points, int points_count, const char* tsp_type) {
