@@ -158,7 +158,9 @@ Java_org_fruct_oss_tsp_smartslognative_JniSmartSpaceNative_updateUserLocation(JN
                                                                               jdouble lon) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "updateUserLocation called");
 
-    st_update_user_location(lat, lon);
+    if (!st_update_user_location(lat, lon)) {
+        (*env)->ThrowNew(env, class_ioexception, "Can't update user location");
+    }
 }
 
 JNIEXPORT void JNICALL
@@ -170,7 +172,9 @@ Java_org_fruct_oss_tsp_smartslognative_JniSmartSpaceNative_postSearchRequest(JNI
 
     const char *pattern = (*env)->GetStringUTFChars(env, pattern_, 0);
 
-    st_post_search_request(radius, pattern);
+    if (!st_post_search_request(radius, pattern)) {
+        (*env)->ThrowNew(env, class_ioexception, "Can't post search request");
+    }
 
     (*env)->ReleaseStringUTFChars(env, pattern_, pattern);
 }
@@ -205,7 +209,9 @@ Java_org_fruct_oss_tsp_smartslognative_JniSmartSpaceNative_postScheduleRequest(J
         (*env)->ReleaseStringUTFChars(env, j_title, title);
     }
 
-    st_post_schedule_request(array, array_size, tsp_type);
+    if (!st_post_schedule_request(array, array_size, tsp_type)) {
+        (*env)->ThrowNew(env, class_ioexception, "Can't post schedule request");
+    }
 
     (*env)->ReleaseStringUTFChars(env, tsp_type_, tsp_type);
 }

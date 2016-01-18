@@ -10,13 +10,13 @@ public interface SmartSpaceNative {
 
 	void shutdown();
 
-	void updateUserLocation(double lat, double lon);
+	void updateUserLocation(double lat, double lon) throws IOException;
 
-	void postSearchRequest(double radius, String pattern);
+	void postSearchRequest(double radius, String pattern) throws IOException;
 
-	void postScheduleRequest(Point[] points, String name);
+	void postScheduleRequest(Point[] points, String name) throws IOException;
 
-	void setListener(Listener listener);
+	void setListener(Listener listener) throws IOException;
 
 	interface Listener {
 		// Callbacks

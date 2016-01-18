@@ -12,6 +12,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
@@ -50,12 +51,15 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 
 	private Messenger callbackMessenger;
 
+	private boolean isPanicScheduled;
+
 	public SmartSpaceService() {
 	}
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		log.debug("onCreate");
 
 		pref = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -74,6 +78,8 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 	public void onDestroy() {
 		handlerThread.getLooper().quit();
 		smartSpace.shutdown();
+
+		log.debug("onDestroy");
 		super.onDestroy();
 	}
 
@@ -91,6 +97,7 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 				// TODO: do something with uninitialized smartspace
 			} catch (IOException e) {
 				log.error("Can't initialize smartspace", e);
+				panic();
 			}
 			break;
 
@@ -117,19 +124,44 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 			handleSetCallbackMessenger(callbackMessenger);
 			break;
 		}
+
+		if (isPanicScheduled) {
+			log.error("Something wrong with smartspace, stopping");
+			System.exit(0);
+		}
+
 		return true;
 	}
 
+	private void panic() {
+		isPanicScheduled = true;
+	}
+
 	private void handlePostUserLocation(Location location) {
-		smartSpace.updateUserLocation(location.getLatitude(), location.getLongitude());
+		try {
+			smartSpace.updateUserLocation(location.getLatitude(), location.getLongitude());
+		} catch (IOException e) {
+			log.error("Error posting location", e);
+			panic();
+		}
 	}
 
 	private void handlePostSearchRequest(double radius, String pattern) {
-		smartSpace.postSearchRequest(radius, pattern);
+		try {
+			smartSpace.postSearchRequest(radius, pattern);
+		} catch (IOException e) {
+			log.error("Error posting search request", e);
+			panic();
+		}
 	}
 
 	private void handlerPostScheduleRequest(List<Point> points, TspType tspType) {
-		smartSpace.postScheduleRequest(points.toArray(new Point[points.size()]), tspType.name().toLowerCase());
+		try {
+			smartSpace.postScheduleRequest(points.toArray(new Point[points.size()]), tspType.name().toLowerCase());
+		} catch (IOException e) {
+			log.error("Error posting schedule request", e);
+			panic();
+		}
 	}
 
 	private void handleSetCallbackMessenger(Messenger callbackMessenger) {

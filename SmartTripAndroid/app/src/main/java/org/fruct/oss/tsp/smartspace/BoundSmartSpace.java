@@ -8,6 +8,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -37,7 +38,11 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback {
 	private SmartSpaceServiceConnection connection;
 
 	private Messenger messenger;
+
 	private Handler handler;
+
+	private long serviceStartDelay = -1;
+	private Handler uiThreadHandler;
 
 	public BoundSmartSpace(FragmentActivity activity) {
 		this.context = activity.getApplicationContext();
@@ -45,12 +50,38 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback {
 	}
 
 	public void start() {
+		uiThreadHandler = new Handler(Looper.getMainLooper());
+
 		Intent intent = new Intent(context, SmartSpaceService.class);
-		context.bindService(intent, connection = new SmartSpaceServiceConnection(), Context.BIND_AUTO_CREATE);
+		context.bindService(intent, connection = new SmartSpaceServiceConnection(), 0);
+		scheduleServiceStart();
+	}
+
+	private void scheduleServiceStart() {
+		if (serviceStartDelay < 0) {
+			serviceStartDelay = 1000;
+			startSmartSpaceService();
+		} else {
+			uiThreadHandler.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					startSmartSpaceService();
+				}
+			}, serviceStartDelay);
+
+			serviceStartDelay *= 2;
+		}
+	}
+
+	private void startSmartSpaceService() {
+		log.debug("Starting smartspace service");
+		context.startService(new Intent(context, SmartSpaceService.class));
 	}
 
 	public void stop() {
+		uiThreadHandler.removeCallbacksAndMessages(null);
 		context.unbindService(connection);
+		context.stopService(new Intent(context, SmartSpaceService.class));
 	}
 
 	@Override
@@ -141,7 +172,10 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback {
 	}
 
 	private void onServiceDisconnected() {
-		log.debug("Smart space service disconnected");
-		messenger = null;
+		if (messenger != null) {
+			log.debug("Smart space service disconnected");
+			messenger = null;
+			scheduleServiceStart();
+		}
 	}
 }

@@ -17,14 +17,14 @@ public class JniSmartSpaceNative implements SmartSpaceNative {
 	public synchronized native void shutdown();
 
 	@Override
-	public synchronized native void updateUserLocation(double lat, double lon);
+	public synchronized native void updateUserLocation(double lat, double lon) throws IOException;
 
 	@Override
-	public synchronized native void postSearchRequest(double radius, String pattern);
+	public synchronized native void postSearchRequest(double radius, String pattern) throws IOException;
 
 	@Override
-	public synchronized native void postScheduleRequest(Point[] points, String tspType);
+	public synchronized native void postScheduleRequest(Point[] points, String tspType) throws IOException;
 
 	@Override
-	public synchronized native void setListener(Listener listener);
+	public synchronized native void setListener(Listener listener) throws IOException;
 }

@@ -159,6 +159,7 @@ static bool subscribe_route_processed(sslog_individual_t* route) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't subscribe schedule response: %s", sslog_error_get_text(node));
         return false;
     }
+
     return true;
 }
 
@@ -221,6 +222,8 @@ static bool load_existing_schedule() {
     // Если route уже присутствует для данного пользователя, сразу подписываемся
     if (route_individual != NULL) {
         if (!subscribe_route_processed(route_individual)) {
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't subscribe_route_processed: %s",
+                                sslog_error_get_last_text());
             return false;
         }
 
@@ -242,7 +245,7 @@ bool st_initialize(const char *user_id, const char *kp_name, const char *smart_s
                             sslog_error_get_text(node));
         return false;
     } else {
-        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Sslog_init ok");
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Sslog_init ok");
     }
 
     register_ontology();
@@ -254,7 +257,7 @@ bool st_initialize(const char *user_id, const char *kp_name, const char *smart_s
                             sslog_error_get_text(node));
         return false;
     } else {
-        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Node created");
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Node created");
     }
 
     if (sslog_node_join(node) != SSLOG_ERROR_NO) {
@@ -267,7 +270,7 @@ bool st_initialize(const char *user_id, const char *kp_name, const char *smart_s
         return false;
     }
 
-    if (load_existing_schedule()) {
+    if (!load_existing_schedule()) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, "load_existing_schedule failed");
         return false;
     }
@@ -280,7 +283,7 @@ void st_shutdown() {
     sslog_shutdown();
 }
 
-void st_update_user_location(double lat, double lon) {
+bool st_update_user_location(double lat, double lon) {
     pthread_mutex_lock(&ss_mutex);
 
     user_lat = lat;
@@ -292,7 +295,11 @@ void st_update_user_location(double lat, double lon) {
     sslog_insert_property(new_location_individual, PROPERTY_LAT, double_to_string(lat));
     sslog_insert_property(new_location_individual, PROPERTY_LONG, double_to_string(lon));
 
-    sslog_node_insert_individual(node, new_location_individual);
+    if (sslog_node_insert_individual(node, new_location_individual) != SSLOG_ERROR_NO) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't insert existing user location");
+        pthread_mutex_unlock(&ss_mutex);
+        return false;
+    }
 
     sslog_individual_t* existing_user_location = sslog_get_property(user_individual,
                                                                     PROPERTY_HASLOCATION);
@@ -302,19 +309,33 @@ void st_update_user_location(double lat, double lon) {
         printf("Location not exists\n");
     }
 
-    sslog_node_update_property(node, user_individual, PROPERTY_HASLOCATION,
-                               (void*) existing_user_location, new_location_individual);
+    if (sslog_node_update_property(node, user_individual, PROPERTY_HASLOCATION,
+                               (void*) existing_user_location, new_location_individual) != SSLOG_ERROR_NO) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't assign new existing user location");
+        pthread_mutex_unlock(&ss_mutex);
+        return false;
+    }
 
     user_location = new_location_individual;
 
     if (route_individual != NULL) {
         // Update route, so transport_kp can easily subscribe to updates with one subscription
-        sslog_node_remove_property(node, route_individual, PROPERTY_UPDATED, NULL);
-        sslog_node_update_property(node, route_individual, PROPERTY_UPDATED, NULL,
-                                   rand_uuid("updated"));
+        if (sslog_node_remove_property(node, route_individual, PROPERTY_UPDATED, NULL) != SSLOG_ERROR_NO) {
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't update 'updated' property");
+            pthread_mutex_unlock(&ss_mutex);
+            return false;
+        }
+
+        if (sslog_node_update_property(node, route_individual, PROPERTY_UPDATED, NULL,
+                                   rand_uuid("updated")) != SSLOG_ERROR_NO) {
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't update 'updated' property");
+            pthread_mutex_unlock(&ss_mutex);
+            return false;
+        }
     }
 
     pthread_mutex_unlock(&ss_mutex);
+    return true;
 
 // TODO: Delete old user location
 //if (existing_user_location != NULL) {
@@ -323,7 +344,7 @@ void st_update_user_location(double lat, double lon) {
 }
 
 // TODO: will not work if no user location available
-void st_post_search_request(double radius, const char *pattern) {
+bool st_post_search_request(double radius, const char *pattern) {
     pthread_mutex_lock(&ss_mutex);
 
     if (sub_search_request != NULL) {
@@ -351,7 +372,7 @@ void st_post_search_request(double radius, const char *pattern) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't insert location individual: %s", error_text);
         st_on_request_failed(error_text);
         pthread_mutex_unlock(&ss_mutex);
-        return;
+        return false;
     }
 
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating searchrequest individual");
@@ -389,12 +410,13 @@ void st_post_search_request(double radius, const char *pattern) {
     }
 
     pthread_mutex_unlock(&ss_mutex);
+    return true;
 }
 
-void st_post_schedule_request(struct Point* points, int points_count, const char* tsp_type) {
+bool st_post_schedule_request(struct Point* points, int points_count, const char* tsp_type) {
     if (points_count == 0) {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "No points in schedule request");
-        return;
+        return true;
     }
 
     pthread_mutex_lock(&ss_mutex);
@@ -408,6 +430,9 @@ void st_post_schedule_request(struct Point* points, int points_count, const char
             __android_log_print(ANDROID_LOG_ERROR, APPNAME,
                                 "Can't remove existing points from schedule request %s",
                                 sslog_error_get_last_text());
+
+            pthread_mutex_unlock(&ss_mutex);
+            return false;
         }
     } else {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating new schedule and route");
@@ -417,18 +442,37 @@ void st_post_schedule_request(struct Point* points, int points_count, const char
 
         sslog_insert_property(schedule_individual, PROPERTY_HASROUTE, route_individual);
 
-        sslog_node_insert_individual(node, route_individual);
-        sslog_node_insert_individual(node, schedule_individual);
-        int res = sslog_node_insert_property(node, user_individual, PROPERTY_PROVIDE,
-                                             schedule_individual);
+        if (sslog_node_insert_individual(node, route_individual) != SSLOG_ERROR_NO) {
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME,
+                                "Can't insert route individual: %s",
+                                sslog_error_get_last_text());
+            pthread_mutex_unlock(&ss_mutex);
+            return false;
+        }
 
-        if (res != SSLOG_ERROR_NO) {
+        if (sslog_node_insert_individual(node, schedule_individual) != SSLOG_ERROR_NO) {
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME,
+                                "Can't insert schedule individual %s",
+                                sslog_error_get_last_text());
+            pthread_mutex_unlock(&ss_mutex);
+            return false;
+        }
+
+        if (sslog_node_insert_property(node, user_individual, PROPERTY_PROVIDE,
+                                       schedule_individual) != SSLOG_ERROR_NO) {
             __android_log_print(ANDROID_LOG_ERROR, APPNAME,
                                 "Can't assign provide property to user %s",
                                 sslog_error_get_last_text());
+            pthread_mutex_unlock(&ss_mutex);
+            return false;
         }
 
-        subscribe_route_processed(route_individual);
+        if (!subscribe_route_processed(route_individual)) {
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME,
+                                "Can't subscribe to route_individual");
+            pthread_mutex_unlock(&ss_mutex);
+            return false;
+        }
     }
 
     // Состояние smartspace'а: user->schedule->route, route не содержит точек, может содержать updated, processed и tspType
@@ -453,4 +497,6 @@ void st_post_schedule_request(struct Point* points, int points_count, const char
                                rand_uuid("updated"));
 
     pthread_mutex_unlock(&ss_mutex);
+
+    return true;
 }
