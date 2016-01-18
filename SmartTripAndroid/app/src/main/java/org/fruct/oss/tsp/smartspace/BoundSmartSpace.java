@@ -50,6 +50,8 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback {
 	}
 
 	public void start() {
+		serviceStartDelay = -1;
+
 		uiThreadHandler = new Handler(Looper.getMainLooper());
 
 		Intent intent = new Intent(context, SmartSpaceService.class);

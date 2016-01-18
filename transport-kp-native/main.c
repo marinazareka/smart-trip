@@ -43,6 +43,7 @@ static pthread_cond_t requests_cond = PTHREAD_COND_INITIALIZER;
 // Implementations
 bool init(const char* name, const char* smartspace, const char* address, int port) {
     setlocale(LC_NUMERIC, "C");
+    init_rand();
 
     sslog_init();
     register_ontology();
@@ -105,6 +106,11 @@ static RequestData* process_request(sslog_individual_t* route) {
 }
 
 static void handle_updated_request(sslog_individual_t* user, sslog_individual_t* schedule, sslog_individual_t* route) {
+    fprintf(stderr, "handle_updated_request %s %s %s\n",
+            sslog_entity_get_uri(user),
+            sslog_entity_get_uri(schedule),
+            sslog_entity_get_uri(route));
+
     sslog_individual_t* location = (sslog_individual_t*) sslog_node_get_property(node, user, PROPERTY_HASLOCATION);
     
     // Clean local stored points
@@ -377,10 +383,12 @@ void publish(int points_count, int* ids, const char* roadType, RequestData* requ
     }
 
     if (movements_count > 0) {
+        fprintf(stderr, "Insert START_MOVEMENT property %s\n", sslog_entity_get_uri(movement_individuals[0]));
         sslog_node_insert_property(node, route_individual, PROPERTY_HASSTARTMOVEMENT, movement_individuals[0]);
     }
 
-    sslog_node_update_property(node, route_individual, PROPERTY_PROCESSED, NULL, rand_uuid("processed"));
+    sslog_node_remove_property(node, route_individual, PROPERTY_PROCESSED, NULL);
+    sslog_node_insert_property(node, route_individual, PROPERTY_PROCESSED, rand_uuid("processed"));
 
     pthread_mutex_unlock(&requests_mutex);
 

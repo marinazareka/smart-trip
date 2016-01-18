@@ -51,6 +51,8 @@ static void schedule_subscription_handler(sslog_subscription_t* sub) {
         return;
     }
 
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Start movement with id %s", start_movement->entity.uri);
+
     sslog_individual_t* current_movement = start_movement;
 
     PtrArray ptr_array;
@@ -221,14 +223,14 @@ static bool load_existing_schedule() {
 
     // Если route уже присутствует для данного пользователя, сразу подписываемся
     if (route_individual != NULL) {
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Existing route found with id %s",
+                            route_individual->entity.uri);
+
         if (!subscribe_route_processed(route_individual)) {
             __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't subscribe_route_processed: %s",
                                 sslog_error_get_last_text());
             return false;
         }
-
-        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Existing route found with id %s",
-                            route_individual->entity.uri);
     } else {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "No existing route found");
     }
