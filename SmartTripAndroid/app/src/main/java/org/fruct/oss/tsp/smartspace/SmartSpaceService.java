@@ -92,7 +92,7 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 		switch (msg.what) {
 		case MSG_ACTION_INITIALIZE:
 			try {
-				smartSpace.initialize(Pref.getUserId(pref), "android-user-kp", "X", "172.20.2.240", 10010);
+				smartSpace.initialize(Pref.getUserId(pref), "android-user-kp-" + Pref.getUserId(pref), "X", "172.20.2.240", 10010);
 				smartSpace.setListener(new Listener());
 				// TODO: do something with uninitialized smartspace
 			} catch (IOException e) {
