@@ -430,8 +430,7 @@ bool st_post_schedule_request(struct Point* points, int points_count, const char
                                 "Can't remove existing points from schedule request %s",
                                 sslog_error_get_last_text());
 
-            pthread_mutex_unlock(&ss_mutex);
-            return false;
+            goto failure;
         }
     } else {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating new schedule and route");
@@ -445,16 +444,14 @@ bool st_post_schedule_request(struct Point* points, int points_count, const char
             __android_log_print(ANDROID_LOG_ERROR, APPNAME,
                                 "Can't insert route individual: %s",
                                 sslog_error_get_last_text());
-            pthread_mutex_unlock(&ss_mutex);
-            return false;
+            goto failure;
         }
 
         if (sslog_node_insert_individual(node, schedule_individual) != SSLOG_ERROR_NO) {
             __android_log_print(ANDROID_LOG_ERROR, APPNAME,
                                 "Can't insert schedule individual %s",
                                 sslog_error_get_last_text());
-            pthread_mutex_unlock(&ss_mutex);
-            return false;
+            goto failure;
         }
 
         if (sslog_node_insert_property(node, user_individual, PROPERTY_PROVIDE,
@@ -462,15 +459,13 @@ bool st_post_schedule_request(struct Point* points, int points_count, const char
             __android_log_print(ANDROID_LOG_ERROR, APPNAME,
                                 "Can't assign provide property to user %s",
                                 sslog_error_get_last_text());
-            pthread_mutex_unlock(&ss_mutex);
-            return false;
+            goto failure;
         }
 
         if (!subscribe_route_processed(route_individual)) {
             __android_log_print(ANDROID_LOG_ERROR, APPNAME,
                                 "Can't subscribe to route_individual");
-            pthread_mutex_unlock(&ss_mutex);
-            return false;
+            goto failure;
         }
     }
 
@@ -484,18 +479,35 @@ bool st_post_schedule_request(struct Point* points, int points_count, const char
         sslog_individual_t* point_individual = create_poi_individual(node, points[i].lat,
                                                                      points[i].lon,
                                                                      points[i].title, "nocategory");
-        sslog_node_insert_property(node, route_individual, PROPERTY_HASPOINT, point_individual);
+        if (sslog_node_insert_property(node, route_individual, PROPERTY_HASPOINT,
+                                       point_individual) != SSLOG_ERROR_NO) {
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME,
+                                "Error inserting point into route: %s", sslog_error_get_last_text());
+            goto failure;
+        }
     }
 
-    // Update with NULL doesn't delete existing property
-    sslog_node_remove_property(node, route_individual, PROPERTY_TSPTYPE, NULL);
-    sslog_node_update_property(node, route_individual, PROPERTY_TSPTYPE, NULL, (void*) tsp_type);
+    // It is safe because of short circuit evaluation
+    if (sslog_node_remove_property(node, route_individual, PROPERTY_TSPTYPE, NULL) != SSLOG_ERROR_NO) {
+        goto failure;
+    }
 
-    sslog_node_remove_property(node, route_individual, PROPERTY_UPDATED, NULL);
-    sslog_node_update_property(node, route_individual, PROPERTY_UPDATED, NULL,
-                               rand_uuid("updated"));
+    if (sslog_node_update_property(node, route_individual, PROPERTY_TSPTYPE, NULL, (void*) tsp_type) != SSLOG_ERROR_NO) {
+        goto failure;
+    }
+
+    if (sslog_node_remove_property(node, route_individual, PROPERTY_UPDATED, NULL) != SSLOG_ERROR_NO) {
+        goto failure;
+    }
+
+    if (sslog_node_update_property(node, route_individual, PROPERTY_UPDATED, NULL, rand_uuid("updated")) != SSLOG_ERROR_NO) {
+        goto failure;
+    }
 
     pthread_mutex_unlock(&ss_mutex);
-
     return true;
+
+failure:
+    pthread_mutex_unlock(&ss_mutex);
+    return false;
 }
