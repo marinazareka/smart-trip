@@ -34,6 +34,10 @@ static sslog_individual_t* route_individual;
 // Search subscription handler can crash when runs simultaneous with location update, so lock it all
 static pthread_mutex_t ss_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+static void schedule_subscription_error_handler(sslog_subscription_t* sub, int code) {
+    __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Subscription error code %d", code);
+}
+
 static void schedule_subscription_handler(sslog_subscription_t* sub) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "schedule_subscription_handler");
     pthread_mutex_lock(&ss_mutex);
@@ -138,7 +142,7 @@ static void search_subscription_handler(sslog_subscription_t* sub) {
     pthread_mutex_unlock(&ss_mutex);
 }
 
-static void subscribe_route_processed(sslog_individual_t* route) {
+static bool subscribe_route_processed(sslog_individual_t* route) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating schedule subscription");
 
     list_t* properties = list_new();
@@ -147,53 +151,86 @@ static void subscribe_route_processed(sslog_individual_t* route) {
     sub_schedule_request = sslog_new_subscription(node, true);
     sslog_sbcr_add_individual(sub_schedule_request, route, properties);
     sslog_sbcr_set_changed_handler(sub_schedule_request, &schedule_subscription_handler);
+    sslog_sbcr_set_error_handler(sub_schedule_request, &schedule_subscription_error_handler);
 
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Subscribing schedule request");
     if (sslog_sbcr_subscribe(sub_schedule_request) != SSLOG_ERROR_NO) {
         sslog_free_subscription(sub_schedule_request);
-        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Can't subscribe schedule response: %s", sslog_error_get_text(node));
-        return;
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't subscribe schedule response: %s", sslog_error_get_text(node));
+        return false;
     }
+    return true;
 }
 
 /**
  * Убедиться что пользователь с заданным id присутствует в smartspace'е
  */
-static void ensure_user_individual(const char *id) {
+static bool ensure_user_individual(const char *id) {
     sslog_individual_t* tmp = sslog_node_get_individual_by_uri(node, id);
+
+    if (sslog_error_get_last_code() != SSLOG_ERROR_NO) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Error receiving user from smartspace: %s",
+                            sslog_error_get_last_text());
+        return false;
+    }
 
     if (tmp == NULL) {
         tmp = sslog_new_individual(CLASS_USER, id);
-        sslog_node_insert_individual(node, tmp);
+        if (sslog_node_insert_individual(node, tmp) != SSLOG_ERROR_NO) {
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't insert user individual to smartspace: %s",
+                                sslog_error_get_last_text());
+            return false;
+        }
 
-        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "No user found");
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "No user found, created new");
     } else {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Existing user found with id %s",
                             tmp->entity.uri);
     }
 
     user_individual = tmp;
+    return true;
 }
 
 /**
  * Загрузить Schedule и Route для текущего пользователя
  */
-static void load_existing_schedule() {
+static bool load_existing_schedule() {
     schedule_individual = sslog_node_get_property(node, user_individual, PROPERTY_PROVIDE);
+
+    // Check PROPERTY_PROVIDE got successful
+    if (sslog_error_get_last_code() != SSLOG_ERROR_NO) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't get current schedule: %s",
+                            sslog_error_get_last_text());
+        return false;
+    }
+
     if (schedule_individual != NULL) {
         route_individual = sslog_node_get_property(node, schedule_individual, PROPERTY_HASROUTE);
     } else {
         route_individual = NULL;
     }
 
+    // Check PROPERTY_HASROUTE got successful
+    if (sslog_error_get_last_code() != SSLOG_ERROR_NO) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't get current route: %s",
+                            sslog_error_get_last_text());
+        return false;
+    }
+
     // Если route уже присутствует для данного пользователя, сразу подписываемся
     if (route_individual != NULL) {
-        subscribe_route_processed(route_individual);
+        if (!subscribe_route_processed(route_individual)) {
+            return false;
+        }
+
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Existing route found with id %s",
                             route_individual->entity.uri);
     } else {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "No existing route found");
     }
+
+    return true;
 }
 
 bool st_initialize(const char *user_id, const char *kp_name, const char *smart_space_name,
@@ -201,11 +238,11 @@ bool st_initialize(const char *user_id, const char *kp_name, const char *smart_s
     init_rand();
 
     if (sslog_init() != SSLOG_ERROR_NO) {
-        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error sslog_init %s",
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Error sslog_init %s",
                             sslog_error_get_text(node));
         return false;
     } else {
-        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Sslog_init ok");
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Sslog_init ok");
     }
 
     register_ontology();
@@ -213,20 +250,27 @@ bool st_initialize(const char *user_id, const char *kp_name, const char *smart_s
     node = create_node_resolve(kp_name, smart_space_name, address, port);
 
     if (node == NULL) {
-        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Error create node %s",
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Error create node %s",
                             sslog_error_get_text(node));
         return false;
     } else {
-        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Node created");
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Node created");
     }
 
     if (sslog_node_join(node) != SSLOG_ERROR_NO) {
-        __android_log_print(ANDROID_LOG_WARN, APPNAME, "Can't join node");
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't join node");
         return false;
     }
 
-    ensure_user_individual(user_id);
-    load_existing_schedule();
+    if (!ensure_user_individual(user_id)) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "ensure_user_individual failed");
+        return false;
+    }
+
+    if (load_existing_schedule()) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "load_existing_schedule failed");
+        return false;
+    }
 
     return true;
 }
