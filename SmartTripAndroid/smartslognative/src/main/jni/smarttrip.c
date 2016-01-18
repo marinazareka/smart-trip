@@ -348,7 +348,6 @@ bool st_post_search_request(double radius, const char *pattern) {
     pthread_mutex_lock(&ss_mutex);
 
     if (sub_search_request != NULL) {
-        sslog_sbcr_stop(sub_search_request);
         sslog_sbcr_unsubscribe(sub_search_request);
         sslog_free_subscription(sub_search_request);
         sub_search_request = NULL;
