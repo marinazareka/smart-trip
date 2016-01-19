@@ -62,49 +62,6 @@ void shutdown() {
     sslog_shutdown();
 }
 
-static RequestData* process_request(sslog_individual_t* route) {
-    fprintf(stderr, "process_request\n");
-    list_t* points = sslog_get_properties(route, PROPERTY_HASPOINT);
-    
-    if (points == NULL) {
-        fprintf(stderr, "Route received but has no points\n");
-        return NULL;
-    }
-
-    RequestData* request_data = malloc(sizeof(RequestData));
-    int count = list_count(points);
-
-    double* points_array = malloc(count * 2 * sizeof(double));
-    sslog_individual_t** point_individuals = malloc(count * sizeof(sslog_individual_t*));
-    
-    int c = 0;
-    list_head_t* iter;
-    list_for_each(iter, &points->links) {
-        list_t* entry = list_entry(iter, list_t, links);
-        sslog_individual_t* point_individual = (sslog_individual_t*) entry->data;
-        sslog_node_populate(node, point_individual);
-
-        double lat, lon;
-        get_point_coordinates(node, point_individual, &lat, &lon);
-
-        fprintf(stderr, "Point %lf %lf\n", lat, lon);
-
-        points_array[2 * c] = lat;
-        points_array[2 * c + 1] = lon;
-
-        point_individuals[c] = point_individual;
-
-        c += 1;
-    }
-
-    request_data->route = route;
-    request_data->points = points_array;
-    request_data->point_individuals = point_individuals;
-    request_data->count = count;
-
-    return request_data;
-}
-
 static void handle_updated_request(sslog_individual_t* user, sslog_individual_t* schedule, sslog_individual_t* route) {
     fprintf(stderr, "handle_updated_request %s %s %s\n",
             sslog_entity_get_uri(user),
@@ -237,40 +194,6 @@ static void subscription_handler_2(sslog_subscription_t* sub) {
     }
 
     pthread_mutex_unlock(&requests_mutex);
-    pthread_cond_signal(&requests_cond);
-}
-
-// @Deprecated
-static void subscription_handler(sslog_subscription_t* sub) {
-    fprintf(stderr, "Subscription received\n");
-    pthread_mutex_lock(&requests_mutex);
-
-    sslog_sbcr_changes_t* changes = sslog_sbcr_get_changes_last(sub);
-    const list_t* inserted_list = sslog_sbcr_ch_get_individual_by_action(changes, SSLOG_ACTION_INSERT);
-
-    list_head_t* iter;
-    list_for_each(iter, &inserted_list->links) {
-        list_t* entry = list_entry(iter, list_t, links);
-        const char* request_individual_id = (const char*) entry->data;
-        sslog_individual_t* request_individual = sslog_new_individual(CLASS_SCHEDULE, request_individual_id);
-        sslog_individual_t* route_individual 
-            = (sslog_individual_t*) sslog_node_get_property(node, request_individual, PROPERTY_HASROUTE);
-
-        if (route_individual == NULL) {
-            fprintf(stderr, "Received null route individual. Skipping\n");
-        }
-
-        sslog_node_populate(node, route_individual);
-
-        RequestData* request_data = process_request(route_individual);
-        if (request_data == NULL) {
-            continue;
-        }
-        ptr_array_insert(&requests_array, request_data);
-    }
-
-    pthread_mutex_unlock(&requests_mutex);
-
     pthread_cond_signal(&requests_cond);
 }
 
