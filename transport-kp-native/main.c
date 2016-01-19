@@ -319,6 +319,7 @@ void publish(int points_count, int* ids, const char* roadType, RequestData* requ
         sslog_node_insert_property(node, route_individual, PROPERTY_HASSTARTMOVEMENT, movement_individuals[0]);
     }
 
+    sslog_node_remove_property(node, route_individual, PROPERTY_UPDATED, NULL);
     sslog_node_remove_property(node, route_individual, PROPERTY_PROCESSED, NULL);
     sslog_node_insert_property(node, route_individual, PROPERTY_PROCESSED, rand_uuid("processed"));
 
