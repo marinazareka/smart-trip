@@ -1,0 +1,27 @@
+diff -ur SmartSlog_dapi_0.6.0_src_orig/src/CMakeLists.txt SmartSlog_dapi_0.6.0_src/src/CMakeLists.txt
+--- SmartSlog_dapi_0.6.0_src_orig/src/CMakeLists.txt	2015-12-10 16:57:43.000000000 +0300
++++ SmartSlog_dapi_0.6.0_src/src/CMakeLists.txt	2016-01-19 14:22:30.657719776 +0300
+@@ -27,19 +27,18 @@
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -ansi -std=c99")
+ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -pedantic -ansi -std=c99")
+ 
+-add_library(${SSLOG_LIB} SHARED ${SRC_LIST} ${SNADALONE_HEADERS})
+-
+-
+ if (UNIX)
+     pkg_search_module (ckpi REQUIRED ckpi)
+-
+-    target_link_libraries(${SSLOG_LIB} pthread)
+ endif (UNIX)
+ 
+ if (ckpi_FOUND)
+   include_directories(${ckpi_INCLUDE_DIRS})
++  link_directories(${ckpi_LIBRARY_DIRS})
+ endif (ckpi_FOUND)
+ 
++add_library(${SSLOG_LIB} SHARED ${SRC_LIST} ${SNADALONE_HEADERS})
++
++target_link_libraries(${SSLOG_LIB} pthread)
+ target_link_libraries(${SSLOG_LIB}  ${LIB_CKPI} ${LIB_PTHREAD} ${LIB_WS2} ${ckpi_LIBRARIES} )
+ 
+ if (UNIX)
