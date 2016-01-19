@@ -144,6 +144,8 @@ static void search_subscription_handler(sslog_subscription_t* sub) {
         st_free_point(&point_array[i]);
     }
 
+    sslog_node_remove_individual_with_local(node, request_individual);
+
     pthread_mutex_unlock(&ss_mutex);
 }
 
