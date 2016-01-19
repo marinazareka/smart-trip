@@ -244,6 +244,10 @@ RequestData* wait_subscription() {
             return NULL;
         }
 
+        if (!sslog_sbcr_is_active(sub)) {
+            return NULL;
+        }
+
         subscription_handler_2(sub);
     }
 

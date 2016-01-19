@@ -13,6 +13,7 @@ import oss.fruct.org.smarttrip.transportkp.tsp.*;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TransportKP {
 	private static final double RECALCULATE_DISTANCE = 20; // meters
@@ -25,6 +26,8 @@ public class TransportKP {
 	private SmartSpace smartSpace;
 	private GraphHopper graphHopper;
 	private Random random = new Random();
+
+	private volatile boolean isNeedShutdown = false;
 
 	public TransportKP(SmartSpace smartSpace, GraphHopper graphHopper) {
 		this.smartSpace = smartSpace;
@@ -42,11 +45,19 @@ public class TransportKP {
 			throw new RuntimeException("Can't subscribe to schedule request");
 		}
 
-		while(process())
-			;
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				log.debug("Running shutdown hook");
+				isNeedShutdown = true;
+				smartSpace.unsubscribe();
+				smartSpace.shutdown();
+			}
+		});
 
-		smartSpace.unsubscribe();
-		smartSpace.shutdown();
+		while(!isNeedShutdown) {
+			process();
+		}
 	}
 
 	private boolean process() {
