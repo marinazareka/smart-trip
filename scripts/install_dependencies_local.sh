@@ -11,6 +11,11 @@ fi
 
 INSTALL_DIR="$1"
 mkdir -p "${INSTALL_DIR}"
+mkdir -p "${INSTALL_DIR}"/lib
+
+if [[ `uname -m` == 'x86_64' ]]; then
+    ln -sf lib "${INSTALL_DIR}"/lib64
+fi
 
 mkdir -p build
 
