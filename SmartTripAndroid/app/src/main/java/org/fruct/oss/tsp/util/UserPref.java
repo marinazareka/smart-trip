@@ -11,10 +11,10 @@ public class UserPref {
 	public static final boolean PREF_CLOSED_DEFAULT = true;
 
 	public static final String PREF_SIB_ADDRESS = "pref_sib_address";
-	public static final String PREF_SIB_ADDRESS_DEFAULT = "172.20.2.240";
+	public static final String PREF_SIB_ADDRESS_DEFAULT = "etourism.cs.karelia.ru";
 
 	public static final String PREF_SIB_PORT = "pref_sib_port";
-	public static final String PREF_SIB_PORT_DEFAULT = "10010";
+	public static final String PREF_SIB_PORT_DEFAULT = "20203";
 
 	public static int getRadius(SharedPreferences pref) {
 		try {

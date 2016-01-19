@@ -18,11 +18,12 @@
         <EditTextPreference
             android:key="pref_sib_address"
             android:title="@string/pref_sib_address"
-            android:defaultValue="172.20.2.240" />
+            android:defaultValue="etourism.cs.karelia.ru" />
+
         <EditTextPreference
             android:key="pref_sib_port"
             android:title="@string/pref_sib_port"
-            android:defaultValue="10010"
+            android:defaultValue="20203"
             android:inputType="number"
             />
     </PreferenceCategory>
