@@ -12,6 +12,7 @@ fi
 INSTALL_DIR="$1"
 mkdir -p "${INSTALL_DIR}"
 mkdir -p "${INSTALL_DIR}"/lib
+mkdir -p "${INSTALL_DIR}"/bin
 
 if [[ `uname -m` == 'x86_64' ]]; then
     ln -sf lib "${INSTALL_DIR}"/lib64
@@ -29,7 +30,12 @@ if [[ ! -f SmartSlogCodeGen_v0.5.jar ]]; then
     exit 1
 fi
 
-cp SmartSlogCodeGen_v0.5.jar ${INSTALL_DIR}/
+cp SmartSlogCodeGen_v0.5.jar ${INSTALL_DIR}/bin
+cat << EOF > "${INSTALL_DIR}/bin/smartsloggen.sh"
+#!/bin/bash
+java -jar "${INSTALL_DIR}/bin/SmartSlogCodeGen_v0.5.jar" "\$@"
+EOF
+chmod u+x "${INSTALL_DIR}/bin/smartsloggen.sh"
 
 if [[ ! -f scew-1.1.7.tar.gz ]]; then
     wget http://savannah.nongnu.org/download/scew/scew-1.1.7.tar.gz
@@ -46,9 +52,10 @@ tar -xf ../scew-1.1.7.tar.gz
 tar -xf ../ANSI-C_KPI_v0.32alpha.tar.gz
 tar -xf ../SmartSlog_dapi_0.6.0_src.tar.gz
 
-cat << EOF >> "${INSTALL_DIR}/env.sh"
+cat << EOF > "${INSTALL_DIR}/env.sh"
 export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/pkgconfig:$PKG_CONFIG_PATH"
 export LD_LIBRARY_PATH="${INSTALL_DIR}/lib:$LD_LIBRARY_PATH"
+export PATH="${PATH}:${INSTALL_DIR}/bin"
 EOF
 
 source "${INSTALL_DIR}/env.sh"
