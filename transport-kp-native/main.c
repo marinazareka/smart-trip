@@ -198,7 +198,7 @@ static void subscription_handler_2(sslog_subscription_t* sub) {
 }
 
 bool subscribe() {
-    sub = sslog_new_subscription(node, true);
+    sub = sslog_new_subscription(node, false);
     sslog_sbcr_set_changed_handler(sub, &subscription_handler_2);
 
     sslog_triple_t* updated_triple = sslog_new_triple_detached(SSLOG_TRIPLE_ANY, sslog_entity_get_uri(PROPERTY_UPDATED), 
@@ -236,21 +236,30 @@ static RequestData* find_last_processed() {
 }
 
 RequestData* wait_subscription() {
-    pthread_mutex_lock(&requests_mutex);
+    //pthread_mutex_lock(&requests_mutex);
+
+    if (requests_array.size == 0) {
+        if (sslog_sbcr_wait(sub) != SSLOG_ERROR_NO) {
+            fprintf(stderr, "Error waiting subscription\n");
+            return NULL;
+        }
+
+        subscription_handler_2(sub);
+    }
 
     RequestData* request_data = find_last_processed();
     if (request_data == NULL) {
         fprintf(stderr, "Waiting for request\n");
-        pthread_cond_wait(&requests_cond, &requests_mutex);
-        request_data = find_last_processed();
+        //pthread_cond_wait(&requests_cond, &requests_mutex);
+        //request_data = find_last_processed();
     }
 
     if (request_data == NULL) {
-        pthread_mutex_unlock(&requests_mutex);
+        //pthread_mutex_unlock(&requests_mutex);
         return NULL;
     }
 
-    pthread_mutex_unlock(&requests_mutex);
+    //pthread_mutex_unlock(&requests_mutex);
     return request_data;
 }
 
