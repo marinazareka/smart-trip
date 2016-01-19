@@ -22,6 +22,8 @@ public class PrefFragment extends PreferenceFragmentCompat implements SharedPref
 		super.onResume();
 		pref.registerOnSharedPreferenceChangeListener(this);
 		onSharedPreferenceChanged(pref, UserPref.PREF_RADIUS);
+		onSharedPreferenceChanged(pref, UserPref.PREF_SIB_ADDRESS);
+		onSharedPreferenceChanged(pref, UserPref.PREF_SIB_PORT);
 	}
 
 	@Override
@@ -35,11 +37,29 @@ public class PrefFragment extends PreferenceFragmentCompat implements SharedPref
 		radiusPreference.setSummary(getResources().getQuantityString(R.plurals.pref_radius_summary, radius, radius));
 	}
 
+	private void setupSibAddressPreference(SharedPreferences pref, String address) {
+		Preference sibAddressPreference = findPreference(UserPref.PREF_SIB_ADDRESS);
+		sibAddressPreference.setSummary(address);
+	}
+
+	private void setupSibPortPreference(SharedPreferences pref, int port) {
+		Preference sibAddressPreference = findPreference(UserPref.PREF_SIB_PORT);
+		sibAddressPreference.setSummary(String.valueOf(port));
+	}
+
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences pref, String key) {
 		switch (key) {
 		case UserPref.PREF_RADIUS:
 			setupRadiusPreference(pref, UserPref.getRadius(pref));
+			break;
+
+		case UserPref.PREF_SIB_ADDRESS:
+			setupSibAddressPreference(pref, UserPref.getSibAddress(pref));
+			break;
+
+		case UserPref.PREF_SIB_PORT:
+			setupSibPortPreference(pref, UserPref.getSibPort(pref));
 			break;
 		}
 	}

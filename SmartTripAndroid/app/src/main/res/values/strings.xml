@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Smart Trip</string>
+
     <string name="title_enter_request">Запрос</string>
+    <string name="title_new_schedule">New schedule</string>
 
     <string name="nav_schedules">Schedules</string>
     <string name="nav_search">Search</string>
@@ -17,9 +19,16 @@
 
     <string name="action_schedule">Route</string>
     <string name="action_search">Search</string>
+    <string name="action_clear_search">Clear search</string>
+    <string name="action_activate_schedule">Activate</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_add_current_schedule">Add to current schedule</string>
+    <string name="action_add_new_schedule">Add to new schedule</string>
 
     <string name="hint_radius">Radius</string>
     <string name="hint_pattern">Pattern</string>
+    <string name="hint_title">Title</string>
 
     <string name="str_request_failed">Request failed</string>
 
@@ -28,12 +37,9 @@
     <string name="pref_closed">Closed route</string>
     <string name="pref_closed_summary">Find closed route by default</string>
 
-    <string name="action_add_current_schedule">Add to current schedule</string>
-    <string name="action_add_new_schedule">Add to new schedule</string>
-    <string name="hint_title">Title</string>
-    <string name="title_new_schedule">New schedule</string>
-    <string name="action_clear_search">Clear search</string>
-    <string name="action_activate_schedule">Activate</string>
-    <string name="action_edit">Edit</string>
-    <string name="action_delete">Delete</string>
+    <string name="pref_cat_sib">Sib</string>
+    <string name="pref_sib_address">Address</string>
+    <string name="pref_sib_port">Port</string>
+
+
 </resources>

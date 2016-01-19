@@ -19,6 +19,7 @@ import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.commondatatype.SmartSpaceNative;
 import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.util.Pref;
+import org.fruct.oss.tsp.util.UserPref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +93,8 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 		switch (msg.what) {
 		case MSG_ACTION_INITIALIZE:
 			try {
-				smartSpace.initialize(Pref.getUserId(pref), "android-user-kp-" + Pref.getUserId(pref), "X", "172.20.2.240", 10010);
+				smartSpace.initialize(Pref.getUserId(pref), "android-user-kp-" + Pref.getUserId(pref),
+						"X", UserPref.getSibAddress(pref), UserPref.getSibPort(pref));
 				smartSpace.setListener(new Listener());
 				// TODO: do something with uninitialized smartspace
 			} catch (IOException e) {
