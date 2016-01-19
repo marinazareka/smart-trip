@@ -16,5 +16,24 @@
     <string name="hint_pattern">Шаблон</string>
 
     <string name="str_request_failed">Не удалось выполнить запрос</string>
+    <string name="action_activate_schedule">Активировать</string>
+    <string name="action_add_current_schedule">Добавить в маршрут</string>
+    <string name="action_add_new_schedule">Создать новый маршрут</string>
+    <string name="action_clear_search">Очистить поиск</string>
+    <string name="action_delete">Удалить</string>
+    <string name="action_edit">Изменить</string>
+    <string name="app_name">Smart Trip</string>
+    <string name="hint_title">Название</string>
+    <string name="nav_movements">Перемещения</string>
+    <string name="nav_pref">Настройки</string>
+    <string name="nav_schedules">Маршруты</string>
+    <string name="nav_search">Поиск</string>
+    <string name="pref_cat_sib">Sib</string>
+    <string name="pref_closed">Замкнутый маршрут</string>
+    <string name="pref_closed_summary">По умолчанию искать маршрут с возвратом</string>
+    <string name="pref_radius">Радиус поиска</string>
+    <string name="pref_sib_address">Адрес</string>
+    <string name="pref_sib_port">Порт</string>
+    <string name="title_new_schedule">Новый маршрут</string>
 
 </resources>
