@@ -144,7 +144,13 @@ static void search_subscription_handler(sslog_subscription_t* sub) {
         st_free_point(&point_array[i]);
     }
 
+    // TODO: not sure if it is allowed to unsubscribe from handler
+    sslog_sbcr_unsubscribe(sub);
+    sslog_free_subscription(sub);
     sslog_node_remove_individual_with_local(node, request_individual);
+
+    request_individual = NULL;
+    sub_search_request = NULL;
 
     pthread_mutex_unlock(&ss_mutex);
 }

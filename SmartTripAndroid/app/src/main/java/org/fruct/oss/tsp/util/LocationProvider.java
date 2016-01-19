@@ -68,9 +68,11 @@ public class LocationProvider {
 			LocationServices.FusedLocationApi.requestLocationUpdates(apiClient, request, this);
 
 			Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(apiClient);
-			subscriber.onNext(lastLocation);
+			if (lastLocation != null) {
+				subscriber.onNext(lastLocation);
+			}
 		}
-
+		
 		@Override
 		public void onConnectionSuspended(int i) {
 
