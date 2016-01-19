@@ -32,10 +32,11 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 	private static final Logger log = LoggerFactory.getLogger(SmartSpaceService.class);
 
 	public static final int MSG_ACTION_INITIALIZE = 0;
-	public static final int MSG_ACTION_POST_USER_LOCATION = 1;
-	public static final int MSG_ACTION_POST_SEARCH_REQUEST = 2;
-	public static final int MSG_ACTION_POST_SCHEDULE_REQUEST = 3;
-	public static final int MSG_ACTION_SET_CALLBACK_MESSENGER = 4;
+	public static final int MSG_ACTION_SHUTDOWN = 1;
+	public static final int MSG_ACTION_POST_USER_LOCATION = 2;
+	public static final int MSG_ACTION_POST_SEARCH_REQUEST = 3;
+	public static final int MSG_ACTION_POST_SCHEDULE_REQUEST = 4;
+	public static final int MSG_ACTION_SET_CALLBACK_MESSENGER = 5;
 
 	public static final int CALLBACK_SCHEDULE_RESULT = 5;
 	public static final int CALLBACK_SEARCH_RESULT = 6;
@@ -52,6 +53,7 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 
 	private Messenger callbackMessenger;
 
+	private boolean isInitialized;
 	private boolean isPanicScheduled;
 
 	public SmartSpaceService() {
@@ -71,14 +73,13 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 		messenger = new Messenger(handler);
 
 		smartSpace = createSmartSpaceNative();
-
-		handler.sendEmptyMessage(MSG_ACTION_INITIALIZE);
 	}
 
 	@Override
 	public void onDestroy() {
 		handlerThread.getLooper().quit();
 		smartSpace.shutdown();
+		isInitialized = false;
 
 		log.debug("onDestroy");
 		super.onDestroy();
@@ -91,15 +92,24 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 	@Override
 	public boolean handleMessage(Message msg) {
 		switch (msg.what) {
+		case MSG_ACTION_SHUTDOWN:
+			if (isInitialized) {
+				smartSpace.shutdown();
+				isInitialized = false;
+			}
+			break;
+
 		case MSG_ACTION_INITIALIZE:
 			try {
+				String address = msg.getData().getString("address");
+				int port = msg.getData().getInt("port");
+
 				smartSpace.initialize(Pref.getUserId(pref), "android-user-kp-" + Pref.getUserId(pref),
-						"X", UserPref.getSibAddress(pref), UserPref.getSibPort(pref));
+						"X", address, port);
 				smartSpace.setListener(new Listener());
-				// TODO: do something with uninitialized smartspace
+				isInitialized = true;
 			} catch (IOException e) {
 				log.error("Can't initialize smartspace", e);
-				panic();
 			}
 			break;
 
@@ -140,6 +150,9 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 	}
 
 	private void handlePostUserLocation(Location location) {
+		if (!isInitialized)
+			return;
+
 		try {
 			smartSpace.updateUserLocation(location.getLatitude(), location.getLongitude());
 		} catch (IOException e) {
@@ -149,6 +162,9 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 	}
 
 	private void handlePostSearchRequest(double radius, String pattern) {
+		if (!isInitialized)
+			return;
+
 		try {
 			smartSpace.postSearchRequest(radius, pattern);
 		} catch (IOException e) {
@@ -158,6 +174,9 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 	}
 
 	private void handlerPostScheduleRequest(List<Point> points, TspType tspType) {
+		if (!isInitialized)
+			return;
+
 		try {
 			smartSpace.postScheduleRequest(points.toArray(new Point[points.size()]), tspType.name().toLowerCase());
 		} catch (IOException e) {
@@ -174,6 +193,7 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 	public IBinder onBind(Intent intent) {
 		return messenger.getBinder();
 	}
+
 
 	private class Listener implements SmartSpaceNative.Listener {
 		@Override

@@ -15,6 +15,9 @@
 #include "common/common.h"
 #include "smartslog.h"
 
+static bool is_ontology_registered;
+static bool is_smartspace_initialized;
+
 static sslog_node_t *node;
 
 static sslog_individual_t* user_individual;
@@ -242,15 +245,21 @@ bool st_initialize(const char *user_id, const char *kp_name, const char *smart_s
                    const char *address, int port) {
     init_rand();
 
-    if (sslog_init() != SSLOG_ERROR_NO) {
-        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Error sslog_init %s",
-                            sslog_error_get_text(node));
-        return false;
-    } else {
-        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Sslog_init ok");
+    if (!is_smartspace_initialized) {
+        if (sslog_init() != SSLOG_ERROR_NO) {
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Error sslog_init %s",
+                                sslog_error_get_text(node));
+            return false;
+        } else {
+            is_smartspace_initialized = true;
+            __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Sslog_init ok");
+        }
     }
 
-    register_ontology();
+    if (!is_ontology_registered) {
+        is_ontology_registered = true;
+        register_ontology();
+    }
 
     node = create_node_resolve(kp_name, smart_space_name, address, port);
 
@@ -264,6 +273,8 @@ bool st_initialize(const char *user_id, const char *kp_name, const char *smart_s
 
     if (sslog_node_join(node) != SSLOG_ERROR_NO) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't join node");
+        sslog_free_node(node);
+        node = NULL;
         return false;
     }
 
@@ -281,8 +292,15 @@ bool st_initialize(const char *user_id, const char *kp_name, const char *smart_s
 }
 
 void st_shutdown() {
-    sslog_node_leave(node);
+    if (node != NULL) {
+        sslog_node_leave(node);
+        node = NULL;
+    }
+
     sslog_shutdown();
+
+    is_ontology_registered = false;
+    is_smartspace_initialized = false;
 }
 
 bool st_update_user_location(double lat, double lon) {
@@ -312,7 +330,7 @@ bool st_update_user_location(double lat, double lon) {
     }
 
     if (sslog_node_update_property(node, user_individual, PROPERTY_HASLOCATION,
-                               (void*) existing_user_location, new_location_individual) != SSLOG_ERROR_NO) {
+                                   (void*) existing_user_location, new_location_individual) != SSLOG_ERROR_NO) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't assign new existing user location");
         pthread_mutex_unlock(&ss_mutex);
         return false;
@@ -329,7 +347,7 @@ bool st_update_user_location(double lat, double lon) {
         }
 
         if (sslog_node_update_property(node, route_individual, PROPERTY_UPDATED, NULL,
-                                   rand_uuid("updated")) != SSLOG_ERROR_NO) {
+                                       rand_uuid("updated")) != SSLOG_ERROR_NO) {
             __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't update 'updated' property");
             pthread_mutex_unlock(&ss_mutex);
             return false;
@@ -540,7 +558,7 @@ bool st_post_schedule_request(struct Point* points, int points_count, const char
     pthread_mutex_unlock(&ss_mutex);
     return true;
 
-failure:
+    failure:
     pthread_mutex_unlock(&ss_mutex);
     return false;
 }

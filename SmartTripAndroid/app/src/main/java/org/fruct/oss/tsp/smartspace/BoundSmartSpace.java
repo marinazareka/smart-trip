@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,6 +13,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 
 import org.fruct.oss.tsp.commondatatype.Movement;
@@ -20,6 +22,7 @@ import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.events.RequestFailedEvent;
 import org.fruct.oss.tsp.events.ScheduleEvent;
 import org.fruct.oss.tsp.events.SearchEvent;
+import org.fruct.oss.tsp.util.UserPref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +33,11 @@ import de.greenrobot.event.EventBus;
 
 // TODO: сервис может быть не подключен во время запросов.
 
-public class BoundSmartSpace implements SmartSpace, Handler.Callback {
+public class BoundSmartSpace implements SmartSpace, Handler.Callback, SharedPreferences.OnSharedPreferenceChangeListener {
 	private static final Logger log = LoggerFactory.getLogger(BoundSmartSpace.class);
 
 	private final Context context;
+	private final SharedPreferences pref;
 
 	private SmartSpaceServiceConnection connection;
 
@@ -46,10 +50,12 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback {
 
 	public BoundSmartSpace(FragmentActivity activity) {
 		this.context = activity.getApplicationContext();
+		pref = PreferenceManager.getDefaultSharedPreferences(context);
 		handler = new Handler(this);
 	}
 
 	public void start() {
+		pref.registerOnSharedPreferenceChangeListener(this);
 		serviceStartDelay = -1;
 
 		uiThreadHandler = new Handler(Looper.getMainLooper());
@@ -75,6 +81,13 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback {
 		}
 	}
 
+	private void sendInitializeMessage() {
+		Bundle args = new Bundle();
+		args.putString("address", UserPref.getSibAddress(pref));
+		args.putInt("port", UserPref.getSibPort(pref));
+		sendSmartSpaceMessage(SmartSpaceService.MSG_ACTION_INITIALIZE, args);
+	}
+
 	private void startSmartSpaceService() {
 		log.debug("Starting smartspace service");
 		context.startService(new Intent(context, SmartSpaceService.class));
@@ -84,6 +97,7 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback {
 		uiThreadHandler.removeCallbacksAndMessages(null);
 		context.unbindService(connection);
 		context.stopService(new Intent(context, SmartSpaceService.class));
+		pref.unregisterOnSharedPreferenceChangeListener(this);
 	}
 
 	@Override
@@ -97,7 +111,6 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback {
 
 		sendSmartSpaceMessage(SmartSpaceService.MSG_ACTION_POST_USER_LOCATION, data);
 	}
-
 
 	@Override
 	public void postSearchRequest(double radius, String pattern) {
@@ -140,12 +153,24 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback {
 		return true;
 	}
 
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		switch (key) {
+		case UserPref.PREF_SIB_ADDRESS:
+		case UserPref.PREF_SIB_PORT:
+			sendSmartSpaceMessage(SmartSpaceService.MSG_ACTION_SHUTDOWN, new Bundle());
+			sendInitializeMessage();
+			break;
+		}
+	}
+
 	private class SmartSpaceServiceConnection implements ServiceConnection {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			log.debug("Smart space service connected");
 			messenger = new Messenger(service);
 			sendCallback();
+			sendInitializeMessage();
 		}
 
 		@Override
