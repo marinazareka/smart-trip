@@ -64,11 +64,8 @@ static void process_inserted_request(sslog_node_t* node, const char* request_uui
         return;
     }
 
-    
-    sslog_node_populate(node, location_individual);
-
-    const char* lat_string = sslog_get_property(location_individual, PROPERTY_LAT);
-    const char* lon_string = sslog_get_property(location_individual, PROPERTY_LONG);
+    const char* lat_string = sslog_node_get_property(node, location_individual, PROPERTY_LAT);
+    const char* lon_string = sslog_node_get_property(node, location_individual, PROPERTY_LONG);
     const char* radius_string = sslog_node_get_property(node, region_individual, PROPERTY_RADIUS);
 
     if (lat_string == NULL || lon_string == NULL) {

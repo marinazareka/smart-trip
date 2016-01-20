@@ -329,12 +329,12 @@ bool st_update_user_location(double lat, double lon) {
         return false;
     }
 
-    sslog_individual_t* existing_user_location = sslog_get_property(user_individual,
-                                                                    PROPERTY_HASLOCATION);
+    sslog_individual_t* existing_user_location = sslog_node_get_property(node, user_individual,
+                                                                         PROPERTY_HASLOCATION);
     if (existing_user_location != NULL) {
-        printf("Location already exists\n");
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Location already exists");
     } else {
-        printf("Location not exists\n");
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Location not exists");
     }
 
     if (sslog_node_update_property(node, user_individual, PROPERTY_HASLOCATION,
@@ -419,7 +419,8 @@ bool st_post_search_request(double radius, const char *pattern) {
         goto failure;
     }
 
-    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating searchrequest individual");
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating searchrequest individual. Location id %s",
+                        location_individual->entity.uri);
 
     // Create circle region individual
     sslog_individual_t* region_individual = sslog_new_individual(CLASS_CIRCLEREGION,
