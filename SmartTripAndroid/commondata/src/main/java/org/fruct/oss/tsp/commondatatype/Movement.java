@@ -3,10 +3,12 @@ package org.fruct.oss.tsp.commondatatype;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.io.Serializable;
+
 /**
  * Отрезок пути маршурута
  */
-public class Movement  implements Parcelable {
+public class Movement  implements Parcelable, Serializable {
 	private Point a;
 	private Point b;
 

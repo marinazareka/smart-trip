@@ -3,10 +3,12 @@ package org.fruct.oss.tsp.commondatatype;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.io.Serializable;
+
 /**
  * Информация о географическом объекте
  */
-public class Point implements Parcelable {
+public class Point implements Parcelable, Serializable {
 	private String id;
 	private String title;
 	private double lat;
