@@ -47,7 +47,8 @@ public class PointsTable {
 				cursor.getString(1),
 				cursor.getString(2),
 				cursor.getDouble(3),
-				cursor.getDouble(4)
+				cursor.getDouble(4),
+				true
 		);
 	}
 
