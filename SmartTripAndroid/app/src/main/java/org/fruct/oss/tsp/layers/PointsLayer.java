@@ -53,7 +53,7 @@ public class PointsLayer extends Layer {
 
 	private Subscription pointsSubscription;
 
-	private PublishSubject<List<Point>> tappedPointsSubject = PublishSubject.create();
+	private PublishSubject<TapResult> tappedPointsSubject = PublishSubject.create();
 
 	public PointsLayer(Context context, DatabaseRepo repo, SearchStore searchStore) {
 		this.context = context;
@@ -106,7 +106,7 @@ public class PointsLayer extends Layer {
 		super.onRemove();
 	}
 
-	public Observable<List<Point>> getTappedPointsObservable() {
+	public Observable<TapResult> getTappedPointsObservable() {
 		return tappedPointsSubject;
 	}
 
@@ -141,20 +141,20 @@ public class PointsLayer extends Layer {
 		}
 
 		if (!tappedPoints.isEmpty()) {
-			onPointsTapped(tappedPoints);
+			onPointsTapped(tappedPoints, tapXY.x, tapXY.y);
 			return true;
 		}
 
 		return super.onTap(tapLatLong, layerXY, tapXY);
 	}
 
-	private void onPointsTapped(ArrayList<Point> tappedPoints) {
+	private void onPointsTapped(ArrayList<Point> tappedPoints, double x, double y) {
 		for (Point tappedPoint : tappedPoints) {
 			log.debug("Tapped point " + tappedPoint.getTitle() + " " + tappedPoint.isPersisted());
 		}
 
 		if (!tappedPoints.isEmpty()) {
-			tappedPointsSubject.onNext(tappedPoints);
+			tappedPointsSubject.onNext(new TapResult(tappedPoints, x, y));
 		}
 	}
 
@@ -169,6 +169,18 @@ public class PointsLayer extends Layer {
 
 			this.index = index;
 			this.point = point;
+		}
+	}
+
+	public static class TapResult {
+		public List<Point> tappedPoints;
+		public double x;
+		public double y;
+
+		public TapResult(List<Point> tappedPoints, double x, double y) {
+			this.tappedPoints = tappedPoints;
+			this.x = x;
+			this.y = y;
 		}
 	}
 }

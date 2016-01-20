@@ -8,7 +8,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.PopupMenu;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
@@ -155,17 +154,19 @@ public class MapFragment extends BaseFragment {
 
 		tappedPointsSubscription = pointsLayer.getTappedPointsObservable()
 				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe(new Action1<List<Point>>() {
+				.subscribe(new Action1<PointsLayer.TapResult>() {
 					@Override
-					public void call(List<Point> points) {
-						onTappedPoints(points);
+					public void call(PointsLayer.TapResult tapResult) {
+						onTappedPoints(tapResult);
 					}
 				});
 
 		this.layer.onResume();
 	}
 
-	private void onTappedPoints(final List<Point> points) {
+	private void onTappedPoints(final PointsLayer.TapResult tapResult) {
+		final List<Point> points = tapResult.tappedPoints;
+
 		if (points.size() > 1) {
 			String[] pointsTitles = new String[points.size()];
 
@@ -179,20 +180,26 @@ public class MapFragment extends BaseFragment {
 						@Override
 						public boolean onSelection(MaterialDialog materialDialog, View view,
 												   int index, CharSequence charSequence) {
-							onTappedPoint(points.get(index));
+							onTappedPoint(points.get(index), tapResult.x, tapResult.y);
 							materialDialog.dismiss();
 							return true;
 						}
 					})
 					.show();
 		} else {
-			onTappedPoint(points.get(0));
+			onTappedPoint(points.get(0), tapResult.x, tapResult.y);
 		}
 	}
 
-	private void onTappedPoint(Point point) {
+	private void onTappedPoint(Point point, double x, double y) {
 		if (!point.isPersisted()) {
-			// Show same dialog that in SearchFragment
+			dialogAnchorContainer.setX((float) x);
+			dialogAnchorContainer.setY((float) y);
+
+			AddPointFragment.addToFragmentManager(
+					AddPointFragment.newInstance(point),
+					getFragmentManager(),
+					R.id.dialog_anchor_container);
 		}
 	}
 
