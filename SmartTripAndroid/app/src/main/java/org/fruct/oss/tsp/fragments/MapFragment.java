@@ -8,9 +8,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
+
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Movement;
+import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.layers.PointsLayer;
 import org.fruct.oss.tsp.layers.UserLayer;
 import org.fruct.oss.tsp.util.Utils;
@@ -23,6 +27,8 @@ import org.mapsforge.map.layer.cache.TileCache;
 import org.mapsforge.map.layer.download.TileDownloadLayer;
 import org.mapsforge.map.layer.download.tilesource.OpenStreetMapMapnik;
 import org.mapsforge.map.layer.overlay.Polyline;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +38,8 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
 public class MapFragment extends BaseFragment {
+	private static final Logger log = LoggerFactory.getLogger(MapFragment.class);
+
 	private MapView mapView;
 	private TileCache tileCache;
 
@@ -40,8 +48,8 @@ public class MapFragment extends BaseFragment {
 	private Polyline pathLayer;
 	private UserLayer userLayer;
 
-	private Subscription movementsSubscribe;
-
+	private Subscription movementsSubscription;
+	private Subscription tappedPointsSubscription;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -128,7 +136,7 @@ public class MapFragment extends BaseFragment {
 	public void onResume() {
 		super.onResume();
 
-		movementsSubscribe = getScheduleStore().getObservable()
+		movementsSubscription = getScheduleStore().getObservable()
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(new Action1<List<Movement>>() {
 					@Override
@@ -137,14 +145,53 @@ public class MapFragment extends BaseFragment {
 					}
 				});
 
+		tappedPointsSubscription = pointsLayer.getTappedPointsObservable()
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(new Action1<List<Point>>() {
+					@Override
+					public void call(List<Point> points) {
+						onTappedPoints(points);
+					}
+				});
+
 		this.layer.onResume();
+	}
+
+	private void onTappedPoints(final List<Point> points) {
+		if (points.size() > 1) {
+			String[] pointsTitles = new String[points.size()];
+
+			for (int i = 0; i < pointsTitles.length; i++) {
+				pointsTitles[i] = points.get(i).getTitle();
+			}
+
+			new MaterialDialog.Builder(getContext())
+					.items(pointsTitles)
+					.itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
+						@Override
+						public boolean onSelection(MaterialDialog materialDialog, View view,
+												   int index, CharSequence charSequence) {
+							onTappedPoint(points.get(index));
+							materialDialog.dismiss();
+							return true;
+						}
+					})
+					.show();
+		} else {
+			onTappedPoint(points.get(0));
+		}
+	}
+
+	private void onTappedPoint(Point point) {
+		log.debug("onTappedPoint {}", point.getTitle());
 	}
 
 	@Override
 	public void onPause() {
 		this.layer.onPause();
 
-		movementsSubscribe.unsubscribe();
+		tappedPointsSubscription.unsubscribe();
+		movementsSubscription.unsubscribe();
 
 		super.onPause();
 	}

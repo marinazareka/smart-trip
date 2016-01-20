@@ -16,17 +16,24 @@ import org.mapsforge.core.util.MercatorProjection;
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
 import org.mapsforge.map.layer.Layer;
 import org.mapsforge.map.layer.overlay.FixedPixelCircle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import rx.Observable;
+import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func2;
+import rx.subjects.PublishSubject;
+import rx.subjects.Subject;
 
 public class PointsLayer extends Layer {
+	private static final Logger log = LoggerFactory.getLogger(PointsLayer.class);
+
 	private static final GraphicFactory GRAPHIC_FACTORY = AndroidGraphicFactory.INSTANCE;
 
 	private final Context context;
@@ -38,11 +45,15 @@ public class PointsLayer extends Layer {
 	private final Paint circleStroke;
 
 	private final int radius;
+	private final int radiusScaled;
 
 	private List<PointLayer> pointLayers = new ArrayList<>();
 
 	private byte lastZoom;
-	private Subscription subscription;
+
+	private Subscription pointsSubscription;
+
+	private PublishSubject<List<Point>> tappedPointsSubject = PublishSubject.create();
 
 	public PointsLayer(Context context, DatabaseRepo repo, SearchStore searchStore) {
 		this.context = context;
@@ -50,7 +61,8 @@ public class PointsLayer extends Layer {
 		this.repo = repo;
 		this.searchStore = searchStore;
 
-		radius = Utils.getDP(8);
+		radius = 16;
+		radiusScaled = Utils.getDP(radius);
 
 		circleFill = Utils.createPaint(GRAPHIC_FACTORY.createColor(170, 100, 110, 255), 0, Style.FILL);
 		circleFillChecked = Utils.createPaint(GRAPHIC_FACTORY.createColor(170, 100, 200, 255), 0, Style.FILL);
@@ -72,7 +84,7 @@ public class PointsLayer extends Layer {
 	protected void onAdd() {
 		super.onAdd();
 
-		subscription = Observable.combineLatest(searchStore.getObservable(), repo.loadCurrentSchedulePoints(),
+		pointsSubscription = Observable.combineLatest(searchStore.getObservable(), repo.loadCurrentSchedulePoints(),
 				new Func2<List<Point>, List<Point>, List<Point>>() {
 					@Override
 					public List<Point> call(List<Point> searchedPoints, List<Point> schedulePoints) {
@@ -90,8 +102,12 @@ public class PointsLayer extends Layer {
 
 	@Override
 	protected void onRemove() {
-		subscription.unsubscribe();
+		pointsSubscription.unsubscribe();
 		super.onRemove();
+	}
+
+	public Observable<List<Point>> getTappedPointsObservable() {
+		return tappedPointsSubject;
 	}
 
 	public synchronized void updatePoints(List<Point> points) {
@@ -111,6 +127,7 @@ public class PointsLayer extends Layer {
 		double tx = MercatorProjection.longitudeToPixelX(tapLatLong.longitude, mapSize);
 		double ty = MercatorProjection.latitudeToPixelY(tapLatLong.latitude, mapSize);
 
+		ArrayList<Point> tappedPoints = new ArrayList<>();
 		for (PointLayer pointLayer : pointLayers) {
 			double x = MercatorProjection.longitudeToPixelX(pointLayer.point.getLon(), mapSize);
 			double y = MercatorProjection.latitudeToPixelY(pointLayer.point.getLat(), mapSize);
@@ -118,14 +135,27 @@ public class PointsLayer extends Layer {
 			double dx = x - tx;
 			double dy = y - ty;
 
-			if (dx * dx + dy * dy < radius * radius) {
-				// TODO: handle tap somehow
-				//onPointClicked(pointLayer);
-				return true;
+			if (dx * dx + dy * dy < radiusScaled * radiusScaled) {
+				tappedPoints.add(pointLayer.point);
 			}
 		}
 
+		if (!tappedPoints.isEmpty()) {
+			onPointsTapped(tappedPoints);
+			return true;
+		}
+
 		return super.onTap(tapLatLong, layerXY, tapXY);
+	}
+
+	private void onPointsTapped(ArrayList<Point> tappedPoints) {
+		for (Point tappedPoint : tappedPoints) {
+			log.debug("Tapped point " + tappedPoint.getTitle() + " " + tappedPoint.isPersisted());
+		}
+
+		if (!tappedPoints.isEmpty()) {
+			tappedPointsSubject.onNext(tappedPoints);
+		}
 	}
 
 	private class PointLayer extends FixedPixelCircle {
@@ -139,7 +169,6 @@ public class PointsLayer extends Layer {
 
 			this.index = index;
 			this.point = point;
-
 		}
 	}
 }
