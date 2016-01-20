@@ -18,7 +18,6 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.fragments.CommonFragment;
 import org.fruct.oss.tsp.fragments.MapFragment;
-import org.fruct.oss.tsp.fragments.PointListFragment;
 import org.fruct.oss.tsp.fragments.PrefFragment;
 import org.fruct.oss.tsp.fragments.MovementsListFragment;
 import org.fruct.oss.tsp.fragments.SchedulesFragment;
@@ -58,11 +57,7 @@ public class MainActivity extends AppCompatActivity {
 	TabLayout tabbar;
 
 	private CommonFragment commonFragment;
-
 	private Drawer drawer;
-	private TabLayout.Tab geoTab;
-	private TabLayout.Tab tripTab;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -114,14 +109,6 @@ public class MainActivity extends AppCompatActivity {
 
 	private void setupToolbar() {
 		setSupportActionBar(toolbar);
-	}
-
-	private void setupTabbar() {
-		tabbar.removeAllTabs();
-		tabbar.addTab(geoTab = tabbar.newTab().setText(R.string.tab_geo).setTag(R.id.tab_geo));
-		tabbar.addTab(tripTab = tabbar.newTab().setText(R.string.tab_trip).setTag(R.id.tab_trip));
-		tabbar.setOnTabSelectedListener(new TabListener());
-		tabbar.setVisibility(View.VISIBLE);
 	}
 
 	private void hideTabbar() {
@@ -178,11 +165,6 @@ public class MainActivity extends AppCompatActivity {
 			switchMovementsFragment();
 			break;
 
-
-		case R.id.drawer_list:
-			switchGeoFragment();
-			break;
-
 		case R.id.drawer_map:
 			switchMapFragment();
 			break;
@@ -222,22 +204,6 @@ public class MainActivity extends AppCompatActivity {
 		switchFragment(new MapFragment());
 	}
 
-	private void switchGeoFragment() {
-		if (tabbar.getVisibility() != View.VISIBLE) {
-			setupTabbar();
-			geoTab.select();
-		}
-		switchFragment(new PointListFragment());
-	}
-
-	private void switchTripFragment() {
-		if (tabbar.getVisibility() != View.VISIBLE) {
-			setupTabbar();
-			tripTab.select();
-		}
-		switchFragment(new MovementsListFragment());
-	}
-
 	private void switchFragment(Fragment fragment) {
 		getSupportFragmentManager().popBackStack(TRANSACTION_ROOT, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
@@ -245,26 +211,5 @@ public class MainActivity extends AppCompatActivity {
 		transaction.addToBackStack(TRANSACTION_ROOT);
 		transaction.replace(R.id.container, fragment);
 		transaction.commit();
-	}
-
-	private class TabListener implements TabLayout.OnTabSelectedListener {
-		@Override
-		public void onTabSelected(TabLayout.Tab tab) {
-			if (tab == geoTab) {
-				switchGeoFragment();
-			} else if (tab == tripTab) {
-				switchTripFragment();
-			}
-		}
-
-		@Override
-		public void onTabUnselected(TabLayout.Tab tab) {
-
-		}
-
-		@Override
-		public void onTabReselected(TabLayout.Tab tab) {
-
-		}
 	}
 }

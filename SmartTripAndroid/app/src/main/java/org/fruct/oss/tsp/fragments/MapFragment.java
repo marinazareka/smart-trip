@@ -183,7 +183,9 @@ public class MapFragment extends BaseFragment {
 	}
 
 	private void onTappedPoint(Point point) {
-		log.debug("onTappedPoint {}", point.getTitle());
+		if (!point.isPersisted()) {
+			// Show same dialog that in SearchFragment
+		}
 	}
 
 	@Override
