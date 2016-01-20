@@ -11,11 +11,9 @@ import android.view.ViewGroup;
 
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Movement;
-import org.fruct.oss.tsp.events.ScheduleStoreChangedEvent;
 import org.fruct.oss.tsp.layers.PointsLayer;
 import org.fruct.oss.tsp.layers.UserLayer;
 import org.fruct.oss.tsp.util.Utils;
-import org.fruct.oss.tsp.viewmodel.DefaultGeoViewModel;
 import org.mapsforge.core.graphics.Style;
 import org.mapsforge.core.model.LatLong;
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
@@ -27,10 +25,8 @@ import org.mapsforge.map.layer.download.tilesource.OpenStreetMapMapnik;
 import org.mapsforge.map.layer.overlay.Polyline;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;

@@ -111,16 +111,16 @@ public class PointsLayer extends Layer {
 		double tx = MercatorProjection.longitudeToPixelX(tapLatLong.longitude, mapSize);
 		double ty = MercatorProjection.latitudeToPixelY(tapLatLong.latitude, mapSize);
 
-		for (PointLayer pointHolder : pointLayers) {
-			double x = MercatorProjection.longitudeToPixelX(pointHolder.point.getLon(), mapSize);
-			double y = MercatorProjection.latitudeToPixelY(pointHolder.point.getLat(), mapSize);
+		for (PointLayer pointLayer : pointLayers) {
+			double x = MercatorProjection.longitudeToPixelX(pointLayer.point.getLon(), mapSize);
+			double y = MercatorProjection.latitudeToPixelY(pointLayer.point.getLat(), mapSize);
 
 			double dx = x - tx;
 			double dy = y - ty;
 
 			if (dx * dx + dy * dy < radius * radius) {
 				// TODO: handle tap somehow
-				//onPointClicked(pointHolder);
+				//onPointClicked(pointLayer);
 				return true;
 			}
 		}

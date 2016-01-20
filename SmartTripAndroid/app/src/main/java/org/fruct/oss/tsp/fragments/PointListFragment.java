@@ -23,7 +23,6 @@ import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.mvp.PointListMvpView;
 import org.fruct.oss.tsp.mvp.PointListPresenter;
-import org.fruct.oss.tsp.viewmodel.GeoViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +45,6 @@ import butterknife.OnClick;
  *     <li>Пункт меню "Маршрут". Активен при наличии выбранных точек.</li>
  * </ul>
  *
- * Текущее состояние выбора точек и хранится в объекте вспомогательного класса {@link GeoViewModel}.
  */
 public class PointListFragment extends BaseFragment implements PointListMvpView {
 	private static final Logger log = LoggerFactory.getLogger(PointListFragment.class);
