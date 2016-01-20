@@ -66,12 +66,34 @@ static void process_inserted_request(sslog_node_t* node, const char* request_uui
 
     
     sslog_node_populate(node, location_individual);
-    double lat = parse_double(sslog_get_property(location_individual, PROPERTY_LAT));
-    double lon = parse_double(sslog_get_property(location_individual, PROPERTY_LONG));
-    double radius = parse_double(sslog_node_get_property(node, region_individual, PROPERTY_RADIUS));
+
+    const char* lat_string = sslog_get_property(location_individual, PROPERTY_LAT);
+    const char* lon_string = sslog_get_property(location_individual, PROPERTY_LONG);
+    const char* radius_string = sslog_node_get_property(node, region_individual, PROPERTY_RADIUS);
+
+    if (lat_string == NULL || lon_string == NULL) {
+        printf("Null latitude and longitude in USELOCATION property\n");
+        return;
+    }
+
+    if (radius_string == NULL) {
+        printf("Null raduis in RADIUS property\n");
+        return;
+    }
+
+    double lat = parse_double(lat_string);
+    double lon = parse_double(lon_string);
+
+    double radius = parse_double(radius_string);
+
     const char* pattern = sslog_node_get_property(node, request_individual, PROPERTY_SEARCHPATTERN);
+    if (pattern == NULL) {
+        printf("Null pattern property in request\n");
+        return;
+    }
 
     printf("User location: %lf %lf. Search radius: %lf\n", lat, lon, radius);
+
     find_and_publish_points(node, request_individual, lat, lon, radius, pattern);
 }
 
