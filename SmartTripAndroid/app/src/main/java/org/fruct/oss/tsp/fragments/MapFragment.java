@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -40,7 +42,12 @@ import rx.functions.Action1;
 public class MapFragment extends BaseFragment {
 	private static final Logger log = LoggerFactory.getLogger(MapFragment.class);
 
-	private MapView mapView;
+	@Bind(R.id.map_view)
+	MapView mapView;
+
+	@Bind(R.id.dialog_anchor_container)
+	View dialogAnchorContainer;
+
 	private TileCache tileCache;
 
 	private TileDownloadLayer layer;
@@ -87,7 +94,8 @@ public class MapFragment extends BaseFragment {
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		mapView = new MapView(getContext());
+		View view = inflater.inflate(R.layout.fragment_map, container, false);
+		ButterKnife.bind(this, view);
 
 		this.mapView.setClickable(true);
 		this.mapView.getMapScaleBar().setVisible(false);
@@ -102,7 +110,7 @@ public class MapFragment extends BaseFragment {
 				mapView.getModel().displayModel.getTileSize(), 1f,
 				mapView.getModel().frameBufferModel.getOverdrawFactor(), true);
 
-		return mapView;
+		return view;
 	}
 
 	@Override
