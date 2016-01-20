@@ -23,13 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import rx.Observable;
-import rx.Observer;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func2;
 import rx.subjects.PublishSubject;
-import rx.subjects.Subject;
 
 public class PointsLayer extends Layer {
 	private static final Logger log = LoggerFactory.getLogger(PointsLayer.class);
@@ -41,7 +39,7 @@ public class PointsLayer extends Layer {
 	private final SearchStore searchStore;
 
 	private final Paint circleFill;
-	private final Paint circleFillChecked;
+	private final Paint circleFillSearched;
 	private final Paint circleStroke;
 
 	private final int radius;
@@ -64,8 +62,8 @@ public class PointsLayer extends Layer {
 		radius = 16;
 		radiusScaled = Utils.getDP(radius);
 
-		circleFill = Utils.createPaint(GRAPHIC_FACTORY.createColor(170, 100, 110, 255), 0, Style.FILL);
-		circleFillChecked = Utils.createPaint(GRAPHIC_FACTORY.createColor(170, 100, 200, 255), 0, Style.FILL);
+		circleFill = Utils.createPaint(GRAPHIC_FACTORY.createColor       (170, 100, 110, 255), 0, Style.FILL);
+		circleFillSearched = Utils.createPaint(GRAPHIC_FACTORY.createColor(220, 100, 200, 255), 0, Style.FILL);
 
 		circleStroke = Utils.createPaint(GRAPHIC_FACTORY.createColor(200, 100, 110, 210), Utils.getDP(2), Style.STROKE);
 	}
@@ -164,7 +162,7 @@ public class PointsLayer extends Layer {
 
 		public PointLayer(int index, Point point) {
 			super(new LatLong(point.getLat(), point.getLon()),
-					radius, circleFill, circleStroke);
+					radius, point.isPersisted() ? circleFill : circleFillSearched, circleStroke);
 			setDisplayModel(PointsLayer.this.displayModel);
 
 			this.index = index;
