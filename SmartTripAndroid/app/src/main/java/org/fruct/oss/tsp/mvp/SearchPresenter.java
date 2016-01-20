@@ -73,36 +73,9 @@ public class SearchPresenter implements Presenter<SearchMvpView> {
 		view.displaySearchDialog(null, UserPref.getRadius(pref));
 	}
 
-	public void onPointAddToCurrentSchedule(Point point) {
-		lastSelectedPoint = point;
-
-		long currentScheduleId = Pref.getCurrentSchedule(pref);
-		if (currentScheduleId != 0) {
-			databaseRepo.insertPoint(currentScheduleId, point);
-		} else {
-			// TODO: notify user or disallow point adding without current schedule
-		}
-	}
-
-	public void onPointAddToNewSchedule(Point point) {
-		lastSelectedPoint = point;
-		view.displayNewScheduleDialog();
-	}
-
 	public void search(int radius, String patternText) {
 		smartspace.postSearchRequest(radius, patternText);
 		view.displaySearchWaiter();
 	}
 
-	public void onNewScheduleDialogFinished(String title, TspType tspType) {
-		if (BuildConfig.DEBUG && lastSelectedPoint == null)
-			throw new AssertionError("New schedule dialog finished, but lastSelectedPoint is null");
-
-		log.debug("New schedule {} {}", title, tspType);
-		long insertedId = databaseRepo.insertSchedule(new Schedule(title, tspType));
-		Pref.setCurrentSchedule(pref, insertedId);
-		databaseRepo.setCurrentSchedule(insertedId);
-
-		onPointAddToCurrentSchedule(lastSelectedPoint);
-	}
 }

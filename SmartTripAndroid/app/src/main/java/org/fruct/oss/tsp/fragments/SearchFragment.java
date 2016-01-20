@@ -9,13 +9,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.PopupMenu;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -23,10 +19,8 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Point;
-import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.mvp.SearchMvpView;
 import org.fruct.oss.tsp.mvp.SearchPresenter;
-import org.fruct.oss.tsp.util.EditScheduleDialog;
 
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +35,9 @@ public class SearchFragment extends BaseFragment implements SearchMvpView {
 
 	@Bind(R.id.card_view)
 	CardView cardView;
+
+	@Bind(R.id.dialog_anchor_container)
+	View dialogAnchorContainer;
 
 	private SearchPresenter presenter;
 
@@ -173,18 +170,6 @@ public class SearchFragment extends BaseFragment implements SearchMvpView {
 		}
 	}
 
-	@Override
-	public void displayNewScheduleDialog() {
-		MaterialDialog dialog = EditScheduleDialog.create(getContext(), null, null,
-				new EditScheduleDialog.Listener() {
-			@Override
-			public void onScheduleDialogFinished(String title, TspType tspType) {
-				presenter.onNewScheduleDialogFinished(title, tspType);
-			}
-		});
-		dialog.show();
-	}
-
 	class Adapter extends RecyclerView.Adapter<Adapter.Holder> {
 		private List<Point> pointList = Collections.emptyList();
 
@@ -232,37 +217,15 @@ public class SearchFragment extends BaseFragment implements SearchMvpView {
 
 			@OnClick(R.id.root)
 			void onItemClicked() {
-				PopupMenu popupMenu = new PopupMenu(getContext(), view);
-				popupMenu.inflate(R.menu.point);
-				popupMenu.setOnMenuItemClickListener(new PointMenuListener(point));
-				popupMenu.show();
+				dialogAnchorContainer.setX(view.getX());
+				dialogAnchorContainer.setY(view.getY());
+
+				AddPointFragment.addToFragmentManager(
+						AddPointFragment.newInstance(point),
+						getFragmentManager(),
+						R.id.dialog_anchor_container
+				);
 			}
-		}
-	}
-
-	private class PointMenuListener implements PopupMenu.OnMenuItemClickListener {
-		private final Point point;
-
-		public PointMenuListener(Point point) {
-			this.point = point;
-		}
-
-		@Override
-		public boolean onMenuItemClick(MenuItem item) {
-			switch (item.getItemId()) {
-			case R.id.action_add_current_schedule:
-				presenter.onPointAddToCurrentSchedule(point);
-				break;
-
-			case R.id.action_add_new_schedule:
-				presenter.onPointAddToNewSchedule(point);
-				break;
-
-			default:
-				return false;
-			}
-
-			return true;
 		}
 	}
 }
