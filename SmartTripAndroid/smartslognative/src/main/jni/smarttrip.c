@@ -175,7 +175,6 @@ static bool subscribe_route_processed(sslog_individual_t* route) {
     list_t* properties = list_new();
     list_add_data(properties, PROPERTY_PROCESSED);
     sslog_sbcr_add_individual(sub_schedule_request, route, properties);
-    list_free_with_nodes(properties, NULL);
 
     sslog_sbcr_set_changed_handler(sub_schedule_request, &schedule_subscription_handler);
     sslog_sbcr_set_error_handler(sub_schedule_request, &schedule_subscription_error_handler);
