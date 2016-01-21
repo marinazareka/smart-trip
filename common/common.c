@@ -75,6 +75,14 @@ void cleanup_individual(sslog_individual_t** individual) {
     *individual = NULL;
 }
 
+void scoped_pthread_mutex_unlock_ptr(pthread_mutex_t** mutex) {
+    if (*mutex != NULL) {
+        pthread_mutex_unlock(*mutex);
+    }
+
+    *mutex = NULL;
+}
+
 sslog_individual_t* create_poi_individual(sslog_node_t* node, double lat, double lon,
                                           const char* title, const char* category) {
     char buf[BUFSIZE];
@@ -253,3 +261,5 @@ sslog_individual_t* st_get_subject_by_object(sslog_node_t* node, const char* obj
 
     // TODO: Cleanup received triples
 }
+
+

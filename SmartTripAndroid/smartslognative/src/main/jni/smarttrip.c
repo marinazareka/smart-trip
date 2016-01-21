@@ -398,38 +398,39 @@ static bool cancel_search_subscription() {
 }
 
 // TODO: will not work if no user location available
+// * error checks
+// * memory cleanups
 bool st_post_search_request(double radius, const char *pattern) {
-    pthread_mutex_lock(&ss_mutex);
+    CLEANUP_INDIVIDUAL sslog_individual_t* location_individual = NULL;
+    CLEANUP_INDIVIDUAL sslog_individual_t* region_individual = NULL;
+
+    SCOPED_MUTEX_LOCK(ss_mutex);
 
     if (!cancel_search_subscription()) {
-        goto failure;
+        return false;
     }
 
     // Create location individual
-    sslog_individual_t* location_individual
-            = sslog_new_individual(CLASS_LOCATION, rand_uuid("user_location"));
-
+    location_individual = sslog_new_individual(CLASS_LOCATION, rand_uuid("user_location"));
     sslog_insert_property(location_individual, PROPERTY_LAT, double_to_string(user_lat));
     sslog_insert_property(location_individual, PROPERTY_LONG, double_to_string(user_lon));
 
     if (sslog_node_insert_individual(node, location_individual) != SSLOG_ERROR_NO) {
-        // TODO: cleanup
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't insert location individual: %s",
                             sslog_error_get_last_text());
-        goto failure;
+        return false;
     }
 
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating searchrequest individual. Location id %s",
                         location_individual->entity.uri);
 
     // Create circle region individual
-    sslog_individual_t* region_individual = sslog_new_individual(CLASS_CIRCLEREGION,
-                                                                 rand_uuid("circle_search_region"));
+    region_individual = sslog_new_individual(CLASS_CIRCLEREGION, rand_uuid("circle_search_region"));
     sslog_insert_property(region_individual, PROPERTY_RADIUS, double_to_string(radius));
     if (sslog_node_insert_individual(node, region_individual) != SSLOG_ERROR_NO) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't insert region individual: %s",
                             sslog_error_get_last_text());
-        goto failure;
+        return false;
     }
 
     // Create request individual
@@ -442,7 +443,8 @@ bool st_post_search_request(double radius, const char *pattern) {
     if (sslog_node_insert_individual(node, request_individual_l) != SSLOG_ERROR_NO) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't insert request individual: %s",
                             sslog_error_get_last_text());
-        goto failure;
+        sslog_remove_individual(request_individual_l);
+        return false;
     }
 
     request_individual = request_individual_l;
@@ -453,23 +455,22 @@ bool st_post_search_request(double radius, const char *pattern) {
     list_t* properties = list_new();
     list_add_data(properties, PROPERTY_PROCESSED);
 
-    sub_search_request = sslog_new_subscription(node, true);
-    sslog_sbcr_add_individual(sub_search_request, request_individual, properties);
-    sslog_sbcr_set_changed_handler(sub_search_request, &search_subscription_handler);
+    sslog_subscription_t* sub_search_request_l = sslog_new_subscription(node, true);
+
+    sslog_sbcr_add_individual(sub_search_request_l, request_individual, properties);
+    sslog_sbcr_set_changed_handler(sub_search_request_l, &search_subscription_handler);
 
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Subscribing search request");
-    if (sslog_sbcr_subscribe(sub_search_request) != SSLOG_ERROR_NO) {
+    if (sslog_sbcr_subscribe(sub_search_request_l) != SSLOG_ERROR_NO) {
         __android_log_print(ANDROID_LOG_WARN, APPNAME, "Can't subscribe response: %s",
                             sslog_error_get_text(node));
-        goto failure;
+        sslog_free_subscription(sub_search_request_l);
+        sslog_node_remove_individual_with_local(node, request_individual);
+        request_individual = NULL;
+        return false;
     }
 
-    pthread_mutex_unlock(&ss_mutex);
     return true;
-
-    failure:
-    pthread_mutex_unlock(&ss_mutex);
-    return false;
 }
 
 bool st_post_schedule_request(struct Point* points, int points_count, const char* tsp_type) {

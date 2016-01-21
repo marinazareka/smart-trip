@@ -2,9 +2,18 @@
 #define COMMON_H_
 
 #include <smartslog.h>
+#include <pthread.h>
 
 void cleanup_individual(sslog_individual_t** individual);
 #define CLEANUP_INDIVIDUAL __attribute__((cleanup(cleanup_individual)))
+
+void scoped_pthread_mutex_unlock_ptr(pthread_mutex_t** mutex);
+
+#define SCOPED_MUTEX_LOCK(mutex) \
+    __attribute__((cleanup(scoped_pthread_mutex_unlock_ptr))) \
+    volatile pthread_mutex_t* mutex##_tmp = &mutex; \
+    pthread_mutex_lock(mutex##_tmp);
+
 
 char* rand_uuid(const char* prefix);
 char* rand_uuid_buf(const char* prefix, char* buf, size_t buf_size);
