@@ -571,3 +571,6 @@ bool st_post_schedule_request(struct Point* points, int points_count, const char
     pthread_mutex_unlock(&ss_mutex);
     return false;
 }
+
+static void test() {
+}

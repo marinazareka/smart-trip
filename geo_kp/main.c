@@ -20,8 +20,9 @@ static struct LoaderInterface point_loader;
 static void publish_point(sslog_node_t* node, sslog_individual_t* request_individual, struct Point* point) {
     printf("Inserting point %lf %lf %s\n", point->lat, point->lon, point->title);
     // TODO: uuid isn't being copied
-    sslog_individual_t* point_individual = create_poi_individual(node, point->lat, point->lon, point->title, "nocategory");
-    printf("URI %s\n", sslog_entity_get_uri(point_individual));
+    //
+    CLEANUP_INDIVIDUAL sslog_individual_t* point_individual 
+        = create_poi_individual(node, point->lat, point->lon, point->title, "nocategory");
     sslog_node_insert_property(node, request_individual, PROPERTY_HASPOINT, point_individual);
 }
 
@@ -115,11 +116,16 @@ static void subscribe_request(sslog_node_t* node) {
     sslog_subscription_t* subscription = sslog_new_subscription(node, false);
     sslog_sbcr_add_class(subscription, CLASS_SEARCHREQUEST);
 
-    sslog_sbcr_subscribe(subscription);
+    if (sslog_sbcr_subscribe(subscription) != SSLOG_ERROR_NO) {
+        fprintf(stderr, "Error subscribing to CLASS_SEARCHREQUEST\n");
+        return;
+    }
 
     do {
        process_subscription_request(node, subscription);         
-       sslog_sbcr_wait(subscription);
+       if (sslog_sbcr_wait(subscription) != SSLOG_ERROR_NO) {
+           fprintf(stderr, "Error waiting subscription\n");
+       }
     } while (cont);
 
     sslog_sbcr_unsubscribe(subscription);
