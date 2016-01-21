@@ -43,14 +43,13 @@ static void schedule_subscription_error_handler(sslog_subscription_t* sub, int c
 
 static void schedule_subscription_handler(sslog_subscription_t* sub) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "schedule_subscription_handler");
-    pthread_mutex_lock(&ss_mutex);
+    SCOPED_MUTEX_LOCK(ss_mutex);
 
     sslog_individual_t* start_movement = sslog_node_get_property(node, route_individual,
                                                                  PROPERTY_HASSTARTMOVEMENT);
 
     if (start_movement == NULL) {
-        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Empty schedule response");
-        pthread_mutex_unlock(&ss_mutex);
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Not start movement in route");
         return;
     }
 
@@ -73,6 +72,11 @@ static void schedule_subscription_handler(sslog_subscription_t* sub) {
 
         sslog_individual_t* point_a = sslog_node_get_property(node, movement, PROPERTY_ISSTARTPOINT);
         sslog_individual_t* point_b = sslog_node_get_property(node, movement, PROPERTY_ISENDPOINT);
+
+        if (point_a == NULL || point_b == NULL) {
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Null start and end point in movement");
+            return;
+        }
 
         double lat, lon;
 
@@ -97,13 +101,13 @@ static void schedule_subscription_handler(sslog_subscription_t* sub) {
         st_free_point(&movement_array[i].point_a);
         st_free_point(&movement_array[i].point_b);
     }
-
-    pthread_mutex_unlock(&ss_mutex);
 }
 
+// * error checks
+// * memory cleanups
 static void search_subscription_handler(sslog_subscription_t* sub) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "search_subscription_handler");
-    pthread_mutex_lock(&ss_mutex);
+    SCOPED_MUTEX_LOCK(ss_mutex);
 
     sslog_node_populate(node, request_individual);
 
@@ -144,25 +148,27 @@ static void search_subscription_handler(sslog_subscription_t* sub) {
         st_free_point(&point_array[i]);
     }
 
-    // TODO: not sure if it is allowed to unsubscribe from handler
+    // TODO: not sure if it is allowed to unsubscribe within handler
     sslog_sbcr_unsubscribe(sub);
     sslog_free_subscription(sub);
     sslog_node_remove_individual_with_local(node, request_individual);
 
     request_individual = NULL;
     sub_search_request = NULL;
-
-    pthread_mutex_unlock(&ss_mutex);
 }
 
+// * error checks
+// * memory cleanups
 static bool subscribe_route_processed(sslog_individual_t* route) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating schedule subscription");
 
+    sub_schedule_request = sslog_new_subscription(node, true);
+
     list_t* properties = list_new();
     list_add_data(properties, PROPERTY_PROCESSED);
-
-    sub_schedule_request = sslog_new_subscription(node, true);
     sslog_sbcr_add_individual(sub_schedule_request, route, properties);
+    list_free_with_nodes(properties, NULL);
+
     sslog_sbcr_set_changed_handler(sub_schedule_request, &schedule_subscription_handler);
     sslog_sbcr_set_error_handler(sub_schedule_request, &schedule_subscription_error_handler);
 
@@ -179,6 +185,8 @@ static bool subscribe_route_processed(sslog_individual_t* route) {
 /**
  * Убедиться что пользователь с заданным id присутствует в smartspace'е
  */
+// * error checks
+// * memory cleanups
 static bool ensure_user_individual(const char *id) {
     sslog_individual_t* tmp = sslog_node_get_individual_by_uri(node, id);
 
@@ -318,8 +326,10 @@ void st_shutdown() {
     is_smartspace_initialized = false;
 }
 
+// * error checks
+// * memory cleanups
 bool st_update_user_location(double lat, double lon) {
-    pthread_mutex_lock(&ss_mutex);
+    SCOPED_MUTEX_LOCK(ss_mutex);
 
     user_lat = lat;
     user_lon = lon;
@@ -332,7 +342,6 @@ bool st_update_user_location(double lat, double lon) {
 
     if (sslog_node_insert_individual(node, new_location_individual) != SSLOG_ERROR_NO) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't insert existing user location");
-        pthread_mutex_unlock(&ss_mutex);
         return false;
     }
 
@@ -347,7 +356,6 @@ bool st_update_user_location(double lat, double lon) {
     if (sslog_node_update_property(node, user_individual, PROPERTY_HASLOCATION,
                                    (void*) existing_user_location, new_location_individual) != SSLOG_ERROR_NO) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't assign new existing user location");
-        pthread_mutex_unlock(&ss_mutex);
         return false;
     }
 
@@ -357,19 +365,23 @@ bool st_update_user_location(double lat, double lon) {
         // Update route, so transport_kp can easily subscribe to updates with one subscription
         if (sslog_node_remove_property(node, route_individual, PROPERTY_UPDATED, NULL) != SSLOG_ERROR_NO) {
             __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't update 'updated' property");
-            pthread_mutex_unlock(&ss_mutex);
             return false;
         }
 
         if (sslog_node_update_property(node, route_individual, PROPERTY_UPDATED, NULL,
                                        rand_uuid("updated")) != SSLOG_ERROR_NO) {
             __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't update 'updated' property");
-            pthread_mutex_unlock(&ss_mutex);
             return false;
         }
     }
 
-    pthread_mutex_unlock(&ss_mutex);
+    if (existing_user_location != NULL) {
+        if (sslog_node_remove_individual_with_local(node, existing_user_location) != SSLOG_ERROR_NO) {
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't remove old user location");
+            return false;
+        }
+    }
+
     return true;
 
 // TODO: Delete old user location
