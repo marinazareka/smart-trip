@@ -242,9 +242,16 @@ static bool load_existing_schedule() {
                                 sslog_error_get_last_text());
             return false;
         }
+
+        if (sslog_node_populate(node, route_individual) != SSLOG_ERROR_NO) {
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't populate existing route_individual: %s",
+                                sslog_error_get_last_text());
+            return false;
+        }
     } else {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "No existing route found");
     }
+
 
     return true;
 }
@@ -473,26 +480,42 @@ bool st_post_search_request(double radius, const char *pattern) {
     return true;
 }
 
+static void clear_local_route_and_schedule(void) {
+    sslog_remove_individual(schedule_individual);
+    sslog_remove_individual(route_individual);
+    schedule_individual = NULL;
+    route_individual = NULL;
+}
+
+static void remove_old_points_from_route(sslog_individual_t* route_individual) {
+    list_t* has_points = sslog_get_properties(route_individual, PROPERTY_HASPOINT);
+
+    list_head_t* iter;
+    list_for_each(iter, &has_points->links) {
+        list_t* entry = list_entry(iter, list_t, links);
+        sslog_individual_t* point_individual = entry->data;
+        sslog_node_remove_individual_with_local(node, point_individual);
+    }
+
+    sslog_node_remove_property(node, route_individual, PROPERTY_HASPOINT, NULL);
+
+    list_free_with_nodes(has_points, NULL);
+}
+
+// * error checks
+// * memory cleanups
 bool st_post_schedule_request(struct Point* points, int points_count, const char* tsp_type) {
     if (points_count == 0) {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "No points in schedule request");
         return true;
     }
 
-    pthread_mutex_lock(&ss_mutex);
+    SCOPED_MUTEX_LOCK(ss_mutex);
 
     if (route_individual != NULL) {
         // Удаляем все текущие параметры запроса (hasPoint)
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Updating existing schedule and route");
-
-        int res = sslog_node_remove_property(node, route_individual, PROPERTY_HASPOINT, NULL);
-        if (res != SSLOG_ERROR_NO) {
-            __android_log_print(ANDROID_LOG_ERROR, APPNAME,
-                                "Can't remove existing points from schedule request %s",
-                                sslog_error_get_last_text());
-
-            goto failure;
-        }
+        remove_old_points_from_route(route_individual);
     } else {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating new schedule and route");
 
@@ -505,14 +528,16 @@ bool st_post_schedule_request(struct Point* points, int points_count, const char
             __android_log_print(ANDROID_LOG_ERROR, APPNAME,
                                 "Can't insert route individual: %s",
                                 sslog_error_get_last_text());
-            goto failure;
+            clear_local_route_and_schedule();
+            return false;
         }
 
         if (sslog_node_insert_individual(node, schedule_individual) != SSLOG_ERROR_NO) {
             __android_log_print(ANDROID_LOG_ERROR, APPNAME,
                                 "Can't insert schedule individual %s",
                                 sslog_error_get_last_text());
-            goto failure;
+            clear_local_route_and_schedule();
+            return false;
         }
 
         if (sslog_node_insert_property(node, user_individual, PROPERTY_PROVIDE,
@@ -520,13 +545,14 @@ bool st_post_schedule_request(struct Point* points, int points_count, const char
             __android_log_print(ANDROID_LOG_ERROR, APPNAME,
                                 "Can't assign provide property to user %s",
                                 sslog_error_get_last_text());
-            goto failure;
+            clear_local_route_and_schedule();
+            return false;
         }
 
         if (!subscribe_route_processed(route_individual)) {
             __android_log_print(ANDROID_LOG_ERROR, APPNAME,
                                 "Can't subscribe to route_individual");
-            goto failure;
+            return false;
         }
     }
 
@@ -544,33 +570,27 @@ bool st_post_schedule_request(struct Point* points, int points_count, const char
                                        point_individual) != SSLOG_ERROR_NO) {
             __android_log_print(ANDROID_LOG_ERROR, APPNAME,
                                 "Error inserting point into route: %s", sslog_error_get_last_text());
-            goto failure;
+            return false;
         }
     }
 
-    // It is safe because of short circuit evaluation
     if (sslog_node_remove_property(node, route_individual, PROPERTY_TSPTYPE, NULL) != SSLOG_ERROR_NO) {
-        goto failure;
+        return false;
     }
 
     if (sslog_node_update_property(node, route_individual, PROPERTY_TSPTYPE, NULL, (void*) tsp_type) != SSLOG_ERROR_NO) {
-        goto failure;
+        return false;
     }
 
     if (sslog_node_remove_property(node, route_individual, PROPERTY_UPDATED, NULL) != SSLOG_ERROR_NO) {
-        goto failure;
+        return false;
     }
 
     if (sslog_node_update_property(node, route_individual, PROPERTY_UPDATED, NULL, rand_uuid("updated")) != SSLOG_ERROR_NO) {
-        goto failure;
+        return false;
     }
 
-    pthread_mutex_unlock(&ss_mutex);
     return true;
-
-    failure:
-    pthread_mutex_unlock(&ss_mutex);
-    return false;
 }
 
 static void test() {
