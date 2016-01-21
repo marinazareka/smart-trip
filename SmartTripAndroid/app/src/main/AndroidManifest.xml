@@ -28,7 +28,6 @@
             android:name=".smartspace.SmartSpaceService"
             android:enabled="true"
             android:exported="false"
-            android:process=":letitcrash"
             >
             <!--android:process=":letitcrash"-->
 

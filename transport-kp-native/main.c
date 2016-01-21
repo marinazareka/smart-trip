@@ -268,7 +268,6 @@ RequestData* wait_subscription() {
 }
 
 static void clear_current_results(sslog_individual_t* route_individual) {
-    // TODO: remove old movements
     sslog_node_remove_property(node, route_individual, PROPERTY_HASMOVEMENT, NULL);
     sslog_node_remove_property(node, route_individual, PROPERTY_HASSTARTMOVEMENT, NULL);
 }

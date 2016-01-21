@@ -85,6 +85,11 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 		super.onDestroy();
 	}
 
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		return START_NOT_STICKY;
+	}
+
 	private SmartSpaceNative createSmartSpaceNative() {
 		return SmartSpaceNativeLoader.createSmartSpaceNative();
 	}

@@ -126,9 +126,19 @@ bool get_point_coordinates(sslog_node_t* node, sslog_individual_t* point, double
         return false;
     }
 
-    sslog_node_populate(node, location);
-    *out_lat = parse_double((const char*) sslog_get_property(location, PROPERTY_LAT));
-    *out_lon = parse_double((const char*) sslog_get_property(location, PROPERTY_LONG));
+    if (sslog_node_populate(node, location) != SSLOG_ERROR_NO) {
+        return false;
+    }
+
+    const char* lat_str = sslog_get_property(location, PROPERTY_LAT);
+    const char* lon_str = sslog_get_property(location, PROPERTY_LONG);
+
+    if (lat_str == NULL || lon_str == NULL) {
+        return false;
+    }
+
+    *out_lat = parse_double(lat_str);
+    *out_lon = parse_double(lon_str);
 
     return true;
 }

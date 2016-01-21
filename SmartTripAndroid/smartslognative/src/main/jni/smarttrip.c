@@ -79,7 +79,6 @@ static void schedule_subscription_handler(sslog_subscription_t* sub) {
         }
 
         double lat, lon;
-
         get_point_coordinates(node, point_a, &lat, &lon);
         const char* title = sslog_get_property(point_a, PROPERTY_POITITLE);
         if (title == NULL)
@@ -91,10 +90,19 @@ static void schedule_subscription_handler(sslog_subscription_t* sub) {
         if (title == NULL)
             title = "Untitled";
         st_init_point(&movement_array[i].point_b, point_b->entity.uri, title, lat, lon);
+
+        sslog_node_remove_individual_with_local(node, movement);
+        sslog_node_remove_individual_with_local(node, point_a);
+        if (i == movement_count - 1) {
+            sslog_node_remove_individual_with_local(node, point_b);
+        }
     }
 
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%d movements found", movement_count);
     st_on_schedule_request_ready(movement_array, movement_count);
+
+    sslog_node_remove_property(node, route_individual, PROPERTY_HASSTARTMOVEMENT, NULL);
+    sslog_node_remove_property(node, route_individual, PROPERTY_HASPOINT, NULL);
 
     ptr_array_free(&ptr_array);
     for (int i = 0; i < movement_count; i++) {
@@ -251,6 +259,7 @@ static bool load_existing_schedule() {
             return false;
         }
 
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Populate existing route_individual");
         if (sslog_node_populate(node, route_individual) != SSLOG_ERROR_NO) {
             __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't populate existing route_individual: %s",
                                 sslog_error_get_last_text());
@@ -260,6 +269,7 @@ static bool load_existing_schedule() {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "No existing route found");
     }
 
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Exit load_existing_schedule");
 
     return true;
 }
