@@ -273,6 +273,29 @@ static bool load_existing_schedule() {
     return true;
 }
 
+static bool load_existing_user_location() {
+    user_location = sslog_node_get_property(node, user_individual, PROPERTY_HASLOCATION);
+    if (user_location == NULL) {
+        return false;
+    }
+
+    sslog_node_populate(node, user_location);
+
+    const char* lat_str = sslog_get_property(user_location, PROPERTY_LAT);
+    const char* lon_str = sslog_get_property(user_location, PROPERTY_LONG);
+
+    if (lat_str == NULL || lon_str == NULL) {
+        return false;
+    }
+
+    user_lat = parse_double(lat_str);
+    user_lon = parse_double(lon_str);
+
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Existing user location loaded %lf %lf",
+                        user_lat, user_lon);
+    return true;
+}
+
 bool st_initialize(const char *user_id, const char *kp_name, const char *smart_space_name,
                    const char *address, int port) {
     init_rand();
@@ -314,6 +337,8 @@ bool st_initialize(const char *user_id, const char *kp_name, const char *smart_s
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, "ensure_user_individual failed");
         return false;
     }
+
+    load_existing_user_location();
 
     if (!load_existing_schedule()) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, "load_existing_schedule failed");
