@@ -35,5 +35,7 @@
     <string name="pref_sib_address">Адрес</string>
     <string name="pref_sib_port">Порт</string>
     <string name="title_new_schedule">Новый маршрут</string>
+    <string name="action_follow">Следовать</string>
+    <string name="action_unfollow">Не следовать</string>
 
 </resources>
