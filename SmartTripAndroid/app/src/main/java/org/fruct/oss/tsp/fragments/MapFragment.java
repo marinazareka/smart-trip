@@ -1,7 +1,9 @@
 package org.fruct.oss.tsp.fragments;
 
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,6 +21,7 @@ import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.layers.PointsLayer;
 import org.fruct.oss.tsp.layers.UserLayer;
 import org.fruct.oss.tsp.util.LocationProvider;
+import org.fruct.oss.tsp.util.Pref;
 import org.fruct.oss.tsp.util.Utils;
 import org.mapsforge.core.graphics.Style;
 import org.mapsforge.core.model.LatLong;
@@ -51,6 +54,8 @@ public class MapFragment extends BaseFragment {
 	@Bind(R.id.dialog_anchor_container)
 	View dialogAnchorContainer;
 
+	private SharedPreferences pref;
+
 	private TileCache tileCache;
 
 	private TileDownloadLayer layer;
@@ -61,6 +66,8 @@ public class MapFragment extends BaseFragment {
 	private Subscription movementsSubscription;
 	private Subscription tappedPointsSubscription;
 	private Subscription locationSubscription;
+
+	private MapState initialMapState;
 
 	private boolean isFollowing;
 	private boolean isTouchDown;
@@ -96,6 +103,8 @@ public class MapFragment extends BaseFragment {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 		isFollowing = false;
+		pref = PreferenceManager.getDefaultSharedPreferences(getContext());
+		initialMapState = Pref.getMapState(pref);
 	}
 
 	@Override
@@ -162,8 +171,9 @@ public class MapFragment extends BaseFragment {
 	public void onStart() {
 		super.onStart();
 
-		mapView.getModel().mapViewPosition.setCenter(new LatLong(61.78, 34.35));
-		mapView.getModel().mapViewPosition.setZoomLevel((byte) 12);
+		mapView.getModel().mapViewPosition.setCenter(new LatLong(initialMapState.lat, initialMapState.lon));
+		mapView.getModel().mapViewPosition.setZoomLevel((byte) initialMapState.zoom);
+		isFollowing = initialMapState.isFollowing;
 
 		// tile renderer layer using internal render theme
 		layer = new TileDownloadLayer(tileCache,
@@ -183,7 +193,6 @@ public class MapFragment extends BaseFragment {
 		mapView.getLayerManager().getLayers().add(pointsLayer);
 		mapView.getLayerManager().getLayers().add(pathLayer);
 		mapView.getLayerManager().getLayers().add(userLayer);
-
 	}
 
 	@Override
@@ -297,8 +306,6 @@ public class MapFragment extends BaseFragment {
 		// mapView.getModel().mapViewPosition.animateTo(new LatLong(point.getLat(), point.getLon()));
 	}
 
-
-
 	private void updatePath(List<Movement> movements) {
 		List<LatLong> pathLatLong = new ArrayList<>(movements.size());
 
@@ -327,12 +334,34 @@ public class MapFragment extends BaseFragment {
 		pointsLayer.onDestroy();
 		pathLayer.onDestroy();
 
+		LatLong mapCenter = mapView.getModel().mapViewPosition.getCenter();
+		initialMapState = new MapState(mapCenter.latitude, mapCenter.longitude,
+				mapView.getModel().mapViewPosition.getZoomLevel(),
+				isFollowing);
+
 		super.onStop();
 	}
 
 	@Override
 	public void onDestroy() {
 		this.mapView.destroyAll();
+
+		Pref.setMapState(pref, initialMapState);
+
 		super.onDestroy();
+	}
+
+	public static class MapState {
+		public double lat;
+		public double lon;
+		public int zoom;
+		public boolean isFollowing;
+
+		public MapState(double lat, double lon, int zoom, boolean isFollowing) {
+			this.lat = lat;
+			this.lon = lon;
+			this.zoom = zoom;
+			this.isFollowing = isFollowing;
+		}
 	}
 }
