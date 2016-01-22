@@ -91,11 +91,11 @@ static void schedule_subscription_handler(sslog_subscription_t* sub) {
             title = "Untitled";
         st_init_point(&movement_array[i].point_b, point_b->entity.uri, title, lat, lon);
 
-        sslog_node_remove_individual_with_local(node, movement);
-        sslog_node_remove_individual_with_local(node, point_a);
-        if (i == movement_count - 1) {
-            sslog_node_remove_individual_with_local(node, point_b);
-        }
+        //sslog_node_remove_individual_with_local(node, movement);
+        //sslog_node_remove_individual_with_local(node, point_a);
+        //if (i == movement_count - 1) {
+        //    sslog_node_remove_individual_with_local(node, point_b);
+        //}
     }
 
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%d movements found", movement_count);
@@ -523,6 +523,22 @@ static void remove_old_points_from_route(sslog_individual_t* route_individual) {
     list_free_with_nodes(has_points, NULL);
 }
 
+static void remove_old_movements_from_route(sslog_individual_t* route_individual) {
+    list_t* individuals = sslog_get_properties(route_individual, PROPERTY_HASMOVEMENT);
+
+    list_head_t* iter;
+    list_for_each(iter, &individuals->links) {
+        list_t* entry = list_entry(iter, list_t, links);
+        sslog_individual_t* individual = entry->data;
+        sslog_node_remove_individual_with_local(node, individual);
+    }
+
+    sslog_node_remove_property(node, route_individual, PROPERTY_HASMOVEMENT, NULL);
+    sslog_node_remove_property(node, route_individual, PROPERTY_HASSTARTMOVEMENT, NULL);
+
+    list_free_with_nodes(individuals, NULL);
+}
+
 // * error checks
 // * memory cleanups
 bool st_post_schedule_request(struct Point* points, int points_count, const char* tsp_type) {
@@ -537,6 +553,7 @@ bool st_post_schedule_request(struct Point* points, int points_count, const char
         // Удаляем все текущие параметры запроса (hasPoint)
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Updating existing schedule and route");
         remove_old_points_from_route(route_individual);
+        remove_old_movements_from_route(route_individual);
     } else {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating new schedule and route");
 
