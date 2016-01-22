@@ -68,7 +68,9 @@ static void handle_updated_request(sslog_individual_t* user, sslog_individual_t*
             sslog_entity_get_uri(schedule),
             sslog_entity_get_uri(route));
 
-    sslog_individual_t* location = (sslog_individual_t*) sslog_node_get_property(node, user, PROPERTY_HASLOCATION);
+    CLEANUP_INDIVIDUAL sslog_individual_t* location 
+        = (sslog_individual_t*) sslog_node_get_property(node, user, PROPERTY_HASLOCATION);
+
     if (location == NULL) {
         fprintf(stderr, "User location is NULL\n");
         return;
@@ -88,6 +90,9 @@ static void handle_updated_request(sslog_individual_t* user, sslog_individual_t*
     // TODO: free list if not null
     if (points == NULL || (count = list_count(points)) == 0) {
         fprintf(stderr, "Route received but has no points\n");
+        if (points != NULL) {
+            list_free_with_nodes(points, NULL);
+        }
         return;
     }
 
@@ -104,7 +109,10 @@ static void handle_updated_request(sslog_individual_t* user, sslog_individual_t*
         sslog_node_populate(node, point_individual);
 
         double lat, lon;
-        get_point_coordinates(node, point_individual, &lat, &lon);
+        if (!get_point_coordinates(node, point_individual, &lat, &lon)) {
+            fprintf(stderr, "Can't get point coordinates\n");
+            return;
+        }
 
         fprintf(stderr, "Point %lf %lf\n", lat, lon);
 
@@ -126,6 +134,8 @@ static void handle_updated_request(sslog_individual_t* user, sslog_individual_t*
     request_data->tsp_type = strdup(sslog_get_property(route, PROPERTY_TSPTYPE));
 
     ptr_array_insert(&requests_array, request_data);
+
+    list_free_with_nodes(points, NULL);
 }
 
 static void handle_updated_property_update(const char* route_id) {
