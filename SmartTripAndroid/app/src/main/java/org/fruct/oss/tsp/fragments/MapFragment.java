@@ -1,11 +1,13 @@
 package org.fruct.oss.tsp.fragments;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -16,6 +18,7 @@ import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.layers.PointsLayer;
 import org.fruct.oss.tsp.layers.UserLayer;
+import org.fruct.oss.tsp.util.LocationProvider;
 import org.fruct.oss.tsp.util.Utils;
 import org.mapsforge.core.graphics.Style;
 import org.mapsforge.core.model.LatLong;
@@ -26,6 +29,7 @@ import org.mapsforge.map.layer.cache.TileCache;
 import org.mapsforge.map.layer.download.TileDownloadLayer;
 import org.mapsforge.map.layer.download.tilesource.OpenStreetMapMapnik;
 import org.mapsforge.map.layer.overlay.Polyline;
+import org.mapsforge.map.model.common.Observer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,11 +60,42 @@ public class MapFragment extends BaseFragment {
 
 	private Subscription movementsSubscription;
 	private Subscription tappedPointsSubscription;
+	private Subscription locationSubscription;
+
+	private boolean isFollowing;
+	private boolean isTouchDown;
+
+	private Observer mapPositionListener = new Observer() {
+		@Override
+		public void onChange() {
+			getActivity().runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					if (isFollowing && isTouchDown) {
+						isFollowing = false;
+						updateFollowingState();
+					}
+				}
+			});
+		}
+	};
+	private View.OnTouchListener touchDownListener = new View.OnTouchListener() {
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+			if (event.getAction() == MotionEvent.ACTION_DOWN) {
+				isTouchDown = true;
+			} else if (event.getAction() == MotionEvent.ACTION_UP) {
+				isTouchDown = false;
+			}
+			return false;
+		}
+	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
+		isFollowing = false;
 	}
 
 	@Override
@@ -72,8 +107,8 @@ public class MapFragment extends BaseFragment {
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
-		//menu.findItem(R.id.action_search).setVisible(false);
-		//menu.findItem(R.id.action_schedule).setVisible(geoViewModel.isAnythingChecked());
+		menu.findItem(R.id.action_follow_location).setVisible(!isFollowing);
+		menu.findItem(R.id.action_unfollow_location).setVisible(isFollowing);
 	}
 
 	@Override
@@ -83,12 +118,23 @@ public class MapFragment extends BaseFragment {
 			getSearchStore().clear();
 			break;
 
+		case R.id.action_follow_location:
+			isFollowing = true;
+			updateFollowingState();
+			break;
+
+		case R.id.action_unfollow_location:
+			isFollowing = false;
+			updateFollowingState();
+			break;
+
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 
 		return true;
 	}
+
 
 	@Nullable
 	@Override
@@ -137,6 +183,7 @@ public class MapFragment extends BaseFragment {
 		mapView.getLayerManager().getLayers().add(pointsLayer);
 		mapView.getLayerManager().getLayers().add(pathLayer);
 		mapView.getLayerManager().getLayers().add(userLayer);
+
 	}
 
 	@Override
@@ -162,6 +209,51 @@ public class MapFragment extends BaseFragment {
 				});
 
 		this.layer.onResume();
+
+		updateFollowingState();
+		mapView.getModel().mapViewPosition.addObserver(mapPositionListener);
+		mapView.setOnTouchListener(touchDownListener);
+	}
+
+	@Override
+	public void onPause() {
+		this.layer.onPause();
+
+		tappedPointsSubscription.unsubscribe();
+		movementsSubscription.unsubscribe();
+
+		if (locationSubscription != null) {
+			locationSubscription.unsubscribe();
+			locationSubscription = null;
+		}
+
+		mapView.setOnTouchListener(null);
+		mapView.getModel().mapViewPosition.removeObserver(mapPositionListener);
+
+		super.onPause();
+	}
+
+	private void updateFollowingState() {
+		getActivity().invalidateOptionsMenu();
+
+		if (isFollowing) {
+			if (locationSubscription == null) {
+				locationSubscription = LocationProvider.getObservable(getContext(), LocationProvider.REQUEST_MAP)
+						.observeOn(AndroidSchedulers.mainThread())
+						.subscribe(new Action1<Location>() {
+							@Override
+							public void call(Location location) {
+								mapView.getModel().mapViewPosition.animateTo(
+										new LatLong(location.getLatitude(), location.getLongitude()));
+							}
+						});
+			}
+		} else {
+			if (locationSubscription != null) {
+				locationSubscription.unsubscribe();
+				locationSubscription = null;
+			}
+		}
 	}
 
 	private void onTappedPoints(final PointsLayer.TapResult tapResult) {
@@ -201,17 +293,11 @@ public class MapFragment extends BaseFragment {
 					getFragmentManager(),
 					R.id.dialog_anchor_container);
 		}
+
+		// mapView.getModel().mapViewPosition.animateTo(new LatLong(point.getLat(), point.getLon()));
 	}
 
-	@Override
-	public void onPause() {
-		this.layer.onPause();
 
-		tappedPointsSubscription.unsubscribe();
-		movementsSubscription.unsubscribe();
-
-		super.onPause();
-	}
 
 	private void updatePath(List<Movement> movements) {
 		List<LatLong> pathLatLong = new ArrayList<>(movements.size());

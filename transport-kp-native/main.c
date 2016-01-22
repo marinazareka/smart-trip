@@ -87,7 +87,6 @@ static void handle_updated_request(sslog_individual_t* user, sslog_individual_t*
     list_t* points = sslog_get_properties(route, PROPERTY_HASPOINT);
     int count;
 
-    // TODO: free list if not null
     if (points == NULL || (count = list_count(points)) == 0) {
         fprintf(stderr, "Route received but has no points\n");
         if (points != NULL) {

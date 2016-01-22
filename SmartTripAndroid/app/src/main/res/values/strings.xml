@@ -40,6 +40,8 @@
     <string name="pref_cat_sib">Sib</string>
     <string name="pref_sib_address">Address</string>
     <string name="pref_sib_port">Port</string>
+    <string name="action_follow">Follow</string>
+    <string name="action_unfollow">Unfollow</string>
 
 
 </resources>
