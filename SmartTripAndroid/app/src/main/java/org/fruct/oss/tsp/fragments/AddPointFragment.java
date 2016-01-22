@@ -75,18 +75,22 @@ public class AddPointFragment extends BaseFragment {
 	public void onResume() {
 		super.onResume();
 
-		PopupMenu popupMenu = new PopupMenu(getContext(), getView());
-		popupMenu.inflate(R.menu.point);
-		popupMenu.setOnMenuItemClickListener(new PointMenuListener());
-		popupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
-			@Override
-			public void onDismiss(PopupMenu menu) {
-				if (!isPopupMenuItemSelected) {
-					dismissFragment();
+		if (Pref.hasCurrentSchedule(pref)) {
+			PopupMenu popupMenu = new PopupMenu(getContext(), getView());
+			popupMenu.inflate(R.menu.point);
+			popupMenu.setOnMenuItemClickListener(new PointMenuListener());
+			popupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+				@Override
+				public void onDismiss(PopupMenu menu) {
+					if (!isPopupMenuItemSelected) {
+						dismissFragment();
+					}
 				}
-			}
-		});
-		popupMenu.show();
+			});
+			popupMenu.show();
+		} else {
+			onPointAddToNewSchedule(point);
+		}
 	}
 
 	private void dismissFragment() {

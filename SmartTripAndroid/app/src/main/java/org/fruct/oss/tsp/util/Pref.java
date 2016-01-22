@@ -24,6 +24,10 @@ public class Pref {
 		}
 	}
 
+	public static boolean hasCurrentSchedule(SharedPreferences pref) {
+		return pref.getLong(PREF_CURRENT_SCHEDULE, -1) != -1;
+	}
+
 	public static void setCurrentSchedule(SharedPreferences pref, long scheduleId) {
 		pref.edit().putLong(PREF_CURRENT_SCHEDULE, scheduleId).apply();
 	}
