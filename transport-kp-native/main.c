@@ -37,7 +37,7 @@ static sslog_subscription_t* sub;
 
 static PtrArray requests_array;
 static pthread_mutex_t requests_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t requests_cond = PTHREAD_COND_INITIALIZER;
+// static pthread_cond_t requests_cond = PTHREAD_COND_INITIALIZER;
 
 
 // Implementations
@@ -69,14 +69,18 @@ static void handle_updated_request(sslog_individual_t* user, sslog_individual_t*
             sslog_entity_get_uri(route));
 
     sslog_individual_t* location = (sslog_individual_t*) sslog_node_get_property(node, user, PROPERTY_HASLOCATION);
-    
+    if (location == NULL) {
+        fprintf(stderr, "User location is NULL\n");
+        return;
+    }
+
+    sslog_node_populate(node, location);
+
     // Clean local stored points
     // This is required, because populate doesn't remove local properties, that was removed in sib
     sslog_remove_properties(route, PROPERTY_HASPOINT);
     sslog_remove_properties(route, PROPERTY_TSPTYPE);
     sslog_node_populate(node, route);
-
-    sslog_node_populate(node, location);
 
     list_t* points = sslog_get_properties(route, PROPERTY_HASPOINT);
     int count;
@@ -162,7 +166,6 @@ static void handle_updated_property_location(const char* user_id, const char* lo
 }
 
 static bool is_triple_updated_property(sslog_triple_t* triple) {
-    // TODO: sslog_entity_get_uri can be optimized
     return strcmp(triple->predicate, sslog_entity_get_uri(PROPERTY_UPDATED)) == 0;
 }
 
@@ -194,7 +197,7 @@ static void subscription_handler_2(sslog_subscription_t* sub) {
     }
 
     pthread_mutex_unlock(&requests_mutex);
-    pthread_cond_signal(&requests_cond);
+//    pthread_cond_signal(&requests_cond);
 }
 
 bool subscribe() {
@@ -204,7 +207,6 @@ bool subscribe() {
     sslog_triple_t* updated_triple = sslog_new_triple_detached(SSLOG_TRIPLE_ANY, sslog_entity_get_uri(PROPERTY_UPDATED), 
             SSLOG_TRIPLE_ANY, SSLOG_RDF_TYPE_URI, SS_RDF_TYPE_LIT);
     sslog_sbcr_add_triple_template(sub, updated_triple);
-
 
     //sslog_triple_t* location_triple = sslog_new_triple_detached(SSLOG_TRIPLE_ANY, sslog_entity_get_uri(PROPERTY_HASLOCATION),
     //        SSLOG_TRIPLE_ANY, SSLOG_RDF_TYPE_URI, SSLOG_RDF_TYPE_URI);

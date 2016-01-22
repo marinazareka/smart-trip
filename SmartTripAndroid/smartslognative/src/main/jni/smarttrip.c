@@ -466,7 +466,7 @@ bool st_post_search_request(double radius, const char *pattern) {
                                                                     rand_uuid("search_request"));
     sslog_insert_property(request_individual_l, PROPERTY_USELOCATION, location_individual);
     sslog_insert_property(request_individual_l, PROPERTY_INREGION, region_individual);
-    sslog_insert_property(request_individual_l, PROPERTY_SEARCHPATTERN, pattern);
+    sslog_insert_property(request_individual_l, PROPERTY_SEARCHPATTERN, (void*) pattern);
 
     if (sslog_node_insert_individual(node, request_individual_l) != SSLOG_ERROR_NO) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't insert request individual: %s",
@@ -615,4 +615,5 @@ bool st_post_schedule_request(struct Point* points, int points_count, const char
 }
 
 static void test() {
+
 }
