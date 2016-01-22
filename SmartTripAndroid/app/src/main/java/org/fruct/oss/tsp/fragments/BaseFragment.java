@@ -41,12 +41,6 @@ public class BaseFragment extends Fragment {
 		return App.getInstance().getDatabase();
 	}
 
-	/**
-	 * @return хранилище геоданных
-	 */
-	protected GeoStore getGeoStore() {
-		return commonFragment.getGeoStore();
-	}
 
 	/**
 	 * @return хранилище маршрута

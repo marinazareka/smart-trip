@@ -23,7 +23,6 @@ import de.greenrobot.event.EventBus;
  * сохраняя их состояния при изменении конфигурации устройства (например поворот экрана).
  */
 public class CommonFragment extends Fragment {
-	private GeoStore geoStore;
 	private ScheduleStore scheduleStore;
 	private SearchStore searchStore;
 
@@ -39,7 +38,6 @@ public class CommonFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		setRetainInstance(true);
 
-		createGeoStore();
 		createScheduleStore();
 		createSearchStore();
 
@@ -62,9 +60,6 @@ public class CommonFragment extends Fragment {
 		smartSpace = new BoundSmartSpace(getActivity());
 	}
 
-	private void createGeoStore() {
-		geoStore = new GeoStore();
-	}
 
 	private void createSearchStore() {
 		searchStore = new SearchStore();
@@ -74,7 +69,6 @@ public class CommonFragment extends Fragment {
 	public void onStart() {
 		super.onStart();
 		EventBus.getDefault().register(this);
-		geoStore.start();
 		scheduleStore.start();
 		smartSpace.start();
 		searchStore.start();
@@ -87,16 +81,8 @@ public class CommonFragment extends Fragment {
 		searchStore.stop();
 		smartSpace.stop();
 		scheduleStore.stop();
-		geoStore.stop();
 		EventBus.getDefault().unregister(this);
 		super.onStop();
-	}
-
-	/**
-	 * @return хранилище геоданных
-	 */
-	public GeoStore getGeoStore() {
-		return geoStore;
 	}
 
 	/**

@@ -124,10 +124,9 @@ public class AddPointFragment extends BaseFragment {
 		long currentScheduleId = Pref.getCurrentSchedule(pref);
 		if (currentScheduleId != 0) {
 			getDatabase().insertPoint(currentScheduleId, point);
-		} else {
-			// TODO: notify user or disallow point adding without current schedule
-		}
+			getSearchStore().removePoint(point);
 
+		}
 	}
 
 	private void onPointAddToNewSchedule(Point point) {

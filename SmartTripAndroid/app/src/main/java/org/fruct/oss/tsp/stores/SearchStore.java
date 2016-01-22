@@ -50,4 +50,8 @@ public class SearchStore implements Store {
 	public void clear() {
 		pointsSubject.onNext(Collections.<Point>emptyList());
 	}
+
+	public void removePoint(Point point) {
+
+	}
 }
