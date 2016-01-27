@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -90,7 +91,7 @@ public class SearchFragment extends BaseFragment implements SearchMvpView {
 		searchMenuItem = menu.findItem(R.id.search);
 
 		SearchManager searchManager = (SearchManager) getContext().getSystemService(Context.SEARCH_SERVICE);
-		SearchView searchView = (SearchView) searchMenuItem.getActionView();
+		SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 		searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
 	}
 

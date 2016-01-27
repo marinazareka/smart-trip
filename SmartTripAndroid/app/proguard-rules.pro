@@ -23,7 +23,18 @@
 -dontwarn org.slf4j.impl.**
 -dontwarn com.caverock.**
 
+-keep class org.fruct.oss.** { *; }
+
 -include proguard/proguard-butterknife-7.pro
 -include proguard/proguard-eventbus.pro
 -include proguard/proguard-rx-java.pro
 -include proguard/proguard-facebook-stetho.pro
+-include proguard/proguard-support-v7-appcompat.pro
+
+# Joda
+# -dontwarn org.joda.convert.FromString
+# -dontwarn org.joda.convert.ToString
+# -dontwarn org.joda.convert.**
+# -dontwarn org.joda.time.**
+# -keep class org.joda.time.** { *; }
+# -keep interface org.joda.time.** { *; }

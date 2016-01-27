@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import com.squareup.sqlbrite.BriteDatabase;
 import com.squareup.sqlbrite.SqlBrite;
 
+
 import org.fruct.oss.tsp.database.BriteDatabaseRepo;
 import org.fruct.oss.tsp.database.DatabaseOpenHelper;
 import org.fruct.oss.tsp.database.DatabaseRepo;
@@ -38,6 +39,8 @@ public class App extends Application {
 
 		log.info("App started");
 		PreferenceManager.setDefaultValues(getContext(), R.xml.preferences, true);
+		// JodaTimeAndroid.init(this);
+
 		AndroidGraphicFactory.createInstance(this);
 
 		setupUserId();
