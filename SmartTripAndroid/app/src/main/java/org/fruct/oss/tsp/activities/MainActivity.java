@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -82,6 +83,13 @@ public class MainActivity extends AppCompatActivity {
 
 		if (intent.getAction() != null && intent.getAction().equals(Intent.ACTION_SEARCH)) {
 			String searchString = intent.getStringExtra(SearchManager.QUERY);
+			if (searchString == null) {
+				searchString = intent.getStringExtra(SearchManager.EXTRA_DATA_KEY);
+			}
+
+			if (TextUtils.isEmpty(searchString)) {
+				return;
+			}
 
 			Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
 			if (currentFragment instanceof SearchFragment) {

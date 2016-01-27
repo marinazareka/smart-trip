@@ -9,6 +9,7 @@ import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.commondatatype.Schedule;
 import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.database.DatabaseRepo;
+import org.fruct.oss.tsp.events.HistoryAppendEvent;
 import org.fruct.oss.tsp.events.SearchStoreChangedEvent;
 import org.fruct.oss.tsp.smartspace.SmartSpace;
 import org.fruct.oss.tsp.stores.SearchStore;
@@ -71,6 +72,7 @@ public class SearchPresenter implements Presenter<SearchMvpView> {
 	private void search(int radius, String patternText) {
 		smartspace.postSearchRequest(radius, patternText);
 		view.displaySearchWaiter();
+		EventBus.getDefault().post(new HistoryAppendEvent(patternText));
 	}
 
 	public void search(String searchString) {

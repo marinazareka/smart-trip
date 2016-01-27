@@ -2,6 +2,7 @@
 <searchable xmlns:android="http://schemas.android.com/apk/res/android"
             android:label="@string/app_name"
             android:searchSuggestAuthority="org.fruct.oss.tsp.search.SearchContentProvider"
+            android:searchSuggestIntentAction="android.intent.action.SEARCH"
     >
 
 </searchable>
