@@ -16,6 +16,9 @@ public class ScheduleTable {
 	public static final String COLUMN_ID = "_id";
 	public static final String COLUMN_TITLE = "title";
 	public static final String COLUMN_TSP_TYPE = "tsptype";
+	public static final String COLUMN_ROAD_TYPE = "roadtype";
+	public static final String COLUMN_START_TIME = "starttime";
+	public static final String COLUMN_END_TIME = "endtime";
 
 	public static final String[] COLUMN_ALL = {COLUMN_ID, COLUMN_TITLE, COLUMN_TSP_TYPE};
 
@@ -38,9 +41,13 @@ public class ScheduleTable {
 				"CREATE TABLE %s (" +
 						"%s INTEGER PRIMARY KEY AUTOINCREMENT, " +
 						"%s TEXT NOT NULL, " +
-						"%s TEXT NOT NULL" +
+						"%s TEXT NOT NULL, " +
+						"%s TEXT NULL, " +
+						"%s TEXT NULL, " +
+						"%s TEXT NULL" +
 						");",
-				TABLE, COLUMN_ID, COLUMN_TITLE, COLUMN_TSP_TYPE );
+				TABLE, COLUMN_ID, COLUMN_TITLE, COLUMN_TSP_TYPE,
+				COLUMN_ROAD_TYPE, COLUMN_START_TIME, COLUMN_END_TIME );
 	}
 
 	public static String queryGet() {

@@ -7,9 +7,6 @@ public class Schedule {
 	private final long id;
 	private final String title;
 	private final TspType tspType;
-	//private final String roadType;
-	//private final long intervalStart;
-	//private final long intervalEnd;
 
 	public Schedule(String title, TspType tspType) {
 		this(0, title, tspType);

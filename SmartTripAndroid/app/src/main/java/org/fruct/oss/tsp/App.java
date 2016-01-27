@@ -9,6 +9,8 @@ import com.squareup.sqlbrite.BriteDatabase;
 import com.squareup.sqlbrite.SqlBrite;
 
 
+import net.danlew.android.joda.JodaTimeAndroid;
+
 import org.fruct.oss.tsp.database.BriteDatabaseRepo;
 import org.fruct.oss.tsp.database.DatabaseOpenHelper;
 import org.fruct.oss.tsp.database.DatabaseRepo;
@@ -19,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Calendar;
 import java.util.UUID;
 
 public class App extends Application {
@@ -39,7 +42,7 @@ public class App extends Application {
 
 		log.info("App started");
 		PreferenceManager.setDefaultValues(getContext(), R.xml.preferences, true);
-		// JodaTimeAndroid.init(this);
+		JodaTimeAndroid.init(this);
 
 		AndroidGraphicFactory.createInstance(this);
 
