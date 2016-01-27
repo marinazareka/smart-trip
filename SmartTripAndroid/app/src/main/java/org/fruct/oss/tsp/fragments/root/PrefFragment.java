@@ -1,4 +1,4 @@
-package org.fruct.oss.tsp.fragments;
+package org.fruct.oss.tsp.fragments.root;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;

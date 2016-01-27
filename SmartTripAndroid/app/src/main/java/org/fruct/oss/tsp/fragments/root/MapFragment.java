@@ -1,4 +1,4 @@
-package org.fruct.oss.tsp.fragments;
+package org.fruct.oss.tsp.fragments.root;
 
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -18,6 +18,8 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
+import org.fruct.oss.tsp.fragments.AddPointFragment;
+import org.fruct.oss.tsp.fragments.BaseFragment;
 import org.fruct.oss.tsp.layers.PointsLayer;
 import org.fruct.oss.tsp.layers.UserLayer;
 import org.fruct.oss.tsp.util.LocationProvider;

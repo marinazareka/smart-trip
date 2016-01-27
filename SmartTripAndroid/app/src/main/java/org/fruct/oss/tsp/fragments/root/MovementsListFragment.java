@@ -1,4 +1,4 @@
-package org.fruct.oss.tsp.fragments;
+package org.fruct.oss.tsp.fragments.root;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,6 +12,7 @@ import android.widget.TextView;
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.events.ScheduleStoreChangedEvent;
+import org.fruct.oss.tsp.fragments.BaseFragment;
 import org.fruct.oss.tsp.stores.ScheduleStore;
 
 import java.util.ArrayList;

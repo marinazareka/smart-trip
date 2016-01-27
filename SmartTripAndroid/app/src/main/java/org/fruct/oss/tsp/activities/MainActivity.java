@@ -20,11 +20,11 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.fragments.CommonFragment;
-import org.fruct.oss.tsp.fragments.MapFragment;
-import org.fruct.oss.tsp.fragments.PrefFragment;
-import org.fruct.oss.tsp.fragments.MovementsListFragment;
-import org.fruct.oss.tsp.fragments.SchedulesFragment;
-import org.fruct.oss.tsp.fragments.SearchFragment;
+import org.fruct.oss.tsp.fragments.root.MapFragment;
+import org.fruct.oss.tsp.fragments.root.PrefFragment;
+import org.fruct.oss.tsp.fragments.root.MovementsListFragment;
+import org.fruct.oss.tsp.fragments.root.SchedulesFragment;
+import org.fruct.oss.tsp.fragments.root.SearchFragment;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;

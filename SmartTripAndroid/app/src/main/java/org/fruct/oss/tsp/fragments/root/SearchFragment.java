@@ -1,36 +1,29 @@
-package org.fruct.oss.tsp.fragments;
+package org.fruct.oss.tsp.fragments.root;
 
 import android.app.SearchManager;
-import android.app.SearchableInfo;
-import android.content.ComponentName;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Point;
+import org.fruct.oss.tsp.fragments.AddPointFragment;
+import org.fruct.oss.tsp.fragments.BaseFragment;
 import org.fruct.oss.tsp.mvp.SearchMvpView;
 import org.fruct.oss.tsp.mvp.SearchPresenter;
-import org.fruct.oss.tsp.util.UserPref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

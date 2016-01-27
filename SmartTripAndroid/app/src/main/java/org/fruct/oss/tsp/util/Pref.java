@@ -1,11 +1,8 @@
 package org.fruct.oss.tsp.util;
 
 import android.content.SharedPreferences;
-import android.util.JsonWriter;
 
-import org.fruct.oss.tsp.fragments.MapFragment;
-
-import java.io.StringWriter;
+import org.fruct.oss.tsp.fragments.root.MapFragment;
 
 public class Pref {
 	public static final String PREF_CURRENT_SCHEDULE = "pref_current_schedule";

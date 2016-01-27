@@ -1,4 +1,4 @@
-package org.fruct.oss.tsp.fragments;
+package org.fruct.oss.tsp.fragments.root;
 
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,6 +15,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Schedule;
 import org.fruct.oss.tsp.commondatatype.TspType;
+import org.fruct.oss.tsp.fragments.BaseFragment;
 import org.fruct.oss.tsp.mvp.SchedulesMvpView;
 import org.fruct.oss.tsp.mvp.SchedulesPresenter;
 import org.fruct.oss.tsp.util.EditScheduleDialog;
