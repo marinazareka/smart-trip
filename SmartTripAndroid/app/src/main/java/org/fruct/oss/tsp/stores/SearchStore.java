@@ -30,7 +30,7 @@ public class SearchStore implements Store {
 	@Override
 	public void start() {
 		EventBus.getDefault().register(this);
-		clear();
+		//clear();
 	}
 
 	@Override

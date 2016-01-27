@@ -1,5 +1,9 @@
 package org.fruct.oss.tsp.fragments;
 
+import android.app.SearchManager;
+import android.app.SearchableInfo;
+import android.content.ComponentName;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -7,9 +11,12 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -22,6 +29,7 @@ import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.mvp.SearchMvpView;
 import org.fruct.oss.tsp.mvp.SearchPresenter;
+import org.fruct.oss.tsp.util.UserPref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,11 +48,10 @@ public class SearchFragment extends BaseFragment implements SearchMvpView {
 	@Bind(R.id.recycler_view)
 	RecyclerView recyclerView;
 
-	@Bind(R.id.card_view)
-	CardView cardView;
-
 	@Bind(R.id.dialog_anchor_container)
 	View dialogAnchorContainer;
+
+	private MenuItem searchMenuItem;
 
 	private SearchPresenter presenter;
 
@@ -58,6 +65,7 @@ public class SearchFragment extends BaseFragment implements SearchMvpView {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setupPresenter();
+		setHasOptionsMenu(true);
 	}
 
 	private void setupPresenter() {
@@ -72,6 +80,18 @@ public class SearchFragment extends BaseFragment implements SearchMvpView {
 		ButterKnife.bind(this, view);
 		setupRecyclerView();
 		return view;
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.search, menu);
+
+		searchMenuItem = menu.findItem(R.id.search);
+
+		SearchManager searchManager = (SearchManager) getContext().getSystemService(Context.SEARCH_SERVICE);
+		SearchView searchView = (SearchView) searchMenuItem.getActionView();
+		searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
 	}
 
 	private void setupRecyclerView() {
@@ -106,74 +126,9 @@ public class SearchFragment extends BaseFragment implements SearchMvpView {
 		super.onPause();
 	}
 
-	@OnClick(R.id.search_button)
-	void onSearchClicked() {
-		presenter.onSearchAction();
-	}
-
-	@Override
-	public void setEmptyMode(boolean isEmptyModeEnabled) {
-		cardView.setVisibility(isEmptyModeEnabled ? View.VISIBLE : View.GONE);
-		recyclerView.setVisibility(isEmptyModeEnabled ? View.GONE : View.VISIBLE);
-	}
-
 	@Override
 	public void setPointList(List<Point> pointList) {
 		adapter.setPointList(pointList);
-	}
-
-	@Override
-	public void displaySearchDialog(@Nullable String initialPattern, int initialRadius) {
-		MaterialDialog dialog = new MaterialDialog.Builder(getActivity())
-				.title(R.string.title_enter_request)
-				.positiveText(android.R.string.ok)
-				.negativeText(android.R.string.cancel)
-				.customView(R.layout.dialog_search_request, false)
-				.onNegative(new MaterialDialog.SingleButtonCallback() {
-					@Override
-					public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-						dialog.dismiss();
-					}
-				})
-				.onPositive(new MaterialDialog.SingleButtonCallback() {
-					@Override
-					public void onClick(@NonNull MaterialDialog dialog,
-										@NonNull DialogAction which) {
-						EditText radiusEditText = ButterKnife.findById(dialog.getView(),
-								R.id.radius_edit_text);
-						EditText patternEditText = ButterKnife.findById(dialog.getView(),
-								R.id.pattern_edit_text);
-
-						String radiusText = radiusEditText.getText().toString();
-						String patternText = patternEditText.getText().toString();
-
-						int radius = -1;
-						try {
-							radius = Integer.parseInt(radiusText);
-						} catch (NumberFormatException ex) {
-							radiusEditText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorAccent));
-						}
-
-						if (TextUtils.isEmpty(patternText)) {
-							patternEditText.setTextColor(ContextCompat.getColor(getContext(), R.color.colorAccent));
-						}
-
-						if (!TextUtils.isEmpty(patternText) && radius >= 0) {
-							presenter.search(radius, patternText);
-							dialog.dismiss();
-						}
-					}
-				})
-				.autoDismiss(false)
-				.show();
-
-		if (TextUtils.isEmpty(initialPattern)) {
-			((EditText) ButterKnife.findById(dialog, R.id.pattern_edit_text)).setText(initialPattern);
-		}
-
-		if (initialRadius > 0) {
-			((EditText) ButterKnife.findById(dialog, R.id.radius_edit_text)).setText(String.valueOf(initialRadius));
-		}
 	}
 
 	@Override
@@ -189,6 +144,11 @@ public class SearchFragment extends BaseFragment implements SearchMvpView {
 			waiterDialog.dismiss();
 			waiterDialog = null;
 		}
+	}
+
+	public void search(String searchString) {
+		presenter.search(searchString);
+		searchMenuItem.collapseActionView();
 	}
 
 	class Adapter extends RecyclerView.Adapter<Adapter.Holder> {

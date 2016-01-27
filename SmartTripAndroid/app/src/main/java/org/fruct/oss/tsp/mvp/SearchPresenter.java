@@ -57,7 +57,6 @@ public class SearchPresenter implements Presenter<SearchMvpView> {
 				.subscribe(new Action1<List<Point>>() {
 					@Override
 					public void call(List<Point> points) {
-						view.setEmptyMode(points.isEmpty());
 						view.setPointList(points);
 						view.dismissSearchWaiter();
 					}
@@ -69,13 +68,12 @@ public class SearchPresenter implements Presenter<SearchMvpView> {
 		foundPointsSubscription.unsubscribe();
 	}
 
-	public void onSearchAction() {
-		view.displaySearchDialog(null, UserPref.getRadius(pref));
-	}
-
-	public void search(int radius, String patternText) {
+	private void search(int radius, String patternText) {
 		smartspace.postSearchRequest(radius, patternText);
 		view.displaySearchWaiter();
 	}
 
+	public void search(String searchString) {
+		search(UserPref.getRadius(pref), searchString);
+	}
 }

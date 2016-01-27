@@ -1,5 +1,7 @@
 package org.fruct.oss.tsp.activities;
 
+import android.app.SearchManager;
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -72,6 +74,20 @@ public class MainActivity extends AppCompatActivity {
 		setupDrawer();
 
 		switchSearchFragment();
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+
+		if (intent.getAction() != null && intent.getAction().equals(Intent.ACTION_SEARCH)) {
+			String searchString = intent.getStringExtra(SearchManager.QUERY);
+
+			Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.container);
+			if (currentFragment instanceof SearchFragment) {
+				((SearchFragment) currentFragment).search(searchString);
+			}
+		}
 	}
 
 	private void setupCommonFragment() {
