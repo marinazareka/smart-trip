@@ -133,8 +133,8 @@ public class AddPointFragment extends BaseFragment {
 		MaterialDialog dialog = EditScheduleDialog.create(getContext(), null, null,
 				new EditScheduleDialog.Listener() {
 					@Override
-					public void onScheduleDialogFinished(String title, TspType tspType) {
-						onNewScheduleDialogFinished(title, tspType);
+					public void onScheduleDialogFinished(String title, TspType tspType, String roadType) {
+						onNewScheduleDialogFinished(title, tspType, roadType);
 					}
 				});
 		dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -146,7 +146,7 @@ public class AddPointFragment extends BaseFragment {
 		dialog.show();
 	}
 
-	private void onNewScheduleDialogFinished(String title, TspType tspType) {
+	private void onNewScheduleDialogFinished(String title, TspType tspType, String roadType) {
 		log.debug("New schedule {} {}", title, tspType);
 		long insertedId = getDatabase().insertSchedule(new Schedule(title, tspType));
 		Pref.setCurrentSchedule(pref, insertedId);

@@ -36,14 +36,24 @@ public class EditScheduleDialog {
 					@Override
 					public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction dialogAction) {
 						Spinner spinner = ButterKnife.findById(dialog, R.id.tsp_type_spinner);
+						Spinner roadSpinner = ButterKnife.findById(dialog, R.id.road_type_spinner);
 						EditText editText = ButterKnife.findById(dialog, R.id.title_edit_text);
 
 						String title = editText.getText().toString();
 						TspType tspType = spinner.getSelectedItemPosition() == 0
 								? TspType.OPEN : TspType.CLOSED;
+						String roadType = "foot";
+						switch (spinner.getSelectedItemPosition()) {
+						case 0:
+							roadType = "car";
+							break;
+						case 2:
+							roadType = "bus";
+							break;
+						}
 
 						if (!TextUtils.isEmpty(title)) {
-							listener.onScheduleDialogFinished(title, tspType);
+							listener.onScheduleDialogFinished(title, tspType, roadType);
 							dialog.dismiss();
 						}
 					}
@@ -66,6 +76,13 @@ public class EditScheduleDialog {
 
 		spinner.setSelection(tspType == TspType.OPEN ? 0 : 1);
 
+		// Setup road type spinner
+		Spinner roadSpinner = ButterKnife.findById(dialog, R.id.road_type_spinner);
+		ArrayAdapter<CharSequence> roadAdapter = ArrayAdapter.createFromResource(context,
+				R.array.road_types_array, android.R.layout.simple_spinner_item);
+		roadAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		roadSpinner.setAdapter(roadAdapter);
+
 		// Initial title
 		if (!TextUtils.isEmpty(title)) {
 			((EditText) ButterKnife.findById(dialog, R.id.title_edit_text)).setText(title);
@@ -75,6 +92,6 @@ public class EditScheduleDialog {
 	}
 
 	public interface Listener {
-		void onScheduleDialogFinished(String title, TspType tspType);
+		void onScheduleDialogFinished(String title, TspType tspType, String roadType);
 	}
 }

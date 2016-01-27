@@ -81,7 +81,7 @@ public class SchedulesPresenter implements Presenter<SchedulesMvpView> {
 		databaseRepo.deleteSchedule(schedule.getId());
 	}
 
-	public void onScheduleEdited(String title, TspType tspType) {
+	public void onScheduleEdited(String title, TspType tspType, String roadType) {
 		databaseRepo.updateSchedule(editingSchedule.getId(), new Schedule(title, tspType));
 	}
 }

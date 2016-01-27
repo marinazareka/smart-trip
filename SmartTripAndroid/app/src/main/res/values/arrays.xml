@@ -4,4 +4,10 @@
         <item>Open</item>
         <item>Closed</item>
     </string-array>
+
+    <string-array name="road_types_array">
+        <item>Car</item>
+        <item>Foot</item>
+        <item>Bus</item>
+    </string-array>
 </resources>

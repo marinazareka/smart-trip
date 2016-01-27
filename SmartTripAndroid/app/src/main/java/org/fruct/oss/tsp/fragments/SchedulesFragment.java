@@ -88,8 +88,8 @@ public class SchedulesFragment extends BaseFragment implements SchedulesMvpView 
 		MaterialDialog dialog = EditScheduleDialog.create(getContext(), title, tspType,
 				new EditScheduleDialog.Listener() {
 					@Override
-					public void onScheduleDialogFinished(String title, TspType tspType) {
-						presenter.onScheduleEdited(title, tspType);
+					public void onScheduleDialogFinished(String title, TspType tspType, String roadType) {
+						presenter.onScheduleEdited(title, tspType, roadType);
 					}
 				});
 		dialog.show();
