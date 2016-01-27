@@ -1,10 +1,14 @@
-package org.fruct.oss.tsp.util;
+package org.fruct.oss.tsp.fragments;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -15,12 +19,32 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.TspType;
+import org.fruct.oss.tsp.util.UserPref;
 
 import butterknife.ButterKnife;
+import de.greenrobot.event.EventBus;
 
-public class EditScheduleDialog {
-	public static MaterialDialog create(Context context, @Nullable String title, @Nullable TspType tspType,
-										@NonNull final Listener listener) {
+public class AddScheduleFragment extends DialogFragment {
+	public static AddScheduleFragment newInstance(Context context,
+												  @Nullable String title, @Nullable TspType tspType) {
+		Bundle args = new Bundle();
+		args.putString("title", title);
+		args.putSerializable("tspType", tspType);
+
+		AddScheduleFragment fragment = new AddScheduleFragment();
+		fragment.setArguments(args);
+		return fragment;
+	}
+
+	@NonNull
+	@Override
+	public Dialog onCreateDialog(Bundle savedInstanceState) {
+		Context context = getContext();
+
+		Bundle args = getArguments();
+		TspType tspType = (TspType) args.getSerializable("tspType");
+		String title = args.getString("title");
+
 		final MaterialDialog dialog = new MaterialDialog.Builder(context)
 				.title(R.string.title_new_schedule)
 				.positiveText(android.R.string.ok)
@@ -53,7 +77,7 @@ public class EditScheduleDialog {
 						}
 
 						if (!TextUtils.isEmpty(title)) {
-							listener.onScheduleDialogFinished(title, tspType, roadType);
+							EventBus.getDefault().post(new ScheduleDialogFinishedEvent(title, tspType, roadType));
 							dialog.dismiss();
 						}
 					}
@@ -88,10 +112,41 @@ public class EditScheduleDialog {
 			((EditText) ButterKnife.findById(dialog, R.id.title_edit_text)).setText(title);
 		}
 
+		dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+			@Override
+			public void onDismiss(DialogInterface dialog) {
+				EventBus.getDefault().post(new DismissedEvent());
+			}
+		});
+
 		return dialog;
 	}
 
-	public interface Listener {
-		void onScheduleDialogFinished(String title, TspType tspType, String roadType);
+	public static class ScheduleDialogFinishedEvent {
+		private final String title;
+		private final TspType tspType;
+		private final String roadType;
+
+		public ScheduleDialogFinishedEvent(String title, TspType tspType, String roadType) {
+
+			this.title = title;
+			this.tspType = tspType;
+			this.roadType = roadType;
+		}
+
+		public String getTitle() {
+			return title;
+		}
+
+		public TspType getTspType() {
+			return tspType;
+		}
+
+		public String getRoadType() {
+			return roadType;
+		}
+	}
+
+	public static class DismissedEvent {
 	}
 }

@@ -10,15 +10,13 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
-
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Schedule;
 import org.fruct.oss.tsp.commondatatype.TspType;
+import org.fruct.oss.tsp.fragments.AddScheduleFragment;
 import org.fruct.oss.tsp.fragments.BaseFragment;
 import org.fruct.oss.tsp.mvp.SchedulesMvpView;
 import org.fruct.oss.tsp.mvp.SchedulesPresenter;
-import org.fruct.oss.tsp.util.EditScheduleDialog;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,8 +24,11 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.greenrobot.event.EventBus;
 
 public class SchedulesFragment extends BaseFragment implements SchedulesMvpView {
+	private static final String TAG_ADD_SCHEDULE_FRAGMENT = "TAG_ADD_SCHEDULE_FRAGMENT_2";
+
 	@Bind(R.id.recycler_view)
 	RecyclerView recyclerView;
 
@@ -66,6 +67,18 @@ public class SchedulesFragment extends BaseFragment implements SchedulesMvpView 
 		super.onPause();
 	}
 
+	@Override
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().register(this);
+	}
+
+	@Override
+	public void onStop() {
+		EventBus.getDefault().unregister(this);
+		super.onStop();
+	}
+
 	private void setupRecyclerView() {
 		recyclerView.setHasFixedSize(true);
 		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
@@ -86,15 +99,13 @@ public class SchedulesFragment extends BaseFragment implements SchedulesMvpView 
 
 	@Override
 	public void displayEditDialog(String title, TspType tspType) {
-		MaterialDialog dialog = EditScheduleDialog.create(getContext(), title, tspType,
-				new EditScheduleDialog.Listener() {
-					@Override
-					public void onScheduleDialogFinished(String title, TspType tspType, String roadType) {
-						presenter.onScheduleEdited(title, tspType, roadType);
-					}
-				});
-		dialog.show();
+		AddScheduleFragment addScheduleFragment = AddScheduleFragment.newInstance(getContext(),
+				title, tspType);
+		addScheduleFragment.show(getFragmentManager(), TAG_ADD_SCHEDULE_FRAGMENT);
+	}
 
+	public void onEventMainThread(AddScheduleFragment.ScheduleDialogFinishedEvent event) {
+		presenter.onScheduleEdited(event.getTitle(), event.getTspType(), event.getRoadType());
 	}
 
 	class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.Holder> {

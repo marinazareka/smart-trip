@@ -1,6 +1,5 @@
 package org.fruct.oss.tsp.fragments;
 
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -13,22 +12,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
 
-import com.afollestad.materialdialogs.MaterialDialog;
-
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.commondatatype.Schedule;
 import org.fruct.oss.tsp.commondatatype.TspType;
-import org.fruct.oss.tsp.util.EditScheduleDialog;
 import org.fruct.oss.tsp.util.Pref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.greenrobot.event.EventBus;
 
 public class AddPointFragment extends BaseFragment {
 	private static final Logger log = LoggerFactory.getLogger(AddPointFragment.class);
 
 	public static final String BACK_STACK_TAG = "AddPointFragment_TAG";
 
+	private static final String TAG_ADD_SCHEDULE_FRAGMENT = "TAG_ADD_SCHEDULE_FRAGMENT";
 
 	public static void addToFragmentManager(AddPointFragment fragment, FragmentManager fragmentManager,
 											@IdRes int container) {
@@ -93,6 +92,18 @@ public class AddPointFragment extends BaseFragment {
 		}
 	}
 
+	@Override
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().register(this);
+	}
+
+	@Override
+	public void onStop() {
+		EventBus.getDefault().unregister(this);
+		super.onStop();
+	}
+
 	private void dismissFragment() {
 		getFragmentManager().
 				popBackStack(BACK_STACK_TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -130,20 +141,17 @@ public class AddPointFragment extends BaseFragment {
 	}
 
 	private void onPointAddToNewSchedule(Point point) {
-		MaterialDialog dialog = EditScheduleDialog.create(getContext(), null, null,
-				new EditScheduleDialog.Listener() {
-					@Override
-					public void onScheduleDialogFinished(String title, TspType tspType, String roadType) {
-						onNewScheduleDialogFinished(title, tspType, roadType);
-					}
-				});
-		dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-			@Override
-			public void onDismiss(DialogInterface dialog) {
-				dismissFragment();
-			}
-		});
-		dialog.show();
+		AddScheduleFragment addScheduleFragment = AddScheduleFragment.newInstance(getContext(),
+				null, null);
+		addScheduleFragment.show(getFragmentManager(), TAG_ADD_SCHEDULE_FRAGMENT);
+	}
+
+	public void onEventMainThread(AddScheduleFragment.ScheduleDialogFinishedEvent event) {
+		onNewScheduleDialogFinished(event.getTitle(), event.getTspType(), event.getRoadType());
+	}
+
+	public void onEventMainThread(AddScheduleFragment.DismissedEvent event) {
+		dismissFragment();
 	}
 
 	private void onNewScheduleDialogFinished(String title, TspType tspType, String roadType) {
