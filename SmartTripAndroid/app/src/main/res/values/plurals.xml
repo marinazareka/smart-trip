@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <plurals name="pref_radius_summary">
-        <item quantity="one">Search in radius %d kilometer</item>
-        <item quantity="many">Search in radius %d kilometers</item>
+        <item quantity="one">Search in radius %d meter</item>
+        <item quantity="many">Search in radius %d meters</item>
     </plurals>
 </resources>

@@ -11,7 +11,7 @@ import org.fruct.oss.tsp.events.RequestFailedEvent;
 import org.fruct.oss.tsp.smartspace.BoundSmartSpace;
 import org.fruct.oss.tsp.smartspace.ScheduleUpdater;
 import org.fruct.oss.tsp.smartspace.SmartSpace;
-import org.fruct.oss.tsp.stores.GeoStore;
+import org.fruct.oss.tsp.stores.HistoryStore;
 import org.fruct.oss.tsp.stores.ScheduleStore;
 import org.fruct.oss.tsp.stores.SearchStore;
 import org.fruct.oss.tsp.util.LocationProvider;
@@ -25,6 +25,7 @@ import de.greenrobot.event.EventBus;
 public class CommonFragment extends Fragment {
 	private ScheduleStore scheduleStore;
 	private SearchStore searchStore;
+	private HistoryStore historyStore;
 
 	private BoundSmartSpace smartSpace;
 
@@ -40,11 +41,13 @@ public class CommonFragment extends Fragment {
 
 		createScheduleStore();
 		createSearchStore();
+		createHistoryStore();
 
 		createSmartspace();
 
 		createScheduleUpdater();
 	}
+
 
 	private void createScheduleUpdater() {
 		scheduleUpdater = new ScheduleUpdater(getContext(),
@@ -60,9 +63,12 @@ public class CommonFragment extends Fragment {
 		smartSpace = new BoundSmartSpace(getActivity());
 	}
 
-
 	private void createSearchStore() {
 		searchStore = new SearchStore();
+	}
+
+	private void createHistoryStore() {
+		historyStore = new HistoryStore();
 	}
 
 	@Override
@@ -73,10 +79,12 @@ public class CommonFragment extends Fragment {
 		smartSpace.start();
 		searchStore.start();
 		scheduleUpdater.start();
+		historyStore.start();
 	}
 
 	@Override
 	public void onStop() {
+		historyStore.stop();
 		scheduleUpdater.stop();
 		searchStore.stop();
 		smartSpace.stop();
@@ -106,6 +114,12 @@ public class CommonFragment extends Fragment {
 		return smartSpace;
 	}
 
+	/**
+	 * @return хранилище истории поиска
+	 */
+	public HistoryStore getHistoryStore() {
+		return historyStore;
+	}
 
 	public void onEventMainThread(RequestFailedEvent event) {
 		Toast.makeText(getContext(), R.string.str_request_failed, Toast.LENGTH_SHORT).show();

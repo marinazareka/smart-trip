@@ -14,6 +14,7 @@ static jclass class_point;
 static jclass class_listener;
 static jclass class_ioexception;
 static jclass class_movement;
+static jclass class_string;
 
 static jmethodID constructor_movement;
 static jmethodID constructor_point;
@@ -24,6 +25,8 @@ static jmethodID method_get_point_lon;
 
 static jmethodID method_listener_on_search_request_ready;
 static jmethodID method_listener_on_schedule_request_ready;
+static jmethodID method_listener_on_search_history_ready;
+
 static jmethodID method_listener_on_request_failed;
 
 static jobject global_listener;
@@ -73,6 +76,9 @@ JNI_OnLoad(JavaVM *vm, void *reserved) {
     class_listener = (*env)->FindClass(env, "org/fruct/oss/tsp/commondatatype/SmartSpaceNative$Listener");
     class_listener = (*env)->NewGlobalRef(env, class_listener);
 
+    class_string = (*env)->FindClass(env, "java/lang/String");
+    class_string = (*env)->NewGlobalRef(env, class_string);
+
     constructor_movement = (*env)->GetMethodID(env, class_movement, "<init>",
                                                "(Lorg/fruct/oss/tsp/commondatatype/Point;Lorg/fruct/oss/tsp/commondatatype/Point;)V");
 
@@ -90,6 +96,9 @@ JNI_OnLoad(JavaVM *vm, void *reserved) {
     method_listener_on_schedule_request_ready
             = (*env)->GetMethodID(env, class_listener, "onScheduleRequestReady",
                                   "([Lorg/fruct/oss/tsp/commondatatype/Movement;)V");
+    method_listener_on_search_history_ready
+            = (*env)->GetMethodID(env, class_listener, "onSearchHistoryReady",
+                                  "([Ljava/lang/String;)V");
 
     method_listener_on_request_failed
             = (*env)->GetMethodID(env, class_listener, "onRequestFailed",
@@ -102,6 +111,8 @@ JNIEXPORT void JNICALL
 JNI_OnUnload(JavaVM *vm, void *reserved) {
     JNIEnv* env = get_jni_env(NULL);
 
+    (*env)->DeleteGlobalRef(env, class_string);
+    (*env)->DeleteGlobalRef(env, class_movement);
     (*env)->DeleteGlobalRef(env, class_ioexception);
     (*env)->DeleteGlobalRef(env, class_point);
     (*env)->DeleteGlobalRef(env, class_listener);
@@ -277,6 +288,22 @@ void st_on_schedule_request_ready(struct Movement* movements, int movements_coun
     release_jni_env(status);
 }
 
+void st_on_search_history_ready(const char* items[], int items_count) {
+    int status;
+    JNIEnv* env = get_jni_env(&status);
+
+    jobjectArray pattern_array = (*env)->NewObjectArray(env, items_count, class_string, NULL);
+
+    for (int i = 0; i < items_count; i++) {
+        jstring pattern = (*env)->NewStringUTF(env, items[i]);
+        (*env)->SetObjectArrayElement(env, pattern_array, i, pattern);
+    }
+
+    (*env)->CallVoidMethod(env, global_listener, method_listener_on_search_history_ready, pattern_array);
+
+    release_jni_env(status);
+}
+
 void st_on_request_failed(const char* description) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "st_on_request_failed called");
 
@@ -285,5 +312,4 @@ void st_on_request_failed(const char* description) {
     jstring description_jni = (*env)->NewStringUTF(env, description);
     (*env)->CallVoidMethod(env, global_listener, method_listener_on_request_failed, description_jni);
     release_jni_env(status);
-
 }

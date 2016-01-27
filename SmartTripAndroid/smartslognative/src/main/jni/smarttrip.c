@@ -22,6 +22,7 @@ static sslog_node_t *node;
 
 static sslog_individual_t* user_individual;
 static sslog_individual_t* user_location;
+static sslog_individual_t* search_history;
 
 static double user_lat;
 static double user_lon;
@@ -90,12 +91,6 @@ static void schedule_subscription_handler(sslog_subscription_t* sub) {
         if (title == NULL)
             title = "Untitled";
         st_init_point(&movement_array[i].point_b, point_b->entity.uri, title, lat, lon);
-
-        //sslog_node_remove_individual_with_local(node, movement);
-        //sslog_node_remove_individual_with_local(node, point_a);
-        //if (i == movement_count - 1) {
-        //    sslog_node_remove_individual_with_local(node, point_b);
-        //}
     }
 
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%d movements found", movement_count);
@@ -275,8 +270,12 @@ static bool load_existing_schedule() {
 
 static bool load_existing_user_location() {
     user_location = sslog_node_get_property(node, user_individual, PROPERTY_HASLOCATION);
-    if (user_location == NULL) {
+    if (sslog_error_get_last_code() != SSLOG_ERROR_NO) {
         return false;
+    }
+
+    if (user_location == NULL) {
+        return true;
     }
 
     sslog_node_populate(node, user_location);
@@ -285,7 +284,7 @@ static bool load_existing_user_location() {
     const char* lon_str = sslog_get_property(user_location, PROPERTY_LONG);
 
     if (lat_str == NULL || lon_str == NULL) {
-        return false;
+        return true;
     }
 
     user_lat = parse_double(lat_str);
@@ -293,6 +292,47 @@ static bool load_existing_user_location() {
 
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Existing user location loaded %lf %lf",
                         user_lat, user_lon);
+    return true;
+}
+
+static bool load_search_history(void) {
+    search_history = sslog_node_get_property(node, user_individual, PROPERTY_HASSEARCHHISTORY);
+    if (sslog_error_get_last_code() != SSLOG_ERROR_NO) {
+        return false;
+    }
+
+    if (search_history == NULL) {
+        search_history = sslog_new_individual(CLASS_SEARCHHISTORY, rand_uuid("searchrequest"));
+
+        sslog_node_insert_individual(node, search_history);
+        sslog_node_insert_property(node, user_individual, PROPERTY_HASSEARCHHISTORY, search_history);
+        if (sslog_error_get_last_code() != SSLOG_ERROR_NO) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    if (sslog_node_populate(node, search_history) != SSLOG_ERROR_NO) {
+        return false;
+    }
+
+    list_t* properties = sslog_get_properties(search_history, PROPERTY_SEARCHPATTERN);
+    int count = list_count(properties);
+    __android_log_print(ANDROID_LOG_ERROR, APPNAME, "%d history items loaded", count);
+
+    const char* arg_array[count];
+
+    int idx = 0;
+    list_head_t* iter;
+    list_for_each(iter, &properties->links) {
+        list_t* entry = list_entry(iter, list_t, links);
+        arg_array[idx++] = entry->data;
+    }
+
+    st_on_search_history_ready(arg_array, count);
+
+    list_free_with_nodes(properties, NULL);
     return true;
 }
 
@@ -338,7 +378,15 @@ bool st_initialize(const char *user_id, const char *kp_name, const char *smart_s
         return false;
     }
 
-    load_existing_user_location();
+    if (!load_existing_user_location()) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "load_existing_user_location failed");
+        return false;
+    }
+
+    if (!load_search_history()) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "load_search_history failed");
+        return false;
+    }
 
     if (!load_existing_schedule()) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, "load_existing_schedule failed");
@@ -500,6 +548,13 @@ bool st_post_search_request(double radius, const char *pattern) {
         return false;
     }
 
+    if (sslog_node_insert_property(node, search_history, PROPERTY_SEARCHPATTERN,
+                                   (void*) pattern) != SSLOG_ERROR_NO) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't search pattern: %s",
+                            sslog_error_get_last_text());
+        return false;
+    }
+
     request_individual = request_individual_l;
 
     // Subscribe to update
@@ -656,6 +711,9 @@ bool st_post_schedule_request(struct Point* points, int points_count, const char
     return true;
 }
 
+
+
 static void test() {
 
 }
+

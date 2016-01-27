@@ -19,6 +19,7 @@ import android.support.v4.app.FragmentActivity;
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.commondatatype.TspType;
+import org.fruct.oss.tsp.events.HistoryEvent;
 import org.fruct.oss.tsp.events.RequestFailedEvent;
 import org.fruct.oss.tsp.events.ScheduleEvent;
 import org.fruct.oss.tsp.events.SearchEvent;
@@ -148,6 +149,11 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback, SharedPref
 			String description = msg.getData().getString("description");
 			EventBus.getDefault().post(new RequestFailedEvent(description));
 			break;
+
+		case SmartSpaceService.CALLBACK_HISTORY_RESULT:
+			List<String> patterns = msg.getData().getStringArrayList("patterns");
+			EventBus.getDefault().post(new HistoryEvent(patterns));
+
 		}
 
 		return true;

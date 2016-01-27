@@ -8,6 +8,7 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,8 @@ import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.mvp.SearchMvpView;
 import org.fruct.oss.tsp.mvp.SearchPresenter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -28,8 +31,12 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import rx.Subscription;
+import rx.functions.Action1;
 
 public class SearchFragment extends BaseFragment implements SearchMvpView {
+	private static final Logger log = LoggerFactory.getLogger(SearchFragment.class);
+
 	@Bind(R.id.recycler_view)
 	RecyclerView recyclerView;
 
@@ -44,6 +51,8 @@ public class SearchFragment extends BaseFragment implements SearchMvpView {
 	private Adapter adapter;
 
 	private MaterialDialog waiterDialog;
+
+	private Subscription testSubscription;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -77,10 +86,22 @@ public class SearchFragment extends BaseFragment implements SearchMvpView {
 	public void onResume() {
 		super.onResume();
 		presenter.start();
+
+		testSubscription = getHistoryStore().getObservable()
+				.subscribe(new Action1<List<String>>() {
+					@Override
+					public void call(List<String> strings) {
+						for (String string : strings) {
+							log.debug("History loaded {}", string);
+						}
+					}
+				});
 	}
 
 	@Override
 	public void onPause() {
+		testSubscription.unsubscribe();
+
 		presenter.stop();
 		super.onPause();
 	}

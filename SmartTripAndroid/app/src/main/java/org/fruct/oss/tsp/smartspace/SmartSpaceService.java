@@ -39,8 +39,9 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 	public static final int MSG_ACTION_SET_CALLBACK_MESSENGER = 5;
 
 	public static final int CALLBACK_SCHEDULE_RESULT = 5;
-	public static final int CALLBACK_SEARCH_RESULT = 6;
-	public static final int CALLBACK_REQUEST_FAILED = 7;
+	public static final int CALLBACK_HISTORY_RESULT = 6;
+	public static final int CALLBACK_SEARCH_RESULT = 7;
+	public static final int CALLBACK_REQUEST_FAILED = 8;
 
 	private SharedPreferences pref;
 
@@ -109,9 +110,9 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 				String address = msg.getData().getString("address");
 				int port = msg.getData().getInt("port");
 
+				smartSpace.setListener(new Listener());
 				smartSpace.initialize(Pref.getUserId(pref), "android-user-kp-" + Pref.getUserId(pref),
 						"X", address, port);
-				smartSpace.setListener(new Listener());
 				isInitialized = true;
 			} catch (IOException e) {
 				log.error("Can't initialize smartspace", e);
@@ -246,6 +247,29 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 							callbackMessenger = null;
 							log.error("Callback messenger disconnected");
 						}
+					}
+				}
+			});
+		}
+
+		@Override
+		public void onSearchHistoryReady(final String[] patterns) {
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					ArrayList<String> patterns1 = new ArrayList<>(Arrays.asList(patterns));
+
+					Bundle data = new Bundle();
+					data.putStringArrayList("patterns", patterns1);
+
+					Message message = Message.obtain(null, CALLBACK_HISTORY_RESULT);
+					message.setData(data);
+
+					try {
+						callbackMessenger.send(message);
+					} catch (RemoteException e) {
+						callbackMessenger = null;
+						log.error("Callback messenger disconnected");
 					}
 				}
 			});

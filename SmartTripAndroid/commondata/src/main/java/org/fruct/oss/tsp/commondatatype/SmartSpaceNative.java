@@ -22,6 +22,8 @@ public interface SmartSpaceNative {
 		// Callbacks
 		void onSearchRequestReady(Point[] points);
 		void onScheduleRequestReady(Movement[] movements);
+		void onSearchHistoryReady(String[] patterns);
+
 		void onRequestFailed(String description);
 	}
 }

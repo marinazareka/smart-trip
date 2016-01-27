@@ -8,7 +8,7 @@ import org.fruct.oss.tsp.BuildConfig;
 import org.fruct.oss.tsp.activities.MainActivity;
 import org.fruct.oss.tsp.database.DatabaseRepo;
 import org.fruct.oss.tsp.smartspace.SmartSpace;
-import org.fruct.oss.tsp.stores.GeoStore;
+import org.fruct.oss.tsp.stores.HistoryStore;
 import org.fruct.oss.tsp.stores.ScheduleStore;
 import org.fruct.oss.tsp.stores.SearchStore;
 import org.slf4j.Logger;
@@ -56,6 +56,9 @@ public class BaseFragment extends Fragment {
 		return commonFragment.getSearchStore();
 	}
 
+	protected HistoryStore getHistoryStore() {
+		return commonFragment.getHistoryStore();
+	}
 
 	/**
 	 * @return интерфейс интеллектуального пространства
