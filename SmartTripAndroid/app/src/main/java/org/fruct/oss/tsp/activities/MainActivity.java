@@ -120,18 +120,6 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	@Override
-	protected void onResume() {
-		super.onResume();
-		//LocationTrackingService.actionStartTracking(this);
-	}
-
-	@Override
-	protected void onPause() {
-		//LocationTrackingService.actionStopTracking(this);
-		super.onPause();
-	}
-
-	@Override
 	public void onBackPressed() {
 		if (drawer.isDrawerOpen()) {
 			drawer.closeDrawer();

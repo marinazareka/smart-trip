@@ -65,17 +65,12 @@ public class App extends Application {
 				Class<?> stethoClass = Class.forName("com.facebook.stetho.Stetho");
 				Method initializeWithDefaults = stethoClass.getDeclaredMethod("initializeWithDefaults", Context.class);
 				initializeWithDefaults.invoke(null, this);
-			} catch (ClassNotFoundException e) {
-				log.error("Can't init stetho", e);
-			} catch (NoSuchMethodException e) {
-				log.error("Can't init stetho", e);
-			} catch (InvocationTargetException e) {
-				log.error("Can't init stetho", e);
-			} catch (IllegalAccessException e) {
+			} catch (Exception e) {
 				log.error("Can't init stetho", e);
 			}
 		}
 	}
+
 	public static Context getContext() {
 		return instance.getApplicationContext();
 	}
