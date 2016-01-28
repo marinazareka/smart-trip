@@ -1,6 +1,8 @@
 package org.fruct.oss.tsp.fragments.root;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,11 +14,9 @@ import android.widget.TextView;
 
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Schedule;
-import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.fragments.AddScheduleFragment;
 import org.fruct.oss.tsp.fragments.BaseFragment;
-import org.fruct.oss.tsp.mvp.SchedulesMvpView;
-import org.fruct.oss.tsp.mvp.SchedulesPresenter;
+import org.fruct.oss.tsp.util.Pref;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,21 +25,28 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
-public class SchedulesFragment extends BaseFragment implements SchedulesMvpView {
+public class SchedulesFragment extends BaseFragment {
 	private static final String TAG_ADD_SCHEDULE_FRAGMENT = "TAG_ADD_SCHEDULE_FRAGMENT_2";
 
 	@Bind(R.id.recycler_view)
 	RecyclerView recyclerView;
 
-	private SchedulesPresenter presenter;
+	private SharedPreferences pref;
+
+	private Subscription subscription;
+	private Schedule editingSchedule;
 
 	private ScheduleAdapter adapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		createPresenter();
+		pref = PreferenceManager.getDefaultSharedPreferences(getContext());
 	}
 
 	@Override
@@ -50,20 +57,27 @@ public class SchedulesFragment extends BaseFragment implements SchedulesMvpView 
 		return view;
 	}
 
-	private void createPresenter() {
-		presenter = new SchedulesPresenter(getContext(), getDatabase());
-		presenter.setView(this);
-	}
-
 	@Override
 	public void onResume() {
 		super.onResume();
-		presenter.start();
+
+		this.subscription = getDatabase().loadSchedules()
+				.subscribeOn(Schedulers.io())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(new Action1<List<Schedule>>() {
+					@Override
+					public void call(List<Schedule> schedules) {
+						setScheduleList(schedules);
+					}
+				});
+
+		updateCurrentSchedule();
 	}
 
 	@Override
 	public void onPause() {
-		presenter.stop();
+		subscription.unsubscribe();
+
 		super.onPause();
 	}
 
@@ -87,25 +101,50 @@ public class SchedulesFragment extends BaseFragment implements SchedulesMvpView 
 		recyclerView.setAdapter(adapter = new ScheduleAdapter());
 	}
 
-	@Override
-	public void setScheduleList(List<Schedule> scheduleList) {
+	private void setScheduleList(List<Schedule> scheduleList) {
 		adapter.setScheduleList(scheduleList);
 	}
 
-	@Override
-	public void setSelectedScheduleId(long scheduleId) {
+	private void setSelectedScheduleId(long scheduleId) {
 		adapter.setSelectedScheduleId(scheduleId);
 	}
 
-	@Override
-	public void displayEditDialog(Schedule schedule) {
+	private void displayEditDialog(Schedule schedule) {
 		AddScheduleFragment addScheduleFragment = AddScheduleFragment.newInstance(schedule);
 		addScheduleFragment.show(getFragmentManager(), TAG_ADD_SCHEDULE_FRAGMENT);
 	}
 
 	public void onEventMainThread(AddScheduleFragment.ScheduleDialogFinishedEvent event) {
-		presenter.onScheduleEdited(event.getNewSchedule());
+		onScheduleEdited(event.getNewSchedule());
 	}
+
+
+
+	private void updateCurrentSchedule() {
+		setSelectedScheduleId(Pref.getCurrentSchedule(pref));
+	}
+
+	public void onActivateSchedule(Schedule schedule) {
+		Pref.setCurrentSchedule(pref, schedule.getId());
+		getDatabase().setCurrentSchedule(schedule.getId());
+		updateCurrentSchedule();
+	}
+
+	public void onEditSchedule(Schedule schedule) {
+		editingSchedule = schedule;
+
+		displayEditDialog(schedule);
+	}
+
+	public void onDeleteSchedule(Schedule schedule) {
+		Pref.compareAndClearCurrentSchedule(pref, schedule.getId());
+		getDatabase().deleteSchedule(schedule.getId());
+	}
+
+	public void onScheduleEdited(Schedule newSchedule) {
+		getDatabase().updateSchedule(editingSchedule.getId(), newSchedule);
+	}
+
 
 	class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.Holder> {
 		private List<Schedule> scheduleList = Collections.emptyList();
@@ -175,15 +214,15 @@ public class SchedulesFragment extends BaseFragment implements SchedulesMvpView 
 		public boolean onMenuItemClick(MenuItem item) {
 			switch (item.getItemId()) {
 			case R.id.action_activate_schedule:
-				presenter.onActivateSchedule(schedule);
+				onActivateSchedule(schedule);
 				break;
 
 			case R.id.action_edit:
-				presenter.onEditSchedule(schedule);
+				onEditSchedule(schedule);
 				break;
 
 			case R.id.action_delete:
-				presenter.onDeleteSchedule(schedule);
+				onDeleteSchedule(schedule);
 				break;
 
 			default:
