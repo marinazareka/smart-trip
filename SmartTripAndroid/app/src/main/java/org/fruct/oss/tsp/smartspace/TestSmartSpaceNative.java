@@ -72,7 +72,7 @@ public class TestSmartSpaceNative implements SmartSpaceNative {
 	}
 
 	@Override
-	public void postScheduleRequest(final Point[] points, final String tspType) {
+	public void postScheduleRequest(final Point[] points, final String tspType, String roadType, String startDate, String endDate) {
 		log.debug("postScheduleRequest() called with: " + "points = [" + points + "]");
 
 		handler.postDelayed(new Runnable() {

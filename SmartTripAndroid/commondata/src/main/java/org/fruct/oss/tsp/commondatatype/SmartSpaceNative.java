@@ -14,7 +14,8 @@ public interface SmartSpaceNative {
 
 	void postSearchRequest(double radius, String pattern) throws IOException;
 
-	void postScheduleRequest(Point[] points, String tspType) throws IOException;
+	void postScheduleRequest(Point[] points, String tspType,
+							 String roadType, String startDate, String endDate) throws IOException;
 
 	void setListener(Listener listener) throws IOException;
 

@@ -619,9 +619,27 @@ static void remove_old_movements_from_route(sslog_individual_t* route_individual
     list_free_with_nodes(individuals, NULL);
 }
 
+static bool remove_and_insert_property(sslog_node_t* node, sslog_individual_t* ind,
+                                       sslog_property_t* prop, void* value) {
+    if (value == NULL) {
+        return true;
+    }
+
+    if (sslog_node_remove_property(node, ind, prop, NULL) != SSLOG_ERROR_NO) {
+        return false;
+    }
+
+    if (sslog_node_update_property(node, ind, prop, NULL, value) != SSLOG_ERROR_NO) {
+        return false;
+    }
+
+    return true;
+}
+
 // * error checks
 // * memory cleanups
-bool st_post_schedule_request(struct Point* points, int points_count, const char* tsp_type) {
+bool st_post_schedule_request(struct Point* points, int points_count, const char* tsp_type,
+                              const char* roadType, const char* startDate, const char* endDate) {
     if (points_count == 0) {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "No points in schedule request");
         return true;
@@ -692,19 +710,28 @@ bool st_post_schedule_request(struct Point* points, int points_count, const char
         }
     }
 
-    if (sslog_node_remove_property(node, route_individual, PROPERTY_TSPTYPE, NULL) != SSLOG_ERROR_NO) {
+    if (!remove_and_insert_property(node, route_individual, PROPERTY_TSPTYPE, (void*) tsp_type)) {
         return false;
     }
 
-    if (sslog_node_update_property(node, route_individual, PROPERTY_TSPTYPE, NULL, (void*) tsp_type) != SSLOG_ERROR_NO) {
+
+    if (!remove_and_insert_property(node, route_individual, PROPERTY_ROADTYPE, roadType)) {
         return false;
     }
 
-    if (sslog_node_remove_property(node, route_individual, PROPERTY_UPDATED, NULL) != SSLOG_ERROR_NO) {
-        return false;
+    if (startDate != NULL && endDate != NULL) {
+        char* interval = NULL;
+        asprintf(&interval, "%s/%s", startDate, endDate);
+
+        if (!remove_and_insert_property(node, route_individual, PROPERTY_SCHEDULEINTERVAL, interval)) {
+            free(interval);
+            return false;
+        }
+
+        free(interval);
     }
 
-    if (sslog_node_update_property(node, route_individual, PROPERTY_UPDATED, NULL, rand_uuid("updated")) != SSLOG_ERROR_NO) {
+    if (!remove_and_insert_property(node, route_individual, PROPERTY_UPDATED, rand_uuid("updated"))) {
         return false;
     }
 

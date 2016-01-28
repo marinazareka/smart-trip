@@ -191,13 +191,20 @@ Java_org_fruct_oss_tsp_smartslognative_JniSmartSpaceNative_postSearchRequest(JNI
 }
 
 JNIEXPORT void JNICALL
-Java_org_fruct_oss_tsp_smartslognative_JniSmartSpaceNative_postScheduleRequest(JNIEnv *env,
+Java_org_fruct_oss_tsp_smartslognative_JniSmartSpaceNative_postScheduleRequest(JNIEnv* env,
                                                                                jobject instance,
                                                                                jobjectArray points,
-                                                                               jstring tsp_type_) {
-    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "postScheduleRequest called");
+                                                                               jstring tspType_,
+                                                                               jstring roadType_,
+                                                                               jstring startDate_,
+                                                                               jstring endDate_) {
+    // TODO: проверить roadType, startDate и endDate на NULL
+    const char* tspType = (*env)->GetStringUTFChars(env, tspType_, 0);
+    const char* roadType = (*env)->GetStringUTFChars(env, roadType_, 0);
+    const char* startDate = (*env)->GetStringUTFChars(env, startDate_, 0);
+    const char* endDate = (*env)->GetStringUTFChars(env, endDate_, 0);
 
-    const char *tsp_type = (*env)->GetStringUTFChars(env, tsp_type_, 0);
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "postScheduleRequest called");
 
     jsize array_size = (*env)->GetArrayLength(env, points);
     struct Point array[array_size];
@@ -220,11 +227,14 @@ Java_org_fruct_oss_tsp_smartslognative_JniSmartSpaceNative_postScheduleRequest(J
         (*env)->ReleaseStringUTFChars(env, j_title, title);
     }
 
-    if (!st_post_schedule_request(array, array_size, tsp_type)) {
+    if (!st_post_schedule_request(array, array_size, tspType, roadType, startDate, endDate)) {
         (*env)->ThrowNew(env, class_ioexception, "Can't post schedule request");
     }
 
-    (*env)->ReleaseStringUTFChars(env, tsp_type_, tsp_type);
+    (*env)->ReleaseStringUTFChars(env, tspType_, tspType);
+    (*env)->ReleaseStringUTFChars(env, roadType_, roadType);
+    (*env)->ReleaseStringUTFChars(env, startDate_, startDate);
+    (*env)->ReleaseStringUTFChars(env, endDate_, endDate);
 }
 
 JNIEXPORT void JNICALL
@@ -313,3 +323,4 @@ void st_on_request_failed(const char* description) {
     (*env)->CallVoidMethod(env, global_listener, method_listener_on_request_failed, description_jni);
     release_jni_env(status);
 }
+

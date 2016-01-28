@@ -12,15 +12,13 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.commondatatype.Schedule;
 import org.fruct.oss.tsp.commondatatype.SmartSpaceNative;
-import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.util.Pref;
-import org.fruct.oss.tsp.util.UserPref;
+import org.fruct.oss.tsp.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -186,7 +184,9 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 
 		try {
 			smartSpace.postScheduleRequest(points.toArray(new Point[points.size()]),
-					schedule.getTspType().name().toLowerCase());
+					schedule.getTspType().name().toLowerCase(), schedule.getRoadType(),
+					Utils.localDateToString(schedule.getStartDate()),
+					Utils.localDateToString(schedule.getEndDate()));
 		} catch (IOException e) {
 			log.error("Error posting schedule request", e);
 			panic();

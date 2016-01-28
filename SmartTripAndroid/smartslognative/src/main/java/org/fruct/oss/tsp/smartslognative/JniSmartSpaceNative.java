@@ -23,7 +23,7 @@ public class JniSmartSpaceNative implements SmartSpaceNative {
 	public synchronized native void postSearchRequest(double radius, String pattern) throws IOException;
 
 	@Override
-	public synchronized native void postScheduleRequest(Point[] points, String tspType) throws IOException;
+	public synchronized native void postScheduleRequest(Point[] points, String tspType, String roadType, String startDate, String endDate) throws IOException;
 
 	@Override
 	public synchronized native void setListener(Listener listener) throws IOException;
