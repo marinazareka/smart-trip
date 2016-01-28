@@ -651,6 +651,16 @@
     
 
 
+    <!-- http://oss.fruct.org/etourism#scheduleInterval -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#scheduleInterval">
+        <rdfs:comment>Временной интервал маршрута в виде строки yyyy-MM-dd/yyyy-MM-dd</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Route"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://oss.fruct.org/etourism#searchPattern -->
 
     <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#searchPattern">
