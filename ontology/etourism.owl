@@ -651,6 +651,16 @@
     
 
 
+    <!-- http://oss.fruct.org/etourism#roadType -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#roadType">
+        <rdfs:comment>Тип дороги (&quot;car&quot;, &quot;foot&quot;, &quot;bus&quot;)</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Route"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://oss.fruct.org/etourism#scheduleInterval -->
 
     <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#scheduleInterval">
