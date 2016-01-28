@@ -16,6 +16,7 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 import rx.Observable;
 import rx.subjects.BehaviorSubject;
+import rx.subjects.PublishSubject;
 
 /**
  * Локальное хранилище данных о загруженных географических объектах.
@@ -26,6 +27,7 @@ public class SearchStore implements Store {
 	private static final Logger log = LoggerFactory.getLogger(SearchStore.class);
 
 	private BehaviorSubject<List<Point>> pointsSubject = BehaviorSubject.create();
+	private PublishSubject<Object> updatedSubject = PublishSubject.create();
 
 	@Override
 	public void start() {
@@ -42,9 +44,14 @@ public class SearchStore implements Store {
 		return pointsSubject;
 	}
 
+	public Observable<Object> getUpdatedObservable() {
+		return updatedSubject;
+	}
+
 	public void onEvent(SearchEvent searchEvent) {
 		log.debug("Search store updated");
 		pointsSubject.onNext(searchEvent.getPoints());
+		updatedSubject.onNext(null);
 	}
 
 	public void clear() {

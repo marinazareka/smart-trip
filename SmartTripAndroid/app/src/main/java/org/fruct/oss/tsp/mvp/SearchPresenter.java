@@ -35,7 +35,9 @@ public class SearchPresenter implements Presenter<SearchMvpView> {
 
 	private SearchMvpView view;
 	private Point lastSelectedPoint;
+
 	private Subscription foundPointsSubscription;
+	private Subscription updatedSubscription;
 
 	public SearchPresenter(Context context, SearchStore searchStore,
 						   SmartSpace smartspace, DatabaseRepo databaseRepo) {
@@ -59,6 +61,13 @@ public class SearchPresenter implements Presenter<SearchMvpView> {
 					@Override
 					public void call(List<Point> points) {
 						view.setPointList(points);
+					}
+				});
+		updatedSubscription = searchStore.getUpdatedObservable()
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(new Action1<Object>() {
+					@Override
+					public void call(Object o) {
 						view.dismissSearchWaiter();
 					}
 				});
@@ -67,6 +76,7 @@ public class SearchPresenter implements Presenter<SearchMvpView> {
 	@Override
 	public void stop() {
 		foundPointsSubscription.unsubscribe();
+		updatedSubscription.unsubscribe();
 	}
 
 	private void search(int radius, String patternText) {
