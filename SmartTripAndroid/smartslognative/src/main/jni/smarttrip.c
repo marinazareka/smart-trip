@@ -406,6 +406,16 @@ void st_shutdown() {
 
     sslog_shutdown();
 
+    user_individual = NULL;
+    user_location = NULL;
+    search_history = NULL;
+    sub_search_request = NULL;
+    request_individual = NULL;
+    sub_schedule_request = NULL;
+
+    schedule_individual = NULL;
+    route_individual = NULL;
+
     is_ontology_registered = false;
     is_smartspace_initialized = false;
 }
@@ -698,7 +708,8 @@ bool st_post_schedule_request(struct Point* points, int points_count, const char
 
     // TODO: добавлять точки в одну транзакцию
     // TODO: удалять старые точки или придумать какой-нибудь GarbageCollectorKP
-    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Inserting %d points with tsptype %s", points_count, tsp_type);
+    __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Inserting %d points with tsptype %s",
+                        points_count, tsp_type);
 
     for (int i = 0; i < points_count; i++) {
         sslog_individual_t* point_individual = create_poi_individual(node, points[i].lat,
@@ -716,8 +727,7 @@ bool st_post_schedule_request(struct Point* points, int points_count, const char
         return false;
     }
 
-
-    if (!remove_and_insert_property(node, route_individual, PROPERTY_ROADTYPE, roadType)) {
+    if (!remove_and_insert_property(node, route_individual, PROPERTY_ROADTYPE, (void*) roadType)) {
         return false;
     }
 

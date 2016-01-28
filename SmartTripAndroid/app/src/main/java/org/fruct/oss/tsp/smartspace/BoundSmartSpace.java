@@ -84,12 +84,6 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback, SharedPref
 		}
 	}
 
-	private void sendInitializeMessage() {
-		Bundle args = new Bundle();
-		args.putString("address", UserPref.getSibAddress(pref));
-		args.putInt("port", UserPref.getSibPort(pref));
-		sendSmartSpaceMessage(SmartSpaceService.MSG_ACTION_INITIALIZE, args);
-	}
 
 	private void startSmartSpaceService() {
 		log.debug("Starting smartspace service");
@@ -186,6 +180,13 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback, SharedPref
 			log.warn("Smart space service connection lost");
 			BoundSmartSpace.this.onServiceDisconnected();
 		}
+	}
+
+	private void sendInitializeMessage() {
+		Bundle args = new Bundle();
+		args.putString("address", UserPref.getSibAddress(pref));
+		args.putInt("port", UserPref.getSibPort(pref));
+		sendSmartSpaceMessage(SmartSpaceService.MSG_ACTION_INITIALIZE, args);
 	}
 
 	private void sendCallback() {
