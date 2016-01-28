@@ -8,6 +8,7 @@
 #include <android/log.h>
 #include <common/common.h>
 #include <entity_internal.h>
+#include <ontology.h>
 
 #include "common/st_point.h"
 #include "st_movement.h"
@@ -177,7 +178,8 @@ static bool subscribe_route_processed(sslog_individual_t* route) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Subscribing schedule request");
     if (sslog_sbcr_subscribe(sub_schedule_request) != SSLOG_ERROR_NO) {
         sslog_free_subscription(sub_schedule_request);
-        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't subscribe schedule response: %s", sslog_error_get_text(node));
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't subscribe schedule response: %s",
+                            sslog_error_get_last_text());
         return false;
     }
 
@@ -343,7 +345,7 @@ bool st_initialize(const char *user_id, const char *kp_name, const char *smart_s
     if (!is_smartspace_initialized) {
         if (sslog_init() != SSLOG_ERROR_NO) {
             __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Error sslog_init %s",
-                                sslog_error_get_text(node));
+                                sslog_error_get_last_text());
             return false;
         } else {
             is_smartspace_initialized = true;
@@ -360,7 +362,7 @@ bool st_initialize(const char *user_id, const char *kp_name, const char *smart_s
 
     if (node == NULL) {
         __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Error create node %s",
-                            sslog_error_get_text(node));
+                            sslog_error_get_last_text());
         return false;
     } else {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Node created");
@@ -571,7 +573,7 @@ bool st_post_search_request(double radius, const char *pattern) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Subscribing search request");
     if (sslog_sbcr_subscribe(sub_search_request_l) != SSLOG_ERROR_NO) {
         __android_log_print(ANDROID_LOG_WARN, APPNAME, "Can't subscribe response: %s",
-                            sslog_error_get_text(node));
+                            sslog_error_get_last_text());
         sslog_free_subscription(sub_search_request_l);
         sslog_node_remove_individual_with_local(node, request_individual);
         request_individual = NULL;
