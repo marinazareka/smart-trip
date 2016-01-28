@@ -2,6 +2,7 @@ package org.fruct.oss.tsp.activities;
 
 import android.app.SearchManager;
 import android.content.Intent;
+import android.os.PersistableBundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -46,9 +47,10 @@ import butterknife.ButterKnife;
  *
  */
 public class MainActivity extends AppCompatActivity {
-	private static final String TRANSACTION_ROOT = "TRANSACTION_ROOT";
-
 	public static final String TAG_COMMON_FRAGMENT = "TAG_COMMON_FRAGMENT";
+
+	private static final String TRANSACTION_ROOT = "TRANSACTION_ROOT";
+	private static final String TRANSACTION_SECONDARY = "TRANSACTION_SECONDARY";
 
 	@Bind(R.id.toolbar)
 	Toolbar toolbar;
@@ -61,6 +63,9 @@ public class MainActivity extends AppCompatActivity {
 
 	private CommonFragment commonFragment;
 	private Drawer drawer;
+
+	private int transactionStackLevel = 0;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -69,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
 		ButterKnife.bind(this);
 
 		setupCommonFragment();
+
+		if (savedInstanceState != null) {
+			transactionStackLevel = savedInstanceState.getInt("transactionStackLevel");
+		}
 
 		hideTabbar();
 		setupToolbar();
@@ -126,9 +135,15 @@ public class MainActivity extends AppCompatActivity {
 	public void onBackPressed() {
 		if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
 			getSupportFragmentManager().popBackStack();
+			switchAppbarIconDrawer();
 		} else {
 			finish();
 		}
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+		outState.putInt("transactionStackLevel", transactionStackLevel);
 	}
 
 	private void setupToolbar() {
@@ -143,6 +158,8 @@ public class MainActivity extends AppCompatActivity {
 	private void setupDrawer() {
 		drawer = new DrawerBuilder(this)
 				.withToolbar(toolbar)
+				.withActionBarDrawerToggle(true)
+				.withActionBarDrawerToggleAnimated(true)
 				.addDrawerItems(
 						new PrimaryDrawerItem()
 								.withIdentifier(R.id.drawer_schedules)
@@ -170,6 +187,13 @@ public class MainActivity extends AppCompatActivity {
 					public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
 						onDrawerItemClicked(position, drawerItem);
 						return false;
+					}
+				})
+				.withOnDrawerNavigationListener(new Drawer.OnDrawerNavigationListener() {
+					@Override
+					public boolean onNavigationClickListener(View clickedView) {
+						onBackPressed();
+						return true;
 					}
 				})
 				.build();
@@ -235,5 +259,34 @@ public class MainActivity extends AppCompatActivity {
 		transaction.addToBackStack(TRANSACTION_ROOT);
 		transaction.replace(R.id.container, fragment);
 		transaction.commit();
+
+		switchAppbarIconDrawer();
+	}
+
+	public void switchSecondaryFragment(Fragment fragment) {
+		getSupportFragmentManager().popBackStack(TRANSACTION_SECONDARY, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+		FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+		transaction.addToBackStack(TRANSACTION_SECONDARY);
+		transaction.setCustomAnimations(R.anim.slide_left_enter, R.anim.slide_left_exit,
+				R.anim.slide_right_enter, R.anim.slide_right_exit);
+		transaction.replace(R.id.container, fragment);
+		transaction.commit();
+
+		switchAppbarIconBack();
+	}
+
+	private void switchAppbarIconBack() {
+		drawer.getActionBarDrawerToggle().setDrawerIndicatorEnabled(false);
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		}
+	}
+
+	private void switchAppbarIconDrawer() {
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+		}
+		drawer.getActionBarDrawerToggle().setDrawerIndicatorEnabled(true);
 	}
 }

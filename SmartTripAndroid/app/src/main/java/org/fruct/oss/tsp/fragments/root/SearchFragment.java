@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -21,10 +22,12 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.fruct.oss.tsp.R;
+import org.fruct.oss.tsp.activities.MainActivity;
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.events.HistoryAppendEvent;
 import org.fruct.oss.tsp.fragments.AddPointFragment;
 import org.fruct.oss.tsp.fragments.BaseFragment;
+import org.fruct.oss.tsp.fragments.secondary.ScheduleDetailsFragment;
 import org.fruct.oss.tsp.util.UserPref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,6 +93,17 @@ public class SearchFragment extends BaseFragment {
 		SearchManager searchManager = (SearchManager) getContext().getSystemService(Context.SEARCH_SERVICE);
 		SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchMenuItem);
 		searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.test:
+			((MainActivity) getActivity()).switchSecondaryFragment(new ScheduleDetailsFragment());
+			return true;
+		}
+
+		return false;
 	}
 
 	private void setupRecyclerView() {
