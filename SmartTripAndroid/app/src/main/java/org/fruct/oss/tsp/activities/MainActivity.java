@@ -133,7 +133,9 @@ public class MainActivity extends AppCompatActivity {
 
 	@Override
 	public void onBackPressed() {
-		if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
+		if (drawer.isDrawerOpen()) {
+			drawer.closeDrawer();
+		} else if (getSupportFragmentManager().getBackStackEntryCount() > 1) {
 			getSupportFragmentManager().popBackStack();
 			switchAppbarIconDrawer();
 		} else {
@@ -196,6 +198,7 @@ public class MainActivity extends AppCompatActivity {
 						return true;
 					}
 				})
+				.withSelectedItem(R.id.drawer_search)
 				.build();
 	}
 
