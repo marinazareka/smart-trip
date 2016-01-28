@@ -9,5 +9,5 @@ public interface SchedulesMvpView {
 	void setScheduleList(List<Schedule> scheduleList);
 	void setSelectedScheduleId(long id);
 
-	void displayEditDialog(String title, TspType tspType);
+	void displayEditDialog(Schedule schedule);
 }

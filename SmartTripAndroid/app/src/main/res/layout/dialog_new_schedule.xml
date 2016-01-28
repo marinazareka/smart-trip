@@ -22,10 +22,41 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/space_medium" />
+
     <Spinner
         android:id="@+id/road_type_spinner"
 
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/space_medium" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/start_interval_text"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"/>
+
+        <TextView
+            android:id="@+id/end_interval_text"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"/>
+    </LinearLayout>
 
 </LinearLayout>

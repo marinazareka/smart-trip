@@ -141,22 +141,21 @@ public class AddPointFragment extends BaseFragment {
 	}
 
 	private void onPointAddToNewSchedule(Point point) {
-		AddScheduleFragment addScheduleFragment = AddScheduleFragment.newInstance(getContext(),
-				null, null);
+		AddScheduleFragment addScheduleFragment = AddScheduleFragment.newInstance(null);
 		addScheduleFragment.show(getFragmentManager(), TAG_ADD_SCHEDULE_FRAGMENT);
 	}
 
 	public void onEventMainThread(AddScheduleFragment.ScheduleDialogFinishedEvent event) {
-		onNewScheduleDialogFinished(event.getTitle(), event.getTspType(), event.getRoadType());
+		onNewScheduleDialogFinished(event.getNewSchedule());
 	}
 
 	public void onEventMainThread(AddScheduleFragment.DismissedEvent event) {
 		dismissFragment();
 	}
 
-	private void onNewScheduleDialogFinished(String title, TspType tspType, String roadType) {
-		log.debug("New schedule {} {}", title, tspType);
-		long insertedId = getDatabase().insertSchedule(new Schedule(title, tspType));
+	private void onNewScheduleDialogFinished(Schedule newSchedule) {
+		log.debug("New schedule {} {}", newSchedule.getTitle());
+		long insertedId = getDatabase().insertSchedule(newSchedule);
 		Pref.setCurrentSchedule(pref, insertedId);
 		getDatabase().setCurrentSchedule(insertedId);
 		onPointAddToCurrentSchedule(point);

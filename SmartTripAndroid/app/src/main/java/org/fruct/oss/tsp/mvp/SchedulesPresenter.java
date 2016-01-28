@@ -73,7 +73,7 @@ public class SchedulesPresenter implements Presenter<SchedulesMvpView> {
 	public void onEditSchedule(Schedule schedule) {
 		editingSchedule = schedule;
 
-		view.displayEditDialog(schedule.getTitle(), schedule.getTspType());
+		view.displayEditDialog(schedule);
 	}
 
 	public void onDeleteSchedule(Schedule schedule) {
@@ -81,7 +81,7 @@ public class SchedulesPresenter implements Presenter<SchedulesMvpView> {
 		databaseRepo.deleteSchedule(schedule.getId());
 	}
 
-	public void onScheduleEdited(String title, TspType tspType, String roadType) {
-		databaseRepo.updateSchedule(editingSchedule.getId(), new Schedule(title, tspType));
+	public void onScheduleEdited(Schedule newSchedule) {
+		databaseRepo.updateSchedule(editingSchedule.getId(), newSchedule);
 	}
 }

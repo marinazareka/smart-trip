@@ -1,12 +1,19 @@
 package org.fruct.oss.tsp.util;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 import org.fruct.oss.tsp.App;
+import org.joda.time.LocalDate;
 import org.mapsforge.core.graphics.Paint;
 import org.mapsforge.core.graphics.Style;
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Random;
 
 public class Utils {
@@ -57,5 +64,20 @@ public class Utils {
 		sb.append(endings[random.nextInt(endings.length)]);
 
 		return sb.toString();
+	}
+
+	public static String localDateToString(@Nullable LocalDate localDate) {
+		if (localDate == null) {
+			return null;
+		}
+		return localDate.toString();
+	}
+
+	public static LocalDate stringToLocalDate(@Nullable String localDateString) {
+		if (localDateString == null) {
+			return null;
+		}
+
+		return new LocalDate(localDateString);
 	}
 }

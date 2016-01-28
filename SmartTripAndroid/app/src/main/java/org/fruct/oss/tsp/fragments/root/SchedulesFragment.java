@@ -98,14 +98,13 @@ public class SchedulesFragment extends BaseFragment implements SchedulesMvpView 
 	}
 
 	@Override
-	public void displayEditDialog(String title, TspType tspType) {
-		AddScheduleFragment addScheduleFragment = AddScheduleFragment.newInstance(getContext(),
-				title, tspType);
+	public void displayEditDialog(Schedule schedule) {
+		AddScheduleFragment addScheduleFragment = AddScheduleFragment.newInstance(schedule);
 		addScheduleFragment.show(getFragmentManager(), TAG_ADD_SCHEDULE_FRAGMENT);
 	}
 
 	public void onEventMainThread(AddScheduleFragment.ScheduleDialogFinishedEvent event) {
-		presenter.onScheduleEdited(event.getTitle(), event.getTspType(), event.getRoadType());
+		presenter.onScheduleEdited(event.getNewSchedule());
 	}
 
 	class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.Holder> {

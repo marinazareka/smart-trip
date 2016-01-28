@@ -13,28 +13,60 @@ import android.text.TextUtils;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.fruct.oss.tsp.R;
+import org.fruct.oss.tsp.commondatatype.Schedule;
 import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.util.UserPref;
+import org.fruct.oss.tsp.util.Utils;
+import org.joda.time.LocalDate;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import de.greenrobot.event.EventBus;
 
 public class AddScheduleFragment extends DialogFragment {
-	public static AddScheduleFragment newInstance(Context context,
-												  @Nullable String title, @Nullable TspType tspType) {
+	private static final String TAG_DATE_PICKER_FRAGMENT = "TAG_DATE_PICKER_FRAGMENT";
+
+	public static AddScheduleFragment newInstance(@Nullable Schedule schedule) {
 		Bundle args = new Bundle();
-		args.putString("title", title);
-		args.putSerializable("tspType", tspType);
+		if (schedule != null) {
+			args.putString("title", schedule.getTitle());
+			args.putSerializable("tspType", schedule.getTspType());
+
+			args.putString("roadType", schedule.getRoadType());
+			args.putSerializable("startDate", schedule.getStartDate());
+			args.putSerializable("endDate", schedule.getEndDate());
+		}
 
 		AddScheduleFragment fragment = new AddScheduleFragment();
 		fragment.setArguments(args);
 		return fragment;
 	}
+
+	@Bind(R.id.tsp_type_spinner)
+	Spinner tspTypeSpinner;
+
+	@Bind(R.id.road_type_spinner)
+	Spinner roadTypeSpinner;
+
+	@Bind(R.id.title_edit_text)
+	EditText editText;
+
+	@Bind(R.id.start_interval_text)
+	TextView startIntervalText;
+
+	@Bind(R.id.end_interval_text)
+	TextView endIntervalText;
+
+	private DatePickerMode datePickerMode;
+	private LocalDate startDate;
+	private LocalDate endDate;
 
 	@NonNull
 	@Override
@@ -44,6 +76,15 @@ public class AddScheduleFragment extends DialogFragment {
 		Bundle args = getArguments();
 		TspType tspType = (TspType) args.getSerializable("tspType");
 		String title = args.getString("title");
+		startDate = (LocalDate) args.getSerializable("startDate");
+		if (startDate == null) {
+			startDate = LocalDate.now();
+		}
+
+		endDate = (LocalDate) args.getSerializable("endDate");
+		if (endDate == null) {
+			endDate = LocalDate.now();
+		}
 
 		final MaterialDialog dialog = new MaterialDialog.Builder(context)
 				.title(R.string.title_new_schedule)
@@ -59,15 +100,11 @@ public class AddScheduleFragment extends DialogFragment {
 				.onPositive(new MaterialDialog.SingleButtonCallback() {
 					@Override
 					public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction dialogAction) {
-						Spinner spinner = ButterKnife.findById(dialog, R.id.tsp_type_spinner);
-						Spinner roadSpinner = ButterKnife.findById(dialog, R.id.road_type_spinner);
-						EditText editText = ButterKnife.findById(dialog, R.id.title_edit_text);
-
 						String title = editText.getText().toString();
-						TspType tspType = spinner.getSelectedItemPosition() == 0
+						TspType tspType = tspTypeSpinner.getSelectedItemPosition() == 0
 								? TspType.OPEN : TspType.CLOSED;
 						String roadType = "foot";
-						switch (spinner.getSelectedItemPosition()) {
+						switch (roadTypeSpinner.getSelectedItemPosition()) {
 						case 0:
 							roadType = "car";
 							break;
@@ -77,7 +114,10 @@ public class AddScheduleFragment extends DialogFragment {
 						}
 
 						if (!TextUtils.isEmpty(title)) {
-							EventBus.getDefault().post(new ScheduleDialogFinishedEvent(title, tspType, roadType));
+							EventBus.getDefault().post(new ScheduleDialogFinishedEvent(
+									new Schedule(title, tspType, roadType, startDate, endDate)
+							));
+
 							dialog.dismiss();
 						}
 					}
@@ -85,12 +125,13 @@ public class AddScheduleFragment extends DialogFragment {
 				.autoDismiss(false)
 				.build();
 
+		ButterKnife.bind(this, dialog);
+
 		// Setup tsp type spinner
-		Spinner spinner = ButterKnife.findById(dialog, R.id.tsp_type_spinner);
 		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(context,
 				R.array.tsp_types_array, android.R.layout.simple_spinner_item);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		spinner.setAdapter(adapter);
+		tspTypeSpinner.setAdapter(adapter);
 
 		// Initial tsp type
 		if (tspType == null) {
@@ -98,19 +139,21 @@ public class AddScheduleFragment extends DialogFragment {
 			tspType = UserPref.isClosedRoute(pref) ? TspType.CLOSED : TspType.OPEN;
 		}
 
-		spinner.setSelection(tspType == TspType.OPEN ? 0 : 1);
+		tspTypeSpinner.setSelection(tspType == TspType.OPEN ? 0 : 1);
 
 		// Setup road type spinner
-		Spinner roadSpinner = ButterKnife.findById(dialog, R.id.road_type_spinner);
 		ArrayAdapter<CharSequence> roadAdapter = ArrayAdapter.createFromResource(context,
 				R.array.road_types_array, android.R.layout.simple_spinner_item);
 		roadAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		roadSpinner.setAdapter(roadAdapter);
+		roadTypeSpinner.setAdapter(roadAdapter);
 
 		// Initial title
 		if (!TextUtils.isEmpty(title)) {
 			((EditText) ButterKnife.findById(dialog, R.id.title_edit_text)).setText(title);
 		}
+
+		// Initial dates
+		updateDateViews();
 
 		dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
 			@Override
@@ -122,31 +165,78 @@ public class AddScheduleFragment extends DialogFragment {
 		return dialog;
 	}
 
+	@Override
+	public void onStart() {
+		super.onStart();
+		EventBus.getDefault().register(this);
+	}
+
+	@Override
+	public void onStop() {
+		EventBus.getDefault().unregister(this);
+		super.onStop();
+	}
+
+	@OnClick(R.id.start_interval_text)
+	void onStartIntervalClicked() {
+		DatePickerFragment fragment = DatePickerFragment.newInstance(startDate, null, endDate);
+		fragment.show(getFragmentManager(), TAG_DATE_PICKER_FRAGMENT);
+		datePickerMode = DatePickerMode.START_DATE;
+	}
+
+	@OnClick(R.id.end_interval_text)
+	void onEndIntervalClicked() {
+		DatePickerFragment fragment = DatePickerFragment.newInstance(endDate, startDate, null);
+		fragment.show(getFragmentManager(), TAG_DATE_PICKER_FRAGMENT);
+		datePickerMode = DatePickerMode.END_DATE;
+	}
+
+	public void onEventMainThread(DatePickerFragment.DatePickedEvent event) {
+		if (datePickerMode == null) {
+			return;
+		}
+
+		switch (datePickerMode) {
+		case START_DATE:
+			startDate = event.getDate();
+			break;
+
+		case END_DATE:
+			endDate = event.getDate();
+			break;
+
+		}
+
+		datePickerMode = null;
+		updateDateViews();
+	}
+
+	private void updateDateViews() {
+		if (startDate != null) {
+			startIntervalText.setText(Utils.localDateToString(startDate));
+		}
+
+		if (endDate != null) {
+			endIntervalText.setText(Utils.localDateToString(endDate));
+		}
+	}
+
 	public static class ScheduleDialogFinishedEvent {
-		private final String title;
-		private final TspType tspType;
-		private final String roadType;
+		private Schedule newSchedule;
 
-		public ScheduleDialogFinishedEvent(String title, TspType tspType, String roadType) {
-
-			this.title = title;
-			this.tspType = tspType;
-			this.roadType = roadType;
+		public ScheduleDialogFinishedEvent(Schedule newSchedule) {
+			this.newSchedule = newSchedule;
 		}
 
-		public String getTitle() {
-			return title;
-		}
-
-		public TspType getTspType() {
-			return tspType;
-		}
-
-		public String getRoadType() {
-			return roadType;
+		public Schedule getNewSchedule() {
+			return newSchedule;
 		}
 	}
 
 	public static class DismissedEvent {
+	}
+
+	private enum DatePickerMode {
+		START_DATE, END_DATE,
 	}
 }
