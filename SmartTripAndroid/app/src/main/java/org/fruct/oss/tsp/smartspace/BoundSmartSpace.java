@@ -18,12 +18,14 @@ import android.support.v4.app.FragmentActivity;
 
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
+import org.fruct.oss.tsp.commondatatype.Schedule;
 import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.events.HistoryEvent;
 import org.fruct.oss.tsp.events.RequestFailedEvent;
 import org.fruct.oss.tsp.events.ScheduleEvent;
 import org.fruct.oss.tsp.events.SearchEvent;
 import org.fruct.oss.tsp.util.UserPref;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,10 +125,10 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback, SharedPref
 	}
 
 	@Override
-	public void postScheduleRequest(List<Point> pointList, TspType tspType) {
+	public void postScheduleRequest(List<Point> pointList, Schedule schedule) {
 		Bundle data = new Bundle();
 		data.putParcelableArrayList("points", new ArrayList<>(pointList));
-		data.putSerializable("type", tspType);
+		data.putSerializable("schedule", schedule);
 		sendSmartSpaceMessage(SmartSpaceService.MSG_ACTION_POST_SCHEDULE_REQUEST, data);
 	}
 

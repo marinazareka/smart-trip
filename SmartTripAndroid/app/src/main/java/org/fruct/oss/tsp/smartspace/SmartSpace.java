@@ -3,7 +3,9 @@ package org.fruct.oss.tsp.smartspace;
 import android.location.Location;
 
 import org.fruct.oss.tsp.commondatatype.Point;
+import org.fruct.oss.tsp.commondatatype.Schedule;
 import org.fruct.oss.tsp.commondatatype.TspType;
+import org.joda.time.LocalDate;
 
 import java.util.List;
 
@@ -34,5 +36,5 @@ public interface SmartSpace {
 	 * Результат запроса будет получен асинхронно в виде события {@link org.fruct.oss.tsp.events.ScheduleEvent}
 	 * @param pointList Список точек, по которым необходимо построить маршрут
 	 */
-	void postScheduleRequest(List<Point> pointList, TspType tspType);
+	void postScheduleRequest(List<Point> pointList, Schedule schedule);
 }

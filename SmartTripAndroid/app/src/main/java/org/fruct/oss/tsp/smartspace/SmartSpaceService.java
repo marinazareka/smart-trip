@@ -16,6 +16,7 @@ import android.util.Log;
 
 import org.fruct.oss.tsp.commondatatype.Movement;
 import org.fruct.oss.tsp.commondatatype.Point;
+import org.fruct.oss.tsp.commondatatype.Schedule;
 import org.fruct.oss.tsp.commondatatype.SmartSpaceNative;
 import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.util.Pref;
@@ -133,8 +134,8 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 		case MSG_ACTION_POST_SCHEDULE_REQUEST:
 			msg.getData().setClassLoader(Point.class.getClassLoader());
 			List<Point> points = msg.getData().getParcelableArrayList("points");
-			TspType tspType = (TspType) msg.getData().getSerializable("type");
-			handlerPostScheduleRequest(points, tspType);
+			Schedule schedule = (Schedule) msg.getData().getSerializable("schedule");
+			handlerPostScheduleRequest(points, schedule);
 			break;
 
 		case MSG_ACTION_SET_CALLBACK_MESSENGER:
@@ -179,12 +180,13 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 		}
 	}
 
-	private void handlerPostScheduleRequest(List<Point> points, TspType tspType) {
+	private void handlerPostScheduleRequest(List<Point> points, Schedule schedule) {
 		if (!isInitialized)
 			return;
 
 		try {
-			smartSpace.postScheduleRequest(points.toArray(new Point[points.size()]), tspType.name().toLowerCase());
+			smartSpace.postScheduleRequest(points.toArray(new Point[points.size()]),
+					schedule.getTspType().name().toLowerCase());
 		} catch (IOException e) {
 			log.error("Error posting schedule request", e);
 			panic();

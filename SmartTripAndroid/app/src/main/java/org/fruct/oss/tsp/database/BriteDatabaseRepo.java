@@ -39,12 +39,12 @@ public class BriteDatabaseRepo implements DatabaseRepo {
 	}
 
 	@Override
-	public Observable<TspType> loadCurrentScheduleType() {
+	public Observable<Schedule> loadCurrentSchedule() {
 		return db.createQuery(Arrays.asList(ScheduleTable.TABLE, CurrentScheduleTable.TABLE),
-				"SELECT schedule.tsptype " +
+				"SELECT schedule._id, schedule.title, schedule.tsptype, schedule.roadtype, schedule.startdate, schedule.enddate " +
 						"FROM schedule JOIN currentSchedule ON schedule._id = currentSchedule.scheduleId;"
 				)
-				.mapToOne(ScheduleTable.TSP_TYPE_MAPPER)
+				.mapToOne(ScheduleTable.MAPPER)
 				.distinctUntilChanged();
 	}
 

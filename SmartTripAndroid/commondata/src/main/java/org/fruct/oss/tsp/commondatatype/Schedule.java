@@ -1,11 +1,15 @@
 package org.fruct.oss.tsp.commondatatype;
 
+import android.os.Parcel;
+
 import org.joda.time.LocalDate;
+
+import java.io.Serializable;
 
 /**
  * Сохраненный маршрут
  */
-public class Schedule {
+public class Schedule implements Serializable {
 	private final long id;
 	private final String title;
 	private final TspType tspType;
@@ -50,4 +54,5 @@ public class Schedule {
 	public LocalDate getEndDate() {
 		return endDate;
 	}
+
 }

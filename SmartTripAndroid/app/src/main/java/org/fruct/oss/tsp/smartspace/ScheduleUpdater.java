@@ -6,6 +6,7 @@ import android.location.Location;
 import android.preference.PreferenceManager;
 
 import org.fruct.oss.tsp.commondatatype.Point;
+import org.fruct.oss.tsp.commondatatype.Schedule;
 import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.database.DatabaseRepo;
 import org.slf4j.Logger;
@@ -42,7 +43,7 @@ public class ScheduleUpdater {
 	private final Observable<Location> locationObservable;
 
 	private Observable<List<Point>> currentSchedulePointsObservable;
-	private Observable<TspType> currentScheduleTypeObservable;
+	private Observable<Schedule> currentScheduleTypeObservable;
 
 	private Subscription scheduleDataSubscription;
 	private Subscription locationSubscription;
@@ -59,15 +60,15 @@ public class ScheduleUpdater {
 
 	public void start() {
 		currentSchedulePointsObservable = repo.loadCurrentSchedulePoints();
-		currentScheduleTypeObservable = repo.loadCurrentScheduleType()
+		currentScheduleTypeObservable = repo.loadCurrentSchedule()
 				.distinctUntilChanged();
 
 		scheduleDataSubscription = Observable.combineLatest(
 				currentSchedulePointsObservable, currentScheduleTypeObservable,
-				new Func2<List<Point>, TspType, ScheduleCombined>() {
+				new Func2<List<Point>, Schedule, ScheduleCombined>() {
 					@Override
-					public ScheduleCombined call(List<Point> points, TspType tspType) {
-						return new ScheduleCombined(points, tspType);
+					public ScheduleCombined call(List<Point> points, Schedule schedule) {
+						return new ScheduleCombined(points, schedule);
 					}
 				})
 				.debounce(5, TimeUnit.SECONDS)
@@ -92,7 +93,8 @@ public class ScheduleUpdater {
 
 	private void publishNewScheduleData(ScheduleCombined scheduleCombined) {
 		log.debug("publishNewScheduleData " + scheduleCombined.toString());
-		smartSpace.postScheduleRequest(scheduleCombined.points, scheduleCombined.tspType);
+		Schedule schedule = scheduleCombined.schedule;
+		smartSpace.postScheduleRequest(scheduleCombined.points, schedule);
 	}
 
 	public void stop() {
@@ -102,11 +104,11 @@ public class ScheduleUpdater {
 
 	class ScheduleCombined {
 		private final List<Point> points;
-		private final TspType tspType;
+		private final Schedule schedule;
 
-		public ScheduleCombined(List<Point> points, TspType tspType) {
+		public ScheduleCombined(List<Point> points, Schedule schedule) {
 			this.points = points;
-			this.tspType = tspType;
+			this.schedule = schedule;
 		}
 	}
 }
