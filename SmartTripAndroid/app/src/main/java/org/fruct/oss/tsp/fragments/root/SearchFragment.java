@@ -2,7 +2,9 @@ package org.fruct.oss.tsp.fragments.root;
 
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,10 +22,10 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Point;
+import org.fruct.oss.tsp.events.HistoryAppendEvent;
 import org.fruct.oss.tsp.fragments.AddPointFragment;
 import org.fruct.oss.tsp.fragments.BaseFragment;
-import org.fruct.oss.tsp.mvp.SearchMvpView;
-import org.fruct.oss.tsp.mvp.SearchPresenter;
+import org.fruct.oss.tsp.util.UserPref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,10 +35,12 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.greenrobot.event.EventBus;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
-public class SearchFragment extends BaseFragment implements SearchMvpView {
+public class SearchFragment extends BaseFragment {
 	private static final Logger log = LoggerFactory.getLogger(SearchFragment.class);
 
 	@Bind(R.id.recycler_view)
@@ -45,27 +49,27 @@ public class SearchFragment extends BaseFragment implements SearchMvpView {
 	@Bind(R.id.dialog_anchor_container)
 	View dialogAnchorContainer;
 
-	private MenuItem searchMenuItem;
+	private SharedPreferences pref;
 
-	private SearchPresenter presenter;
+	private MenuItem searchMenuItem;
 
 	private Adapter adapter;
 
 	private MaterialDialog waiterDialog;
 
 	private Subscription testSubscription;
+	private Subscription foundPointsSubscription;
+	private Subscription updatedSubscription;
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setupPresenter();
 		setHasOptionsMenu(true);
+
+		pref = PreferenceManager.getDefaultSharedPreferences(getContext());
 	}
 
-	private void setupPresenter() {
-		presenter = new SearchPresenter(getContext(), getSearchStore(), getSmartSpace(), getDatabase());
-		presenter.setView(this);
-	}
 
 	@Nullable
 	@Override
@@ -99,7 +103,6 @@ public class SearchFragment extends BaseFragment implements SearchMvpView {
 	@Override
 	public void onResume() {
 		super.onResume();
-		presenter.start();
 
 		testSubscription = getHistoryStore().getObservable()
 				.subscribe(new Action1<List<String>>() {
@@ -110,30 +113,45 @@ public class SearchFragment extends BaseFragment implements SearchMvpView {
 						}
 					}
 				});
+		foundPointsSubscription = getSearchStore().getObservable()
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(new Action1<List<Point>>() {
+					@Override
+					public void call(List<Point> points) {
+						setPointList(points);
+					}
+				});
+		updatedSubscription = getSearchStore().getUpdatedObservable()
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(new Action1<Object>() {
+					@Override
+					public void call(Object o) {
+						dismissSearchWaiter();
+					}
+				});
+
 	}
 
 	@Override
 	public void onPause() {
 		testSubscription.unsubscribe();
+		foundPointsSubscription.unsubscribe();
+		updatedSubscription.unsubscribe();
 
-		presenter.stop();
 		super.onPause();
 	}
 
-	@Override
-	public void setPointList(List<Point> pointList) {
+	private void setPointList(List<Point> pointList) {
 		adapter.setPointList(pointList);
 	}
 
-	@Override
-	public void displaySearchWaiter() {
+	private void displaySearchWaiter() {
 		waiterDialog = new MaterialDialog.Builder(getActivity())
 				.progress(true, 1)
 				.show();
 	}
 
-	@Override
-	public void dismissSearchWaiter() {
+	private void dismissSearchWaiter() {
 		if (waiterDialog != null) {
 			waiterDialog.dismiss();
 			waiterDialog = null;
@@ -141,7 +159,10 @@ public class SearchFragment extends BaseFragment implements SearchMvpView {
 	}
 
 	public void search(String searchString) {
-		presenter.search(searchString);
+		getSmartSpace().postSearchRequest(UserPref.getRadius(pref), searchString);
+		displaySearchWaiter();
+		EventBus.getDefault().post(new HistoryAppendEvent(searchString));
+
 		searchMenuItem.collapseActionView();
 	}
 
