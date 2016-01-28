@@ -4,4 +4,9 @@
         <item>Без возврата</item>
         <item>С возвратом</item>
     </string-array>
+    <string-array name="road_types_array">
+        <item>Автомобиль</item>
+        <item>Пешеход</item>
+        <item>Автобус</item>
+    </string-array>
 </resources>

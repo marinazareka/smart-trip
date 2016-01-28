@@ -61,7 +61,7 @@ public class ScheduleUpdater {
 	public void start() {
 		currentSchedulePointsObservable = repo.loadCurrentSchedulePoints();
 		currentScheduleTypeObservable = repo.loadCurrentSchedule()
-				.distinctUntilChanged();
+				.distinctUntilChanged(); // TODO: У schedule должен быть equals и hashCode
 
 		scheduleDataSubscription = Observable.combineLatest(
 				currentSchedulePointsObservable, currentScheduleTypeObservable,
