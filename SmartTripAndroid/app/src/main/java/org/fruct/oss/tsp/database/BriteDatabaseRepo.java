@@ -34,8 +34,15 @@ public class BriteDatabaseRepo implements DatabaseRepo {
 	public Observable<List<Point>> loadCurrentSchedulePoints() {
 		return db.createQuery(Arrays.asList(PointsTable.TABLE, CurrentScheduleTable.TABLE),
 				"SELECT points._id, points.remoteId, points.title, points.lat, points.lon " +
-						"FROM points JOIN currentSchedule ON points.scheduleId = currentSchedule.scheduleId;"
-				).mapToList(PointsTable.MAPPER);
+						"FROM points JOIN currentSchedule ON points.scheduleId = currentSchedule.scheduleId;")
+				.mapToList(PointsTable.MAPPER);
+	}
+
+	@Override
+	public Observable<List<Point>> loadSchedulePoints(long scheduleId) {
+		return db.createQuery(PointsTable.TABLE,
+				"SELECT * from points WHERE points.scheduleId=?;", String.valueOf(scheduleId))
+				.mapToList(PointsTable.MAPPER);
 	}
 
 	@Override

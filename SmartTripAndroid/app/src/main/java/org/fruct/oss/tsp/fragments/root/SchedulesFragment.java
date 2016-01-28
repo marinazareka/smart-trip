@@ -13,9 +13,11 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import org.fruct.oss.tsp.R;
+import org.fruct.oss.tsp.activities.MainActivity;
 import org.fruct.oss.tsp.commondatatype.Schedule;
 import org.fruct.oss.tsp.fragments.AddScheduleFragment;
 import org.fruct.oss.tsp.fragments.BaseFragment;
+import org.fruct.oss.tsp.fragments.secondary.ScheduleDetailsFragment;
 import org.fruct.oss.tsp.util.Pref;
 
 import java.util.Collections;
@@ -124,25 +126,30 @@ public class SchedulesFragment extends BaseFragment {
 		setSelectedScheduleId(Pref.getCurrentSchedule(pref));
 	}
 
-	public void onActivateSchedule(Schedule schedule) {
+	private void onActivateSchedule(Schedule schedule) {
 		Pref.setCurrentSchedule(pref, schedule.getId());
 		getDatabase().setCurrentSchedule(schedule.getId());
 		updateCurrentSchedule();
 	}
 
-	public void onEditSchedule(Schedule schedule) {
+	private void onEditSchedule(Schedule schedule) {
 		editingSchedule = schedule;
 
 		displayEditDialog(schedule);
 	}
 
-	public void onDeleteSchedule(Schedule schedule) {
+	private void onDeleteSchedule(Schedule schedule) {
 		Pref.compareAndClearCurrentSchedule(pref, schedule.getId());
 		getDatabase().deleteSchedule(schedule.getId());
 	}
 
-	public void onScheduleEdited(Schedule newSchedule) {
+	private void onScheduleEdited(Schedule newSchedule) {
 		getDatabase().updateSchedule(editingSchedule.getId(), newSchedule);
+	}
+
+	private void onShowSchedule(Schedule schedule) {
+		MainActivity activity = (MainActivity) getActivity();
+		activity.switchSecondaryFragment(ScheduleDetailsFragment.newInstance(schedule));
 	}
 
 
@@ -225,6 +232,10 @@ public class SchedulesFragment extends BaseFragment {
 				onDeleteSchedule(schedule);
 				break;
 
+			case R.id.action_show:
+				onShowSchedule(schedule);
+				break;
+
 			default:
 				return false;
 			}
@@ -232,4 +243,5 @@ public class SchedulesFragment extends BaseFragment {
 			return true;
 		}
 	}
+
 }

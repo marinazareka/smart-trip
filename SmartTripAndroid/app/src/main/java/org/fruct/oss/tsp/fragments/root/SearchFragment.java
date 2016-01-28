@@ -90,17 +90,6 @@ public class SearchFragment extends BaseFragment implements PointAdapter.Listene
 		searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.test:
-			((MainActivity) getActivity()).switchSecondaryFragment(new ScheduleDetailsFragment());
-			return true;
-		}
-
-		return false;
-	}
-
 	private void setupRecyclerView() {
 		recyclerView.setHasFixedSize(true);
 		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),

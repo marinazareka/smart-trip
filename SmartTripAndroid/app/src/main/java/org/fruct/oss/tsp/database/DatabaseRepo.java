@@ -11,6 +11,8 @@ import rx.Observable;
 public interface DatabaseRepo {
 	Observable<List<Schedule>> loadSchedules();
 	Observable<List<Point>> loadCurrentSchedulePoints();
+	Observable<List<Point>> loadSchedulePoints(long scheduleId);
+
 	Observable<Schedule> loadCurrentSchedule();
 
 	long insertSchedule(Schedule schedule);
