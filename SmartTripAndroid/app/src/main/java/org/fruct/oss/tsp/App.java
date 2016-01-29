@@ -8,7 +8,6 @@ import android.preference.PreferenceManager;
 import com.squareup.sqlbrite.BriteDatabase;
 import com.squareup.sqlbrite.SqlBrite;
 
-
 import net.danlew.android.joda.JodaTimeAndroid;
 
 import org.fruct.oss.tsp.database.BriteDatabaseRepo;
@@ -19,9 +18,7 @@ import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Calendar;
 import java.util.UUID;
 
 public class App extends Application {

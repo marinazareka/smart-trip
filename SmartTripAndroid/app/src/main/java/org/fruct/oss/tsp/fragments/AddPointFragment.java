@@ -17,7 +17,6 @@ import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.activities.MainActivity;
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.commondatatype.Schedule;
-import org.fruct.oss.tsp.commondatatype.TspType;
 import org.fruct.oss.tsp.fragments.root.MapFragment;
 import org.fruct.oss.tsp.util.Pref;
 import org.slf4j.Logger;
@@ -61,7 +60,7 @@ public class AddPointFragment extends BaseFragment {
 		point = Point.restore(getArguments(), "point");
 		pref = PreferenceManager.getDefaultSharedPreferences(getContext());
 
-		Toast.makeText(getContext(), point.getId(), Toast.LENGTH_SHORT).show();
+		Toast.makeText(getContext(), point.getRemoteId(), Toast.LENGTH_SHORT).show();
 	}
 
 	@Override

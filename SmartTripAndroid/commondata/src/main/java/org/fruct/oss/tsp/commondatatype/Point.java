@@ -11,39 +11,44 @@ import java.io.Serializable;
  * Информация о географическом объекте
  */
 public class Point implements Parcelable, Serializable {
-	private final String id;
+	private final long localId;
+	private final String remoteId;
 	private final String title;
 	private final double lat;
 	private final double lon;
 
-	private final boolean isPersisted;
-
 	public Point(Parcel parcel) {
-		id = parcel.readString();
+		localId = parcel.readLong();
+		remoteId = parcel.readString();
 		title = parcel.readString();
 		lat = parcel.readDouble();
 		lon = parcel.readDouble();
-		isPersisted = parcel.readInt() != 0;
 	}
 
-	public Point(String id, String title, double lat, double lon) {
-		this(id, title, lat, lon, false);
+	public Point(String remoteId, String title, double lat, double lon) {
+		this(-1, remoteId, title, lat, lon);
 	}
 
-	public Point(String id, String title, double lat, double lon, boolean isPersisted) {
-		this.id = id;
+	public Point(long id, String remoteId, String title, double lat, double lon) {
+		this.localId = id;
+		this.remoteId = remoteId;
 		this.title = title;
 		this.lat = lat;
 		this.lon = lon;
-		this.isPersisted = isPersisted;
 	}
 
 	/**
-	 *
-	 * @return Уникальный идентификатор точки
+	 * @return Уникальный идентификатор точки в локальной базе данных
 	 */
-	public String getId() {
-		return id;
+	public long getLocalId() {
+		return localId;
+	}
+
+	/**
+	 * @return Уникальный идентификатор точки в smartspace
+	 */
+	public String getRemoteId() {
+		return remoteId;
 	}
 
 	/**
@@ -72,7 +77,7 @@ public class Point implements Parcelable, Serializable {
 	 * @return true если сохранена, false, если нет
 	 */
 	public boolean isPersisted() {
-		return isPersisted;
+		return localId >= 0;
 	}
 
 	public static final Creator<Point> CREATOR = new Creator<Point>() {
@@ -94,11 +99,11 @@ public class Point implements Parcelable, Serializable {
 
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeString(id);
+		dest.writeLong(localId);
+		dest.writeString(remoteId);
 		dest.writeString(title);
 		dest.writeDouble(lat);
 		dest.writeDouble(lon);
-		dest.writeInt(isPersisted ? 1 : 0);
 	}
 
 	@Override

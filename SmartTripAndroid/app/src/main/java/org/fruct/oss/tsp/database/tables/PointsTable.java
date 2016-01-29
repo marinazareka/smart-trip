@@ -44,17 +44,17 @@ public class PointsTable {
 
 	public static Point fromCursor(Cursor cursor) {
 		return new Point(
+				cursor.getLong(0),
 				cursor.getString(1),
 				cursor.getString(2),
 				cursor.getDouble(3),
-				cursor.getDouble(4),
-				true
+				cursor.getDouble(4)
 		);
 	}
 
 	public static ContentValues toContentValues(Point point, long scheduleId) {
 		ContentValues cv = new ContentValues(5);
-		cv.put(COLUMN_REMOTE_ID, point.getId());
+		cv.put(COLUMN_REMOTE_ID, point.getRemoteId());
 		cv.put(COLUMN_TITLE, point.getTitle());
 		cv.put(COLUMN_LAT, point.getLat());
 		cv.put(COLUMN_LON, point.getLon());

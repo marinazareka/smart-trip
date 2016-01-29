@@ -86,7 +86,7 @@ JNI_OnLoad(JavaVM *vm, void *reserved) {
                                             "(Ljava/lang/String;Ljava/lang/String;DD)V");
 
     method_get_point_title = (*env)->GetMethodID(env, class_point, "getTitle", "()Ljava/lang/String;");
-    method_get_point_id = (*env)->GetMethodID(env, class_point, "getId", "()Ljava/lang/String;");
+    method_get_point_id = (*env)->GetMethodID(env, class_point, "getRemoteId", "()Ljava/lang/String;");
     method_get_point_lat = (*env)->GetMethodID(env, class_point, "getLat", "()D");
     method_get_point_lon = (*env)->GetMethodID(env, class_point, "getLon", "()D");
 

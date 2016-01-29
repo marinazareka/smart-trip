@@ -96,7 +96,7 @@ public class PointsLayer extends Layer {
 						return new ArrayList<>(points);
 					}
 				})
-				.subscribeOn(Schedulers.computation())
+				.subscribeOn(Schedulers.io())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(new Action1<List<Point>>() {
 					@Override
