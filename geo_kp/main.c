@@ -12,6 +12,7 @@
 
 #include "test-loader.h"
 #include "wm-loader.h"
+#include "dbpedia-loader.h"
 
 static volatile bool cont = true;
 
@@ -152,6 +153,9 @@ static bool create_wmloader(void) {
 }
 
 int main(void) {
+    dbpedia_loader_test();
+    return 0;
+
     init_rand();
 
     if (!create_wmloader()) {

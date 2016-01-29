@@ -17,7 +17,7 @@ link_directories(${smartslog_LIBRARY_DIRS})
 link_directories(${CURL_LIBRARY_DIRS})
 
 add_executable(geo_kp 
-    main.c test-loader.c wm-loader.c cJSON.c)
+    main.c loader.c test-loader.c wm-loader.c cJSON.c dbpedia-loader.c)
 
 target_link_libraries(geo_kp ${M_LIB})
 target_link_libraries(geo_kp commons ontology ${smartslog_LIBRARIES} ${CURL_LIBRARIES})

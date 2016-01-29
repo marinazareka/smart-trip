@@ -1,12 +1,11 @@
+#define _GNU_SOURCE
+
 #include "wm-loader.h"
 
-
-#define _GNU_SOURCE
 #include <stdlib.h>
 #include <curl/curl.h>
 #include <stdio.h>
 #include <string.h>
-
 
 #include "st_point.h"
 
@@ -16,32 +15,6 @@ static const char* URL_FORMAT = "%s/?key=%s&function=place.search&q=%s&lat=%lf&l
                                 "&page=1&count=50&distance=%d";
 static const char* URL_PREFIX = "http://api.wikimapia.org";
 static char wm_key[1024];
-
-
-// source http://curl.haxx.se/libcurl/c/getinmemory.html
-struct MemoryStruct {
-    char *memory;
-    size_t size;
-};
-
-static size_t
-WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
-    size_t realsize = size * nmemb;
-    struct MemoryStruct *mem = (struct MemoryStruct *)userp;
-
-    mem->memory = realloc(mem->memory, mem->size + realsize + 1);
-    if(mem->memory == NULL) {
-        /* out of memory! */ 
-        printf("not enough memory (realloc returned NULL)\n");
-        return 0;
-    }
-
-    memcpy(&(mem->memory[mem->size]), contents, realsize);
-    mem->size += realsize;
-    mem->memory[mem->size] = 0;
-
-    return realsize;
-}
 
 static char* get_points_as_json(double lat, double lon, double radius, const char* pattern) {
     char* ret;
