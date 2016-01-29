@@ -167,6 +167,7 @@ sslog_node_t* create_node(const char* kp_name, const char* config) {
 
 char* get_config_value(const char* config, const char* group, const char* key) {
     GKeyFile* keyfile = g_key_file_new();
+    char* ret = NULL;
 
     if (!g_key_file_load_from_file(keyfile, config, G_KEY_FILE_NONE, NULL)) {
        fprintf(stderr, "Can't load settings file %s\n", config);
@@ -174,8 +175,13 @@ char* get_config_value(const char* config, const char* group, const char* key) {
     }
 
     gchar* value = g_key_file_get_string(keyfile, group, key, NULL);
-    char* ret = strdup(value);
-    g_free(value);
+    if (value != NULL)  {
+        ret = strdup(value);
+        g_free(value);
+    }
+
+    g_key_file_free(keyfile);
+
     return ret;
 }
 #endif

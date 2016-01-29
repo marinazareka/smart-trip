@@ -1,10 +1,10 @@
-
-#include <stdlib.h>
-#include <time.h>
 #include <unistd.h>
 #include <signal.h>
-
 #include <smartslog.h>
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
 
 #include "ontology.h"
 #include "common.h"
@@ -132,18 +132,44 @@ static void subscribe_request(sslog_node_t* node) {
     sslog_free_subscription(subscription);
 }
 
+static bool create_wmloader(void) {
+    char* wmloader_key = get_config_value("config.ini", "WMLoader", "Key");
+    char* sparql_endpoint = get_config_value("config.ini", "Sparql", "Endpoint");
+    bool created = true;
+
+    if (wmloader_key != NULL) {
+        point_loader = create_wm_loader(wmloader_key);
+    } else if (sparql_endpoint != NULL) {
+        // point_loader = create_sparql_loader(sparql_endpoint);
+    } else {
+        created = false;
+    }
+
+    free(wmloader_key);
+    free(sparql_endpoint);
+
+    return created;
+}
+
 int main(void) {
     init_rand();
+
+    if (!create_wmloader()) {
+        fprintf(stderr, "No point loader specified\n");
+        return 1;
+    }
+
 	sslog_init();
     register_ontology();
 
-    sslog_node_t* node = create_node("user_kp", "config.ini");
+    static char kp_name[1000];
+    snprintf(kp_name, sizeof(kp_name), "geo_kp_%s", point_loader.get_name());
+
+    sslog_node_t* node = create_node(kp_name, "config.ini");
 	if (sslog_node_join(node) != SSLOG_ERROR_NO) {
 		fprintf(stderr, "Can't join node\n");
 		return 1;
 	}
-
-    point_loader = create_wm_loader(get_config_value("config.ini", "WMLoader", "Key"));
 
     subscribe_request(node);
 

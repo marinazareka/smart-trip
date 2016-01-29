@@ -148,11 +148,16 @@ static void load_points(double lat, double lon, double radius, const char* patte
     *out_point_count = i;
 }
 
+static const char* get_name(void) {
+    return "wm_loader";
+}
+
 struct LoaderInterface create_wm_loader(const char* key) {
     snprintf(wm_key, 1024, "%s", key);
 
     struct LoaderInterface loader = {
-        .load_points = load_points
+        .load_points = load_points,
+        .get_name = get_name
     };
 
     return loader;

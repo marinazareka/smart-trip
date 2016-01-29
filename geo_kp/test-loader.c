@@ -23,7 +23,7 @@ static double TEST_POINTS[] = {
     61.78779439737812,34.37544822692871
 };
 
-static void test_load_points(double lat, double lon, double radius, const char* pattern, struct Point** out_points, int* out_point_count) {
+static void test_load_points(double lat, double lon, double radius, const char* pattern, struct Point** out_points, int* out_point_count){
     int count = (sizeof(TEST_POINTS) / sizeof(double)) / 2;
     struct Point* points = malloc(count * sizeof(struct Point));
 
@@ -41,9 +41,14 @@ static void test_load_points(double lat, double lon, double radius, const char* 
     *out_point_count = count;
 }
 
+static const char* test_get_name(void) {
+    return "test_loader";
+}
+
 struct LoaderInterface create_test_loader(void) {
     struct LoaderInterface loader = {
-        .load_points = &test_load_points
+        .load_points = &test_load_points,
+        .get_name = &test_get_name
     };
 
     return loader;
