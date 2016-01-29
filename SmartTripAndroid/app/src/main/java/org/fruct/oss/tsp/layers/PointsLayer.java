@@ -20,13 +20,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func2;
+import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 public class PointsLayer extends Layer {
@@ -86,9 +90,13 @@ public class PointsLayer extends Layer {
 				new Func2<List<Point>, List<Point>, List<Point>>() {
 					@Override
 					public List<Point> call(List<Point> searchedPoints, List<Point> schedulePoints) {
-						return searchedPoints.isEmpty() ? schedulePoints : searchedPoints;
+						Set<Point> points = new HashSet<>();
+						points.addAll(schedulePoints);
+						points.addAll(searchedPoints);
+						return new ArrayList<>(points);
 					}
 				})
+				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(new Action1<List<Point>>() {
 					@Override

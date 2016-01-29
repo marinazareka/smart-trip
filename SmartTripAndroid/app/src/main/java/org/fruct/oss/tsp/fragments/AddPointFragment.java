@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.activities.MainActivity;
@@ -59,6 +60,8 @@ public class AddPointFragment extends BaseFragment {
 
 		point = Point.restore(getArguments(), "point");
 		pref = PreferenceManager.getDefaultSharedPreferences(getContext());
+
+		Toast.makeText(getContext(), point.getId(), Toast.LENGTH_SHORT).show();
 	}
 
 	@Override

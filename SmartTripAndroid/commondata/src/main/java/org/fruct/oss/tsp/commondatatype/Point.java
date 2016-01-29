@@ -101,6 +101,31 @@ public class Point implements Parcelable, Serializable {
 		dest.writeInt(isPersisted ? 1 : 0);
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Point point = (Point) o;
+
+		if (Double.compare(point.lat, lat) != 0) return false;
+		if (Double.compare(point.lon, lon) != 0) return false;
+		return title.equals(point.title);
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result;
+		long temp;
+		result = title.hashCode();
+		temp = Double.doubleToLongBits(lat);
+		result = 31 * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(lon);
+		result = 31 * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
 	public static void save(@Nullable Point point, Bundle bundle, String key) {
 		bundle.putParcelable(key, point);
 	}
