@@ -14,6 +14,7 @@ import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.adapters.PointAdapter;
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.commondatatype.Schedule;
+import org.fruct.oss.tsp.fragments.AddPointFragment;
 import org.fruct.oss.tsp.fragments.BaseFragment;
 
 import java.util.List;
@@ -27,6 +28,9 @@ import rx.functions.Action1;
 public class ScheduleDetailsFragment extends BaseFragment implements PointAdapter.Listener {
 	@Bind(R.id.recycler_view)
 	RecyclerView recyclerView;
+
+	@Bind(R.id.dialog_anchor_container)
+	View dialogAnchorContainer;
 
 	private PointAdapter adapter;
 
@@ -54,7 +58,7 @@ public class ScheduleDetailsFragment extends BaseFragment implements PointAdapte
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_list, container, false);
+		View view = inflater.inflate(R.layout.fragment_search, container, false);
 		ButterKnife.bind(this, view);
 		setupRecyclerView();
 		return view;
@@ -89,6 +93,13 @@ public class ScheduleDetailsFragment extends BaseFragment implements PointAdapte
 
 	@Override
 	public void onPointClicked(Point point, View anchorView) {
+		dialogAnchorContainer.setX(anchorView.getX());
+		dialogAnchorContainer.setY(anchorView.getY());
 
+		AddPointFragment.addToFragmentManager(
+				AddPointFragment.newInstance(point),
+				getFragmentManager(),
+				R.id.dialog_anchor_container
+		);
 	}
 }

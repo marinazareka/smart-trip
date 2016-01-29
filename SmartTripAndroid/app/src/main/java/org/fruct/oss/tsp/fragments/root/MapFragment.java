@@ -295,15 +295,13 @@ public class MapFragment extends BaseFragment {
 	}
 
 	private void onTappedPoint(Point point, double x, double y) {
-		if (!point.isPersisted()) {
-			dialogAnchorContainer.setX((float) x);
-			dialogAnchorContainer.setY((float) y);
+		dialogAnchorContainer.setX((float) x);
+		dialogAnchorContainer.setY((float) y);
 
-			AddPointFragment.addToFragmentManager(
-					AddPointFragment.newInstance(point),
-					getFragmentManager(),
-					R.id.dialog_anchor_container);
-		}
+		AddPointFragment.addToFragmentManager(
+				AddPointFragment.newInstance(point),
+				getFragmentManager(),
+				R.id.dialog_anchor_container);
 
 		// mapView.getModel().mapViewPosition.animateTo(new LatLong(point.getLat(), point.getLon()));
 	}

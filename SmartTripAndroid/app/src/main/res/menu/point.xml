@@ -4,4 +4,8 @@
           android:title="@string/action_add_current_schedule" />
     <item android:id="@+id/action_add_new_schedule"
           android:title="@string/action_add_new_schedule" />
+    <item android:id="@+id/action_delete_from_schedule"
+          android:title="@string/action_delete_from_schedule" />
+    <item android:id="@+id/action_map"
+          android:title="@string/action_map" />
 </menu>

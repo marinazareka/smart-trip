@@ -16,6 +16,7 @@ import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.commondatatype.Schedule;
 import org.fruct.oss.tsp.commondatatype.TspType;
+import org.fruct.oss.tsp.fragments.root.MapFragment;
 import org.fruct.oss.tsp.util.Pref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,22 +75,47 @@ public class AddPointFragment extends BaseFragment {
 	public void onResume() {
 		super.onResume();
 
-		if (Pref.hasCurrentSchedule(pref)) {
-			PopupMenu popupMenu = new PopupMenu(getContext(), getView());
-			popupMenu.inflate(R.menu.point);
-			popupMenu.setOnMenuItemClickListener(new PointMenuListener());
-			popupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
-				@Override
-				public void onDismiss(PopupMenu menu) {
-					if (!isPopupMenuItemSelected) {
-						dismissFragment();
-					}
+		PopupMenu popupMenu = new PopupMenu(getContext(), getView());
+		popupMenu.inflate(R.menu.point);
+
+		popupMenu.getMenu().findItem(R.id.action_add_current_schedule)
+				.setVisible(!point.isPersisted() && Pref.hasCurrentSchedule(pref));
+		popupMenu.getMenu().findItem(R.id.action_add_new_schedule)
+				.setVisible(!point.isPersisted());
+		popupMenu.getMenu().findItem(R.id.action_delete_from_schedule)
+				.setVisible(point.isPersisted());
+		popupMenu.getMenu().findItem(R.id.action_map)
+				.setVisible(!(getFragmentManager().findFragmentById(R.id.container) instanceof MapFragment));
+
+		popupMenu.setOnMenuItemClickListener(new PointMenuListener());
+		popupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+			@Override
+			public void onDismiss(PopupMenu menu) {
+				if (!isPopupMenuItemSelected) {
+					dismissFragment();
 				}
-			});
-			popupMenu.show();
-		} else {
-			onPointAddToNewSchedule(point);
-		}
+			}
+		});
+
+		popupMenu.show();
+
+
+//		if (Pref.hasCurrentSchedule(pref)) {
+//			PopupMenu popupMenu = new PopupMenu(getContext(), getView());
+//			popupMenu.inflate(R.menu.point);
+//			popupMenu.setOnMenuItemClickListener(new PointMenuListener());
+//			popupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+//				@Override
+//				public void onDismiss(PopupMenu menu) {
+//					if (!isPopupMenuItemSelected) {
+//						dismissFragment();
+//					}
+//				}
+//			});
+//			popupMenu.show();
+//		} else {
+//			onPointAddToNewSchedule(point);
+//		}
 	}
 
 	@Override
