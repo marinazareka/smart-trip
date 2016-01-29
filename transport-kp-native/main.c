@@ -278,9 +278,42 @@ RequestData* wait_subscription() {
     return request_data;
 }
 
-static void clear_current_results(sslog_individual_t* route_individual) {
+/*static void remove_old_points_from_route(sslog_individual_t* route_individual) {
+    list_t* has_points = sslog_get_properties(route_individual, PROPERTY_HASPOINT);
+
+    list_head_t* iter;
+    list_for_each(iter, &has_points->links) {
+        list_t* entry = list_entry(iter, list_t, links);
+        sslog_individual_t* point_individual = entry->data;
+        sslog_node_remove_individual_with_local(node, point_individual);
+    }
+
+    sslog_node_remove_property(node, route_individual, PROPERTY_HASPOINT, NULL);
+
+    list_free_with_nodes(has_points, NULL);
+}*/
+
+static void remove_old_movements_from_route(sslog_individual_t* route_individual) {
+    list_t* individuals = sslog_get_properties(route_individual, PROPERTY_HASMOVEMENT);
+
+    list_head_t* iter;
+    list_for_each(iter, &individuals->links) {
+        list_t* entry = list_entry(iter, list_t, links);
+        sslog_individual_t* movement = entry->data;
+        sslog_node_populate(node, movement);
+
+        sslog_individual_t* start_point = (sslog_individual_t*) sslog_get_property(movement, PROPERTY_ISSTARTPOINT);
+        sslog_individual_t* end_point = (sslog_individual_t*) sslog_get_property(movement, PROPERTY_ISENDPOINT);
+
+        sslog_node_remove_individual_with_local(node, movement);
+        sslog_node_remove_individual_with_local(node, start_point);
+        sslog_node_remove_individual_with_local(node, end_point);
+    }
+
     sslog_node_remove_property(node, route_individual, PROPERTY_HASMOVEMENT, NULL);
     sslog_node_remove_property(node, route_individual, PROPERTY_HASSTARTMOVEMENT, NULL);
+
+    list_free_with_nodes(individuals, NULL);
 }
 
 void publish(int points_count, int* ids, const char* roadType, RequestData* request_data) {
@@ -289,7 +322,8 @@ void publish(int points_count, int* ids, const char* roadType, RequestData* requ
 
     sslog_individual_t* route_individual = request_data->route;
 
-    clear_current_results(route_individual);
+    // remove_old_points_from_route(route_individual);
+    remove_old_movements_from_route(route_individual);
 
     sslog_individual_t* point_individuals[points_count];
     sslog_individual_t* movement_individuals[movements_count];

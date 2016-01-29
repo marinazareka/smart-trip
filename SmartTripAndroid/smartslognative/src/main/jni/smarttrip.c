@@ -43,7 +43,7 @@ static void schedule_subscription_error_handler(sslog_subscription_t* sub, int c
     __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Subscription error code %d", code);
 }
 
-static void schedule_subscription_handler(sslog_subscription_t* sub) {
+static void schedule_subscription_handler(sslog_subscription_t* ignored) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "schedule_subscription_handler");
     SCOPED_MUTEX_LOCK(ss_mutex);
 
@@ -97,8 +97,8 @@ static void schedule_subscription_handler(sslog_subscription_t* sub) {
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%d movements found", movement_count);
     st_on_schedule_request_ready(movement_array, movement_count);
 
-    sslog_node_remove_property(node, route_individual, PROPERTY_HASSTARTMOVEMENT, NULL);
-    sslog_node_remove_property(node, route_individual, PROPERTY_HASPOINT, NULL);
+    // sslog_node_remove_property(node, route_individual, PROPERTY_HASSTARTMOVEMENT, NULL);
+    // sslog_node_remove_property(node, route_individual, PROPERTY_HASPOINT, NULL);
 
     ptr_array_free(&ptr_array);
     for (int i = 0; i < movement_count; i++) {
@@ -261,9 +261,12 @@ static bool load_existing_schedule() {
                                 sslog_error_get_last_text());
             return false;
         }
+
+        schedule_subscription_handler(NULL);
     } else {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "No existing route found");
     }
+
 
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Exit load_existing_schedule");
 
@@ -600,37 +603,6 @@ static void clear_local_route_and_schedule(void) {
     route_individual = NULL;
 }
 
-static void remove_old_points_from_route(sslog_individual_t* route_individual) {
-    list_t* has_points = sslog_get_properties(route_individual, PROPERTY_HASPOINT);
-
-    list_head_t* iter;
-    list_for_each(iter, &has_points->links) {
-        list_t* entry = list_entry(iter, list_t, links);
-        sslog_individual_t* point_individual = entry->data;
-        sslog_node_remove_individual_with_local(node, point_individual);
-    }
-
-    sslog_node_remove_property(node, route_individual, PROPERTY_HASPOINT, NULL);
-
-    list_free_with_nodes(has_points, NULL);
-}
-
-static void remove_old_movements_from_route(sslog_individual_t* route_individual) {
-    list_t* individuals = sslog_get_properties(route_individual, PROPERTY_HASMOVEMENT);
-
-    list_head_t* iter;
-    list_for_each(iter, &individuals->links) {
-        list_t* entry = list_entry(iter, list_t, links);
-        sslog_individual_t* individual = entry->data;
-        sslog_node_remove_individual_with_local(node, individual);
-    }
-
-    sslog_node_remove_property(node, route_individual, PROPERTY_HASMOVEMENT, NULL);
-    sslog_node_remove_property(node, route_individual, PROPERTY_HASSTARTMOVEMENT, NULL);
-
-    list_free_with_nodes(individuals, NULL);
-}
-
 static bool remove_and_insert_property(sslog_node_t* node, sslog_individual_t* ind,
                                        sslog_property_t* prop, void* value) {
     if (value == NULL) {
@@ -662,8 +634,9 @@ bool st_post_schedule_request(struct Point* points, int points_count, const char
     if (route_individual != NULL) {
         // Удаляем все текущие параметры запроса (hasPoint)
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Updating existing schedule and route");
-        remove_old_points_from_route(route_individual);
-        remove_old_movements_from_route(route_individual);
+        sslog_node_remove_property(node, route_individual, PROPERTY_HASPOINT, NULL);
+        // remove_old_points_from_route(route_individual);
+        // remove_old_movements_from_route(route_individual);
     } else {
         __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Creating new schedule and route");
 
