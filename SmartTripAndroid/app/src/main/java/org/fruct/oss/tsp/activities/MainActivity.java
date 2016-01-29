@@ -243,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
 		switchFragment(new MapFragment());
 	}
 
-	private void switchFragment(Fragment fragment) {
+	public void switchFragment(Fragment fragment) {
 		getSupportFragmentManager().popBackStack(TRANSACTION_ROOT, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
 		FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();

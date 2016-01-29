@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 
 import org.fruct.oss.tsp.R;
+import org.fruct.oss.tsp.activities.MainActivity;
 import org.fruct.oss.tsp.commondatatype.Point;
 import org.fruct.oss.tsp.commondatatype.Schedule;
 import org.fruct.oss.tsp.commondatatype.TspType;
@@ -41,7 +42,7 @@ public class AddPointFragment extends BaseFragment {
 
 	public static AddPointFragment newInstance(Point point) {
 		Bundle args = new Bundle();
-		args.putParcelable("point", point);
+		Point.save(point, args, "point");
 
 		AddPointFragment fragment = new AddPointFragment();
 		fragment.setArguments(args);
@@ -56,7 +57,7 @@ public class AddPointFragment extends BaseFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		point = getArguments().getParcelable("point");
+		point = Point.restore(getArguments(), "point");
 		pref = PreferenceManager.getDefaultSharedPreferences(getContext());
 	}
 
@@ -147,6 +148,11 @@ public class AddPointFragment extends BaseFragment {
 
 			case R.id.action_add_new_schedule:
 				onPointAddToNewSchedule(point);
+				break;
+
+			case R.id.action_map:
+				MainActivity mainActivity = (MainActivity) getActivity();
+				mainActivity.switchFragment(MapFragment.newInstance(point));
 				break;
 
 			default:

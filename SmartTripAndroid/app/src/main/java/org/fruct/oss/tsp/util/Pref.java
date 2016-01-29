@@ -1,6 +1,7 @@
 package org.fruct.oss.tsp.util;
 
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 
 import org.fruct.oss.tsp.fragments.root.MapFragment;
 
@@ -51,6 +52,7 @@ public class Pref {
 				.apply();
 	}
 
+	@NonNull
 	public static MapFragment.MapState getMapState(SharedPreferences pref) {
 		return new MapFragment.MapState(
 				pref.getFloat(PREF_MAP_STATE + "lat", (float) (30 + Math.random() * 30)),

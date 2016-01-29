@@ -1,7 +1,9 @@
 package org.fruct.oss.tsp.commondatatype;
 
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 
 import java.io.Serializable;
 
@@ -97,5 +99,14 @@ public class Point implements Parcelable, Serializable {
 		dest.writeDouble(lat);
 		dest.writeDouble(lon);
 		dest.writeInt(isPersisted ? 1 : 0);
+	}
+
+	public static void save(@Nullable Point point, Bundle bundle, String key) {
+		bundle.putParcelable(key, point);
+	}
+
+	@Nullable
+	public static Point restore(Bundle bundle, String key) {
+		return bundle.getParcelable(key);
 	}
 }

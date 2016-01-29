@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -100,6 +101,15 @@ public class MapFragment extends BaseFragment {
 		}
 	};
 
+	public static MapFragment newInstance(Point center) {
+		Bundle args = new Bundle();
+		Point.save(center, args, "point");
+
+		MapFragment mapFragment = new MapFragment();
+		mapFragment.setArguments(args);
+		return mapFragment;
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -107,6 +117,15 @@ public class MapFragment extends BaseFragment {
 		isFollowing = false;
 		pref = PreferenceManager.getDefaultSharedPreferences(getContext());
 		initialMapState = Pref.getMapState(pref);
+
+		if (getArguments() != null) {
+			Point centerPoint = Point.restore(getArguments(), "point");
+			if (centerPoint != null) {
+				initialMapState.lat = centerPoint.getLat();
+				initialMapState.lon = centerPoint.getLon();
+				initialMapState.zoom = 17;
+			}
+		}
 	}
 
 	@Override
