@@ -49,6 +49,7 @@ public class PointsLayer extends Layer {
 	private final int radius;
 	private final int radiusScaled;
 
+	private int storeItemsCount;
 	private List<PointLayer> pointLayers = new ArrayList<>();
 
 	private byte lastZoom;
@@ -86,7 +87,15 @@ public class PointsLayer extends Layer {
 	protected void onAdd() {
 		super.onAdd();
 
-		pointsSubscription = Observable.combineLatest(searchStore.getObservable(), repo.loadCurrentSchedulePoints(),
+		pointsSubscription = Observable.combineLatest(searchStore.getObservable(),
+				repo.loadCurrentSchedulePoints()
+						.observeOn(AndroidSchedulers.mainThread())
+						.doOnNext(new Action1<List<Point>>() {
+							@Override
+							public void call(List<Point> points) {
+								storeItemsCount = points.size();
+							}
+						}),
 				new Func2<List<Point>, List<Point>, List<Point>>() {
 					@Override
 					public List<Point> call(List<Point> searchedPoints, List<Point> schedulePoints) {
@@ -162,6 +171,10 @@ public class PointsLayer extends Layer {
 		if (!tappedPoints.isEmpty()) {
 			tappedPointsSubject.onNext(new TapResult(tappedPoints, x, y));
 		}
+	}
+
+	public int getItemCount() {
+		return storeItemsCount;
 	}
 
 	private class PointLayer extends FixedPixelCircle {

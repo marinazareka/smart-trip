@@ -97,7 +97,7 @@ public class ScheduleDetailsFragment extends BaseFragment implements PointAdapte
 		dialogAnchorContainer.setY(anchorView.getY());
 
 		AddPointFragment.addToFragmentManager(
-				AddPointFragment.newInstance(point),
+				AddPointFragment.newInstance(point, adapter.getItemCount() <= 1),
 				getFragmentManager(),
 				R.id.dialog_anchor_container
 		);

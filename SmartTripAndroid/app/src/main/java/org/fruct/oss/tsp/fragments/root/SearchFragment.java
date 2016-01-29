@@ -170,7 +170,7 @@ public class SearchFragment extends BaseFragment implements PointAdapter.Listene
 		dialogAnchorContainer.setY(anchorView.getY());
 
 		AddPointFragment.addToFragmentManager(
-				AddPointFragment.newInstance(point),
+				AddPointFragment.newInstance(point, false),
 				getFragmentManager(),
 				R.id.dialog_anchor_container
 		);

@@ -36,13 +36,14 @@ public class AddPointFragment extends BaseFragment {
 		fragmentManager
 				.beginTransaction()
 				.addToBackStack(BACK_STACK_TAG)
-				.add(container, fragment, "add-point-fragment")
+				.replace(container, fragment, "add-point-fragment")
 				.commit();
 	}
 
-	public static AddPointFragment newInstance(Point point) {
+	public static AddPointFragment newInstance(Point point, boolean isSingleItem) {
 		Bundle args = new Bundle();
 		Point.save(point, args, "point");
+		args.putBoolean("isSingleItem", isSingleItem);
 
 		AddPointFragment fragment = new AddPointFragment();
 		fragment.setArguments(args);
@@ -50,6 +51,8 @@ public class AddPointFragment extends BaseFragment {
 	}
 
 	private Point point;
+	private boolean isSingleItem;
+
 	private SharedPreferences pref;
 	private boolean isPopupMenuItemSelected;
 
@@ -58,9 +61,11 @@ public class AddPointFragment extends BaseFragment {
 		super.onCreate(savedInstanceState);
 
 		point = Point.restore(getArguments(), "point");
+		isSingleItem = getArguments().getBoolean("isSingleItem");
+
 		pref = PreferenceManager.getDefaultSharedPreferences(getContext());
 
-		Toast.makeText(getContext(), point.getRemoteId(), Toast.LENGTH_SHORT).show();
+		//Toast.makeText(getContext(), point.getRemoteId(), Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
@@ -86,7 +91,7 @@ public class AddPointFragment extends BaseFragment {
 		popupMenu.getMenu().findItem(R.id.action_add_new_schedule)
 				.setVisible(!point.isPersisted());
 		popupMenu.getMenu().findItem(R.id.action_delete_from_schedule)
-				.setVisible(point.isPersisted());
+				.setVisible(point.isPersisted() && !isSingleItem);
 		popupMenu.getMenu().findItem(R.id.action_map)
 				.setVisible(!(getFragmentManager().findFragmentById(R.id.container) instanceof MapFragment));
 
@@ -157,6 +162,11 @@ public class AddPointFragment extends BaseFragment {
 				mainActivity.switchFragment(MapFragment.newInstance(point));
 				break;
 
+			case R.id.action_delete_from_schedule:
+				getDatabase().deletePoint(point.getLocalId());
+				dismissFragment();
+				break;
+
 			default:
 				return false;
 			}
@@ -170,7 +180,6 @@ public class AddPointFragment extends BaseFragment {
 		if (currentScheduleId != 0) {
 			getDatabase().insertPoint(currentScheduleId, point);
 			getSearchStore().removePoint(point);
-
 		}
 	}
 

@@ -22,4 +22,5 @@ public interface DatabaseRepo {
 	void updateSchedule(long scheduleId, Schedule newSchedule);
 
 	void deleteSchedule(long scheduleId);
+	void deletePoint(long pointId);
 }

@@ -95,4 +95,9 @@ public class BriteDatabaseRepo implements DatabaseRepo {
 			transaction.end();
 		}
 	}
+
+	@Override
+	public void deletePoint(long pointId) {
+		db.delete(PointsTable.TABLE, "_id=?", String.valueOf(pointId));
+	}
 }

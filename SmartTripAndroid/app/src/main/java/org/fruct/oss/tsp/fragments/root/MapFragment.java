@@ -318,7 +318,7 @@ public class MapFragment extends BaseFragment {
 		dialogAnchorContainer.setY((float) y);
 
 		AddPointFragment.addToFragmentManager(
-				AddPointFragment.newInstance(point),
+				AddPointFragment.newInstance(point, pointsLayer.getItemCount() <= 1),
 				getFragmentManager(),
 				R.id.dialog_anchor_container);
 
