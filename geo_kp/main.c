@@ -141,7 +141,7 @@ static bool create_wmloader(void) {
     if (wmloader_key != NULL) {
         point_loader = create_wm_loader(wmloader_key);
     } else if (sparql_endpoint != NULL) {
-        // point_loader = create_sparql_loader(sparql_endpoint);
+        point_loader = create_dbpedia_loader(sparql_endpoint);
     } else {
         created = false;
     }
@@ -153,15 +153,15 @@ static bool create_wmloader(void) {
 }
 
 int main(void) {
-    dbpedia_loader_test();
-    return 0;
-
     init_rand();
 
     if (!create_wmloader()) {
         fprintf(stderr, "No point loader specified\n");
         return 1;
     }
+
+    // dbpedia_loader_test();
+    // return 0;
 
 	sslog_init();
     register_ontology();

@@ -57,6 +57,17 @@ void* ptr_array_remove_last(PtrArray* array);
 void ptr_array_free(PtrArray* array);
 
 
+typedef struct {
+    size_t capacity;
+    size_t size;
+    size_t elem_size;
+    void* array;
+} FlatArray;
+
+void flat_array_init(FlatArray* array, size_t elem_size);
+void* flat_array_insert(FlatArray* array);
+void flat_array_free(FlatArray* array);
+
 sslog_individual_t* st_get_subject_by_object(sslog_node_t* node, const char* object_id, sslog_property_t* property);
 
 #endif

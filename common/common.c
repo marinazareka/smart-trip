@@ -255,6 +255,32 @@ void ptr_array_free(PtrArray* array) {
     free(array->array);
 }
 
+
+
+void flat_array_init(FlatArray* array, size_t elem_size) {
+    array->size = 0;
+    array->capacity = 1;
+    array->elem_size = elem_size;
+    array->array = malloc(elem_size);
+}
+
+void* flat_array_insert(FlatArray* array) {
+    if (array->size == array->capacity) {
+        array->capacity *= 2;
+        array->array = realloc(array->array, array->capacity * array->elem_size);
+        if (array->array == NULL) {
+            abort();
+        }
+    }
+
+    return ((char*) array->array + (array->size++) * array->elem_size);
+}
+
+void flat_array_free(FlatArray* array) {
+    free(array->array);
+}
+
+
 sslog_individual_t* st_get_subject_by_object(sslog_node_t* node, const char* object_id, sslog_property_t* property) {
     sslog_triple_t* triple_template = sslog_new_triple_detached(SSLOG_TRIPLE_ANY,
                                                                 sslog_entity_get_uri(property), object_id,

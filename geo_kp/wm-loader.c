@@ -58,6 +58,11 @@ static char* get_points_as_json(double lat, double lon, double radius, const cha
 }
 
 static void load_points(double lat, double lon, double radius, const char* pattern, struct Point** out_points, int* out_point_count) {
+    if (strchr(pattern, '"') != NULL) {
+        fprintf(stderr, "Wrong pattern received\n");
+        return;
+    }
+
     char* points_json = get_points_as_json(lat, lon, radius, pattern);
     if (points_json == NULL) {
         fprintf(stderr, "Can't load points\n");
