@@ -616,8 +616,15 @@
     <!-- http://oss.fruct.org/etourism#processed -->
 
     <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#processed">
-        <rdfs:comment>Маркер обработки запроса.</rdfs:comment>
-        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Route"/>
+        <rdfs:comment>Содержит время обработки запроса unix timestamp. Используется для указания времени обработки запросов Route и SearchRequest и уведомления об этом подписчиков.</rdfs:comment>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Route"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#SearchRequest"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
     </owl:DatatypeProperty>
     
 
