@@ -115,7 +115,7 @@ public class Main {
 		GraphHopper graphHopper = new GraphHopper().forServer();
 		graphHopper.setOSMFile(mapFile);
 		graphHopper.setGraphHopperLocation(graphhopperDir);
-		graphHopper.setEncodingManager(new EncodingManager("foot"));
+		graphHopper.setEncodingManager(new EncodingManager("car, foot"));
 		graphHopper.setCHEnable(false);
 		graphHopper.importOrLoad();
 		return graphHopper;

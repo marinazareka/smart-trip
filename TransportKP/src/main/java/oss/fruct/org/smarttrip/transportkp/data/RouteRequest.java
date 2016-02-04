@@ -6,14 +6,21 @@ public class RouteRequest {
 	private Point[] points;
 	private Point userPoint;
 	private String tspType;
+	private String roadType;
 
-	public RouteRequest(Object tag, String userId, Point[] points, Point userPoint, String tspType) {
+	public RouteRequest(Object tag, String userId, Point[] points, Point userPoint, String tspType, String roadType) {
 		this.tag = tag;
 		this.userId = userId;
 		this.points = points;
 		this.userPoint = userPoint;
 		this.tspType = tspType;
+		this.roadType = roadType;
 	}
+
+	public boolean isValid() {
+		return tag != null && userId != null && points != null && userPoint != null && tspType != null && roadType != null;
+	}
+
 
 	public Object getTag() {
 		return tag;
@@ -33,5 +40,9 @@ public class RouteRequest {
 
 	public String getUserId() {
 		return userId;
+	}
+
+	public String getRoadType() {
+		return roadType;
 	}
 }

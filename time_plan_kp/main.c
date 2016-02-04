@@ -41,7 +41,7 @@ static void process_route_individual(sslog_individual_t* route) {
         printf("Movement %s %s\n", sslog_entity_get_uri(iter_movement), time_length);
 
         if (time_length != NULL) {
-            int time = parse_double(time_length);
+            int time = (int) parse_double(time_length);
             time_counter += time;
 
             printf("End time %s\n", to_iso_time(time_counter));

@@ -17,12 +17,18 @@ public class GraphhopperGraphFactory implements GraphFactory {
 	private static final Logger log = LoggerFactory.getLogger(GraphhopperGraphFactory.class);
 
 	private GraphHopper graphHopper;
+	private RoadType roadType;
 
-	public GraphhopperGraphFactory(GraphHopper graphHopper) {
-		this.graphHopper = graphHopper;
+	public enum RoadType {
+		CAR, FOOT, BUS
 	}
 
-	public static Graph generate(GraphHopper hopper, Point[] points) {
+	public GraphhopperGraphFactory(GraphHopper graphHopper, RoadType roadType) {
+		this.graphHopper = graphHopper;
+		this.roadType = roadType;
+	}
+
+	public static Graph generate(GraphHopper hopper, Point[] points, RoadType roadType) {
 		Graph graph = new Graph(points.length);
 
 
@@ -34,7 +40,7 @@ public class GraphhopperGraphFactory implements GraphFactory {
 					graph.setWeight(i, j, 0);
 					graph.setDistance(i, j, 0);
 				} else {
-					double d = distanceBetween(hopper, p1, p2);
+					double d = distanceBetween(hopper, p1, p2, roadType);
 					graph.setWeight(i, j, d);
 					graph.setDistance(i, j, d);
 				}
@@ -44,13 +50,13 @@ public class GraphhopperGraphFactory implements GraphFactory {
 		return graph;
 	}
 
-	public static Graph generateFast(GraphHopper hopper, Point[] points) {
+	public static Graph generateFast(GraphHopper hopper, Point[] points, RoadType roadType) {
 		Graph graph = new Graph(points.length);
 		int[] nodes = findNodes(hopper, points);
 
 		log.debug(nodes.length + " nodes found");
 
-		FlagEncoder encoder = hopper.getEncodingManager().getEncoder("foot");
+		FlagEncoder encoder = hopper.getEncodingManager().getEncoder(roadType.name().toLowerCase());
 
 		DijkstraOneToMany dijkstraOneToMany = new DijkstraOneToMany(
 				hopper.getGraphHopperStorage(),
@@ -90,10 +96,10 @@ public class GraphhopperGraphFactory implements GraphFactory {
 				.toArray();
 	}
 
-	private static double distanceBetween(GraphHopper graphHopper, Point p1, Point p2) {
+	private static double distanceBetween(GraphHopper graphHopper, Point p1, Point p2, RoadType roadType) {
 		GHRequest request = new GHRequest(p1.getLat(), p1.getLon(), p2.getLat(), p2.getLon())
 				.setWeighting("fastest")
-				.setVehicle("foot");
+				.setVehicle(roadType.name().toLowerCase());
 
 		GHResponse response = graphHopper.route(request);
 		if (response.hasErrors()) {
@@ -109,6 +115,6 @@ public class GraphhopperGraphFactory implements GraphFactory {
 
 	@Override
 	public Graph createGraph(Point[] points) {
-		return generateFast(graphHopper, points);
+		return generateFast(graphHopper, points, roadType);
 	}
 }

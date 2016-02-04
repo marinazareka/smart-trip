@@ -18,6 +18,7 @@ typedef struct {
     double user_lon;
 
     char* tsp_type;
+    char* road_type;
 
     sslog_individual_t** point_individuals;
     sslog_individual_t* route;
@@ -82,6 +83,7 @@ static void handle_updated_request(sslog_individual_t* user, sslog_individual_t*
     // This is required, because populate doesn't remove local properties, that was removed in sib
     sslog_remove_properties(route, PROPERTY_HASPOINT);
     sslog_remove_properties(route, PROPERTY_TSPTYPE);
+    sslog_remove_properties(route, PROPERTY_ROADTYPE);
     sslog_node_populate(node, route);
 
     list_t* points = sslog_get_properties(route, PROPERTY_HASPOINT);
@@ -95,7 +97,7 @@ static void handle_updated_request(sslog_individual_t* user, sslog_individual_t*
         return;
     }
 
-    RequestData* request_data = malloc(sizeof(RequestData));
+    RequestData* request_data = calloc(1, sizeof(RequestData));
 
     double* points_array = malloc(count * 2 * sizeof(double));
     sslog_individual_t** point_individuals = malloc(count * sizeof(sslog_individual_t*));
@@ -130,7 +132,16 @@ static void handle_updated_request(sslog_individual_t* user, sslog_individual_t*
     request_data->count = count;
     request_data->user_lat = parse_double((const char*) sslog_get_property(location, PROPERTY_LAT));
     request_data->user_lon = parse_double((const char*) sslog_get_property(location, PROPERTY_LONG));
-    request_data->tsp_type = strdup(sslog_get_property(route, PROPERTY_TSPTYPE));
+
+    const char* tsp_type = sslog_get_property(route, PROPERTY_TSPTYPE);
+    if (tsp_type != NULL) {
+        request_data->tsp_type = strdup(tsp_type);
+    }
+
+    const char* road_type = sslog_get_property(route, PROPERTY_ROADTYPE);
+    if (road_type != NULL) {
+        request_data->road_type = strdup(road_type);
+    }
 
     ptr_array_insert(&requests_array, request_data);
 

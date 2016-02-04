@@ -75,6 +75,7 @@ public class AddScheduleFragment extends DialogFragment {
 
 		Bundle args = getArguments();
 		TspType tspType = (TspType) args.getSerializable("tspType");
+		String roadType = args.getString("roadType");
 		String title = args.getString("title");
 		startDate = (LocalDate) args.getSerializable("startDate");
 		if (startDate == null) {
@@ -146,6 +147,23 @@ public class AddScheduleFragment extends DialogFragment {
 				R.array.road_types_array, android.R.layout.simple_spinner_item);
 		roadAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		roadTypeSpinner.setAdapter(roadAdapter);
+
+		// Initial road type
+		if (roadType != null) {
+			int idx = 0;
+			switch (roadType) {
+			case "car":
+				idx = 0;
+				break;
+			case "foot":
+				idx = 1;
+				break;
+			case "bus":
+				idx = 2;
+				break;
+			}
+			roadTypeSpinner.setSelection(idx);
+		}
 
 		// Initial title
 		if (!TextUtils.isEmpty(title)) {

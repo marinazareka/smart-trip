@@ -26,13 +26,14 @@ public class JnaSmartSpace implements SmartSpace {
 		public double user_lon;
 
 		public String tsp_type;
+		public String road_type;
 
 		public Pointer point_individuals;
 		public Pointer route;
 
 		@Override
 		protected List getFieldOrder() {
-			return Arrays.asList("count", "points", "user_id", "user_lat", "user_lon", "tsp_type", "point_individuals", "route");
+			return Arrays.asList("count", "points", "user_id", "user_lat", "user_lon", "tsp_type", "road_type", "point_individuals", "route");
 		}
 	}
 
@@ -96,7 +97,7 @@ public class JnaSmartSpace implements SmartSpace {
 		}
 
 		return new RouteRequest(requestData, requestData.user_id, points,
-				new Point(-1, requestData.user_lat, requestData.user_lon), requestData.tsp_type);
+				new Point(-1, requestData.user_lat, requestData.user_lon), requestData.tsp_type, requestData.road_type);
 	}
 
 	@Override

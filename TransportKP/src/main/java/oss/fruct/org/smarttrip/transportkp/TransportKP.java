@@ -63,13 +63,19 @@ public class TransportKP {
 	private boolean process() {
 		log.info("Waiting subscription");
 		RouteRequest request = smartSpace.waitSubscription();
-		if (request == null) {
+		if (request == null || !request.isValid()) {
 			return true;
 		}
 
 		log.info("Received request {} with {} points", request.getTag(), request.getPoints().length);
 
-		TravellingSalesman.Result result = processRequest(request);
+		TravellingSalesman.Result result = null;
+		try {
+			result = processRequest(request);
+		} catch (Exception ex) {
+			log.warn("Error processing request {}", ex);
+		}
+
 		if (result != null && !result.isEmpty()) {
 			Point[] points = result.points;
 			double[] weights = result.weights;
@@ -80,7 +86,7 @@ public class TransportKP {
 
 			requestCache.insert(request.getUserId(), new RouteState(request));
 
-			smartSpace.publish(new RouteResponse(points, weights, "foot", request.getTag()));
+			smartSpace.publish(new RouteResponse(points, weights, request.getRoadType(), request.getTag()));
 		}
 
 		return true;
@@ -96,6 +102,11 @@ public class TransportKP {
 		}
 
 		RouteRequest lastProcessedRequest = routeState.getRouteRequest();
+
+		if (!lastProcessedRequest.getRoadType().equals(request.getRoadType())) {
+			log.debug("Process request: Road type changed");
+			return forcedProcessRequest(request);
+		}
 
 		// Tsp type changed
 		if (!lastProcessedRequest.getTspType().equals(request.getTspType())) {
@@ -128,11 +139,17 @@ public class TransportKP {
 				? new ClosedStateTransition(random)
 				: new OpenStateTransition(random);
 
-		TravellingSalesman tsp = new TravellingSalesman(new GraphhopperGraphFactory(graphHopper),
+		GraphhopperGraphFactory.RoadType roadType
+				= GraphhopperGraphFactory.RoadType.valueOf(request.getRoadType().toUpperCase());
+
+		if (roadType == null) {
+			return null;
+		}
+
+		TravellingSalesman tsp = new TravellingSalesman(new GraphhopperGraphFactory(graphHopper, roadType),
 				stateTransition, request.getPoints(), random);
 
-		TravellingSalesman.Result result = tsp.findPath(request.getUserPoint(), isClosed);
-		return result;
+		return tsp.findPath(request.getUserPoint(), isClosed);
 	}
 
 }
