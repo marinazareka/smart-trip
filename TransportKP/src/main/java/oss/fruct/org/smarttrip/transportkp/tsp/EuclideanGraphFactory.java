@@ -1,6 +1,5 @@
 package oss.fruct.org.smarttrip.transportkp.tsp;
 
-import com.graphhopper.GraphHopper;
 import oss.fruct.org.smarttrip.transportkp.data.Point;
 
 public class EuclideanGraphFactory implements GraphFactory {
@@ -17,9 +16,9 @@ public class EuclideanGraphFactory implements GraphFactory {
 			for (int j = 0; j < points.length; j++) {
 				Point p2 = points[j];
 				if (p1 == p2) {
-					graph.setDistance(i, j, 0);
+					graph.setWeight(i, j, 0);
 				} else {
-					graph.setDistance(i, j, distanceBetween(p1, p2));
+					graph.setWeight(i, j, distanceBetween(p1, p2));
 				}
 			}
 		}

@@ -31,9 +31,12 @@ public class GraphhopperGraphFactory implements GraphFactory {
 			for (int j = 0; j < points.length; j++) {
 				Point p2 = points[j];
 				if (p1 == p2) {
+					graph.setWeight(i, j, 0);
 					graph.setDistance(i, j, 0);
 				} else {
-					graph.setDistance(i, j, distanceBetween(hopper, p1, p2));
+					double d = distanceBetween(hopper, p1, p2);
+					graph.setWeight(i, j, d);
+					graph.setDistance(i, j, d);
 				}
 			}
 		}
@@ -49,10 +52,6 @@ public class GraphhopperGraphFactory implements GraphFactory {
 
 		FlagEncoder encoder = hopper.getEncodingManager().getEncoder("foot");
 
-		//AStarBidirection aStarBidirection = new AStarBidirection(
-		//
-		//)
-
 		DijkstraOneToMany dijkstraOneToMany = new DijkstraOneToMany(
 				hopper.getGraphHopperStorage(),
 				encoder,
@@ -66,10 +65,13 @@ public class GraphhopperGraphFactory implements GraphFactory {
 			for (int j = 0; j < nodes.length; j++) {
 				int toNode = nodes[j];
 				if (toNode == fromNode) {
+					graph.setWeight(i, j, 0);
 					graph.setDistance(i, j, 0);
+
 				} else {
 					Path path = dijkstraOneToMany.calcPath(fromNode, toNode);
-					graph.setDistance(i, j, path.getWeight());
+					graph.setWeight(i, j, path.getWeight());
+					graph.setDistance(i, j, path.getDistance());
 				}
 			}
 		}

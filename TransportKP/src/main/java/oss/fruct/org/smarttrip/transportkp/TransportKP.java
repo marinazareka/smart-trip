@@ -69,22 +69,24 @@ public class TransportKP {
 
 		log.info("Received request {} with {} points", request.getTag(), request.getPoints().length);
 
-		Point[] points = processRequest(request);
+		TravellingSalesman.Result result = processRequest(request);
+		if (result != null && !result.isEmpty()) {
+			Point[] points = result.points;
+			double[] weights = result.weights;
 
-		if (points != null && points.length > 0) {
 			for (Point point : points) {
 				log.debug(point.getLat() + " " + point.getLon());
 			}
 
 			requestCache.insert(request.getUserId(), new RouteState(request));
 
-			smartSpace.publish(new RouteResponse(points, "foot", request.getTag()));
+			smartSpace.publish(new RouteResponse(points, weights, "foot", request.getTag()));
 		}
 
 		return true;
 	}
 
-	private Point[] processRequest(RouteRequest request) {
+	private TravellingSalesman.Result processRequest(RouteRequest request) {
 		RouteState routeState = requestCache.find(request.getUserId());
 
 		// No previous request
@@ -120,7 +122,7 @@ public class TransportKP {
 		return null;
 	}
 
-	private Point[] forcedProcessRequest(RouteRequest request) {
+	private TravellingSalesman.Result forcedProcessRequest(RouteRequest request) {
 		boolean isClosed = "closed".equals(request.getTspType());
 		StateTransition stateTransition = isClosed
 				? new ClosedStateTransition(random)
@@ -130,7 +132,7 @@ public class TransportKP {
 				stateTransition, request.getPoints(), random);
 
 		TravellingSalesman.Result result = tsp.findPath(request.getUserPoint(), isClosed);
-		return result.points;
+		return result;
 	}
 
 }

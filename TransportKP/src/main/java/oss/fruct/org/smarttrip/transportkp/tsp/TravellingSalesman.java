@@ -65,20 +65,27 @@ public class TravellingSalesman {
 		log.info("State path {}", annealing.getState());
 
 		return new Result(annealing.getState().toPoints(pointsWithStart),
+				annealing.getState().toWeights(graph),
 				annealing.getState().getPath(),
 				annealing.getStateEnergy());
 	}
 
 	public static class Result {
-		private Result(Point[] points, int[] path, double value) {
+		Result(Point[] points, double[] weights, int[] path, double value) {
 			this.points = points;
+			this.weights = weights;
 			this.path = path;
 			this.value = value;
 		}
 
 		public Point[] points;
+		public double[] weights;
 		public int[] path;
 		public double value;
+
+		public boolean isEmpty() {
+			return points.length == 0;
+		}
 	}
 
 	private State createStateOpen(Graph graph) {
@@ -123,7 +130,7 @@ public class TravellingSalesman {
 			double minDistance = -1;
 			int minNodeIndex = -1;
 			for (int j = i + 1; j < size; j++) {
-				double distance = graph.getDistance(path[i], path[j]);
+				double distance = graph.getWeight(path[i], path[j]);
 				if (minDistance < 0 || distance < minDistance) {
 					minDistance = distance;
 					minNodeIndex = j;

@@ -30,7 +30,7 @@ bool subscribe();
 void unsubscribe();
 
 RequestData* wait_subscription(void);
-void publish(int points_count, int* ids, const char* roadType, RequestData* requestData); 
+void publish(int points_count, int* ids, double* weights, const char* roadType, RequestData* requestData); 
 
 static sslog_node_t* node;
 static sslog_subscription_t* sub;
@@ -316,7 +316,7 @@ static void remove_old_movements_from_route(sslog_individual_t* route_individual
     list_free_with_nodes(individuals, NULL);
 }
 
-void publish(int points_count, int* ids, const char* roadType, RequestData* request_data) {
+void publish(int points_count, int* ids, double* weights, const char* roadType, RequestData* request_data) {
     pthread_mutex_lock(&requests_mutex);
     int movements_count = points_count - 1;
 

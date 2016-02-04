@@ -44,7 +44,7 @@ public class JnaSmartSpace implements SmartSpace {
 		void unsubscribe();
 
 		RequestData wait_subscription();
-		void publish(int points_count, int[] ids, String roadType, RequestData requestData);
+		void publish(int points_count, int[] ids, double[] weights, String roadType, RequestData requestData);
 
 		// From libc
 		void free(Pointer pointer);
@@ -108,6 +108,7 @@ public class JnaSmartSpace implements SmartSpace {
 			ids[c++] = point.getId();
 		}
 
-		lib.publish(response.getRoute().length, ids, response.getRoadType(), (RequestData) response.getRequestTag());
+		lib.publish(response.getRoute().length, ids, response.getWeights(),
+				response.getRoadType(), (RequestData) response.getRequestTag());
 	}
 }
