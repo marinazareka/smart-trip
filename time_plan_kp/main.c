@@ -12,8 +12,43 @@
 
 static sslog_node_t* node;
 
+static const char* to_iso_time(time_t t) {
+    struct tm ts;
+    gmtime_r(&t, &ts);
+
+    static char ret[1000];
+    strftime(ret, sizeof(ret), "%Y-%m-%dT%H-%M-%S", &ts);
+
+    return ret;
+}
+
 static void process_route_individual(sslog_individual_t* route) {
     printf("Processing route individual %s\n", sslog_entity_get_uri(route));
+    sslog_node_populate(node, route);
+
+    const char* interval = sslog_get_property(route, PROPERTY_SCHEDULEINTERVAL);
+    printf("Times %s\n", interval);
+
+    sslog_individual_t* start_movement = (sslog_individual_t*) sslog_get_property(route, PROPERTY_HASSTARTMOVEMENT);
+
+    sslog_individual_t* iter_movement = (sslog_individual_t*) start_movement;
+
+    time_t time_counter = time(NULL);
+    while (iter_movement != NULL) {
+        sslog_node_populate(node, iter_movement);
+
+        const char* time_length = sslog_get_property(iter_movement, PROPERTY_LENGTH);
+        printf("Movement %s %s\n", sslog_entity_get_uri(iter_movement), time_length);
+
+        if (time_length != NULL) {
+            int time = parse_double(time_length);
+            time_counter += time;
+
+            printf("End time %s\n", to_iso_time(time_counter));
+        }
+
+        iter_movement = (sslog_individual_t*) sslog_get_property(iter_movement, PROPERTY_HASNEXTMOVEMENT);
+    }
 }
 
 static void subscription_handler(sslog_subscription_t* sub) {
@@ -65,11 +100,11 @@ static void work(sslog_node_t* node) {
     }
     
     do {
-        subscription_handler(sub);
         if (sslog_sbcr_wait(sub) != SSLOG_ERROR_NO) {
             fprintf(stderr, "Error waiting subscription %s\n", sslog_error_get_last_text());
             return;
         }
+        subscription_handler(sub);
     } while(true);
 
 }
