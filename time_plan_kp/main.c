@@ -56,8 +56,7 @@ static void process_route_individual(sslog_individual_t* route) {
 }
 
 static void subscription_handler(sslog_subscription_t* sub) {
-    fprintf(stderr, "subscription_handler_err\n");
-    printf(stdout, "subscription_handler_out\n");
+    printf("subscription_handler_out\n");
     sslog_sbcr_changes_t* ch = sslog_sbcr_get_changes_last(sub);
 
     if (ch == NULL) {
