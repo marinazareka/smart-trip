@@ -52,7 +52,7 @@ public class GraphhopperGraphFactory implements GraphFactory {
 
 	public static Graph generateFast(GraphHopper hopper, Point[] points, RoadType roadType) {
 		Graph graph = new Graph(points.length);
-		int[] nodes = findNodes(hopper, points);
+		int[] nodes = findNodes(hopper, points, roadType);
 
 		log.debug(nodes.length + " nodes found");
 
@@ -76,8 +76,13 @@ public class GraphhopperGraphFactory implements GraphFactory {
 
 				} else {
 					Path path = dijkstraOneToMany.calcPath(fromNode, toNode);
-					graph.setWeight(i, j, path.getWeight());
-					graph.setDistance(i, j, path.getDistance());
+					if (path.isFound()) {
+						graph.setWeight(i, j, path.getWeight());
+						graph.setDistance(i, j, path.getDistance());
+					} else {
+						graph.setWeight(i, j, Double.NaN);
+						graph.setDistance(i, j, Double.NaN);
+					}
 				}
 			}
 		}
@@ -85,8 +90,9 @@ public class GraphhopperGraphFactory implements GraphFactory {
 		return graph;
 	}
 
-	private static int[] findNodes(GraphHopper hopper, Point[] points) {
-		FlagEncoder encoder = hopper.getEncodingManager().getEncoder("foot");
+	// TODO: сейчас точки, которые не удается привязать к графу просто исключаются
+	private static int[] findNodes(GraphHopper hopper, Point[] points, RoadType roadType) {
+		FlagEncoder encoder = hopper.getEncodingManager().getEncoder(roadType.name().toLowerCase());
 		EdgeFilter edgeFilter = new DefaultEdgeFilter(encoder);
 
 		return Stream.of(points)
@@ -107,7 +113,7 @@ public class GraphhopperGraphFactory implements GraphFactory {
 			for (Throwable throwable : response.getErrors()) {
 				log.debug("Graphhopper error: ", throwable);
 			}
-			return Double.POSITIVE_INFINITY;
+			return Double.NaN;
 		}
 
 		return response.getDistance();

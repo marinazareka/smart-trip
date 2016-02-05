@@ -36,6 +36,17 @@ public class TravellingSalesman {
 		System.arraycopy(points, 0, pointsWithStart, 1, points.length);
 		graph = graphFactory.createGraph(pointsWithStart);
 
+		// TODO: debug code
+		for (int i = 0; i < pointsWithStart.length; i++) {
+			for (int j = 0; j < pointsWithStart.length; j++) {
+				if (Double.isNaN(graph.getWeight(i, j))) {
+					log.warn("No path from {} to {}", pointsWithStart[i], pointsWithStart[j]);
+				} else {
+					log.debug("Found path from {} to {}", pointsWithStart[i], pointsWithStart[j]);
+				}
+			}
+		}
+
 		if (isClosed) {
 			//initialState = createStateClosed(graph);
 			initialState = createStateClosedNeighbour(graph);
@@ -85,6 +96,9 @@ public class TravellingSalesman {
 
 		public boolean isEmpty() {
 			return points.length == 0;
+		}
+		public boolean isValid() {
+			return !Double.isNaN(value);
 		}
 	}
 

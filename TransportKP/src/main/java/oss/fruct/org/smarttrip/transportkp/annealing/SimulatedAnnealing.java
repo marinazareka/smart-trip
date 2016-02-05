@@ -61,28 +61,32 @@ public class SimulatedAnnealing<S> {
 
 		S stateCandidate = transitionFunction.apply(state);
 		double stateCandidateEnergy = energyFunction.applyAsDouble(stateCandidate);
+		if (!Double.isNaN(stateCandidateEnergy)) {
 
-		double temp = temperatureFunction.applyAsDouble((double) iter / iterMax);
+			double temp = temperatureFunction.applyAsDouble((double) iter / iterMax);
 
-		double deltaE = stateCandidateEnergy - stateEnergy;
-		log.trace("{}: temp {} delta {}", iter, temp, deltaE);
+			double deltaE = stateCandidateEnergy - stateEnergy;
+			log.trace("{}: temp {} delta {}", iter, temp, deltaE);
 
-		if (deltaE < 0) {
-			log.trace("Down");
-			// Transition
-			state = stateCandidate;
-			stateEnergy = stateCandidateEnergy;
-		} else {
-			double transitionProbability = Math.exp(-deltaE / temp);
-			log.trace(" Up prob {}...", transitionProbability);
-
-			if (transitionProbability > random.nextDouble()) {
-				log.trace("  OK");
+			if (deltaE < 0) {
+				log.trace("Down");
+				// Transition
 				state = stateCandidate;
 				stateEnergy = stateCandidateEnergy;
 			} else {
-				log.trace("  Fail");
+				double transitionProbability = Math.exp(-deltaE / temp);
+				log.trace(" Up prob {}...", transitionProbability);
+
+				if (transitionProbability > random.nextDouble()) {
+					log.trace("  OK");
+					state = stateCandidate;
+					stateEnergy = stateCandidateEnergy;
+				} else {
+					log.trace("  Fail");
+				}
 			}
+		} else {
+			log.trace("Invalid state");
 		}
 
 		iter += 1;

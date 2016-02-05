@@ -76,7 +76,7 @@ public class TransportKP {
 			log.warn("Error processing request {}", ex);
 		}
 
-		if (result != null && !result.isEmpty()) {
+		if (result != null && !result.isEmpty() && result.isValid()) {
 			Point[] points = result.points;
 			double[] weights = result.weights;
 
@@ -87,6 +87,10 @@ public class TransportKP {
 			requestCache.insert(request.getUserId(), new RouteState(request));
 
 			smartSpace.publish(new RouteResponse(points, weights, request.getRoadType(), request.getTag()));
+		}
+
+		if (result != null && !result.isValid()) {
+			log.warn("Can't find path");
 		}
 
 		return true;
