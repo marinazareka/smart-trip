@@ -42,16 +42,22 @@ static void process_route_individual(sslog_individual_t* route) {
 
         if (time_length != NULL) {
             int time = (int) parse_double(time_length);
+            sslog_node_insert_property(node, iter_movement, PROPERTY_STARTTIME, (void*) to_iso_time(time_counter));
             time_counter += time;
-
+            sslog_node_insert_property(node, iter_movement, PROPERTY_ENDTIME, (void*) to_iso_time(time_counter));
             printf("End time %s\n", to_iso_time(time_counter));
         }
 
         iter_movement = (sslog_individual_t*) sslog_get_property(iter_movement, PROPERTY_HASNEXTMOVEMENT);
     }
+
+    printf("Insert PROPERTY_PROCESSED\n");
+    // sslog_node_insert_property(node, route, PROPERTY_PROCESSED, long_to_string(time(NULL)));
 }
 
 static void subscription_handler(sslog_subscription_t* sub) {
+    fprintf(stderr, "subscription_handler_err\n");
+    printf(stdout, "subscription_handler_out\n");
     sslog_sbcr_changes_t* ch = sslog_sbcr_get_changes_last(sub);
 
     if (ch == NULL) {
@@ -88,25 +94,22 @@ static void subscription_handler(sslog_subscription_t* sub) {
 }
 
 static void work(sslog_node_t* node) {
-    sslog_subscription_t* sub = sslog_new_subscription(node, false);
+    sslog_subscription_t* sub = sslog_new_subscription(node, true);
+    sslog_sbcr_set_changed_handler(sub, &subscription_handler);
     
+    sslog_sbcr_set_changed_handler(sub, &subscription_handler);
     sslog_triple_t* triple = sslog_new_triple_detached(SSLOG_TRIPLE_ANY, sslog_entity_get_uri(PROPERTY_PROCESSED), SSLOG_TRIPLE_ANY,
-            SSLOG_RDF_TYPE_URI, SS_RDF_TYPE_LIT);
+            SSLOG_RDF_TYPE_URI, SSLOG_RDF_TYPE_LIT);
     sslog_sbcr_add_triple_template(sub, triple);
 
     if (sslog_sbcr_subscribe(sub) != SSLOG_ERROR_NO) {
         fprintf(stderr, "Error subscribing subscription %s\n", sslog_error_get_last_text());
         return;
     }
-    
-    do {
-        if (sslog_sbcr_wait(sub) != SSLOG_ERROR_NO) {
-            fprintf(stderr, "Error waiting subscription %s\n", sslog_error_get_last_text());
-            return;
-        }
-        subscription_handler(sub);
-    } while(true);
 
+    for (;;) {
+        sleep(10);
+    }
 }
 
 int main(void) {
@@ -121,7 +124,6 @@ int main(void) {
 	}
 
     work(node);
-
 
 	sslog_node_leave(node);
 	sslog_shutdown();

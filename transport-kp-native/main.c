@@ -225,7 +225,7 @@ bool subscribe() {
     sslog_sbcr_set_changed_handler(sub, &subscription_handler_2);
 
     sslog_triple_t* updated_triple = sslog_new_triple_detached(SSLOG_TRIPLE_ANY, sslog_entity_get_uri(PROPERTY_UPDATED), 
-            SSLOG_TRIPLE_ANY, SSLOG_RDF_TYPE_URI, SS_RDF_TYPE_LIT);
+            SSLOG_TRIPLE_ANY, SSLOG_RDF_TYPE_URI, SSLOG_RDF_TYPE_LIT);
     sslog_sbcr_add_triple_template(sub, updated_triple);
 
     //sslog_triple_t* location_triple = sslog_new_triple_detached(SSLOG_TRIPLE_ANY, sslog_entity_get_uri(PROPERTY_HASLOCATION),
