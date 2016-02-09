@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:paddingLeft="@dimen/activity_horizontal_margin"
-              android:paddingRight="@dimen/activity_horizontal_margin" >
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin" >
 
     <EditText
         android:layout_width="match_parent"
@@ -42,7 +42,7 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/start_interval_text"
+            android:id="@+id/start_interval_time_text"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -50,7 +50,31 @@
             android:text="Medium Text"/>
 
         <TextView
-            android:id="@+id/end_interval_text"
+            android:id="@+id/end_interval_time_text"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"/>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/start_interval_date_text"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"/>
+
+        <TextView
+            android:id="@+id/end_interval_date_text"
             android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

@@ -58,10 +58,10 @@ public class AddScheduleFragment extends DialogFragment {
 	@Bind(R.id.title_edit_text)
 	EditText editText;
 
-	@Bind(R.id.start_interval_text)
+	@Bind(R.id.start_interval_date_text)
 	TextView startIntervalText;
 
-	@Bind(R.id.end_interval_text)
+	@Bind(R.id.end_interval_date_text)
 	TextView endIntervalText;
 
 	private DatePickerMode datePickerMode;
@@ -195,14 +195,14 @@ public class AddScheduleFragment extends DialogFragment {
 		super.onStop();
 	}
 
-	@OnClick(R.id.start_interval_text)
+	@OnClick(R.id.start_interval_date_text)
 	void onStartIntervalClicked() {
 		DatePickerFragment fragment = DatePickerFragment.newInstance(startDate, null, endDate);
 		fragment.show(getFragmentManager(), TAG_DATE_PICKER_FRAGMENT);
 		datePickerMode = DatePickerMode.START_DATE;
 	}
 
-	@OnClick(R.id.end_interval_text)
+	@OnClick(R.id.end_interval_date_text)
 	void onEndIntervalClicked() {
 		DatePickerFragment fragment = DatePickerFragment.newInstance(endDate, startDate, null);
 		fragment.show(getFragmentManager(), TAG_DATE_PICKER_FRAGMENT);
