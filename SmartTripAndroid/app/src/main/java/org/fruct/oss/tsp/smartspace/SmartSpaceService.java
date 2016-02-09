@@ -185,8 +185,8 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 		try {
 			smartSpace.postScheduleRequest(points.toArray(new Point[points.size()]),
 					schedule.getTspType().name().toLowerCase(), schedule.getRoadType(),
-					Utils.localDateToString(schedule.getStartDate()),
-					Utils.localDateToString(schedule.getEndDate()));
+					Utils.localDateTimeToString(schedule.getStartDateTime()),
+					Utils.localDateTimeToString(schedule.getEndDateTime()));
 		} catch (IOException e) {
 			log.error("Error posting schedule request", e);
 			panic();

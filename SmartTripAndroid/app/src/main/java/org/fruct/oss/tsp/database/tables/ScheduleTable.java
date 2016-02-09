@@ -61,7 +61,7 @@ public class ScheduleTable {
 	public static Schedule fromCursor(Cursor cursor) {
 		return new Schedule(cursor.getLong(0), cursor.getString(1), TspType.valueOf(cursor.getString(2)),
 				cursor.getString(3),
-				Utils.stringToLocalDate(cursor.getString(4)), Utils.stringToLocalDate(cursor.getString(5)));
+				Utils.stringToLocalDateTime(cursor.getString(4)), Utils.stringToLocalDateTime(cursor.getString(5)));
 	}
 
 	public static ContentValues toContentValues(Schedule schedule) {
@@ -69,8 +69,8 @@ public class ScheduleTable {
 		cv.put(COLUMN_TITLE, schedule.getTitle());
 		cv.put(COLUMN_TSP_TYPE, schedule.getTspType().name());
 		cv.put(COLUMN_ROAD_TYPE, schedule.getRoadType());
-		cv.put(COLUMN_START_DATE, Utils.localDateToString(schedule.getStartDate()));
-		cv.put(COLUMN_END_DATE, Utils.localDateToString(schedule.getEndDate()));
+		cv.put(COLUMN_START_DATE, Utils.localDateTimeToString(schedule.getStartDateTime()));
+		cv.put(COLUMN_END_DATE, Utils.localDateTimeToString(schedule.getEndDateTime()));
 		return cv;
 	}
 }

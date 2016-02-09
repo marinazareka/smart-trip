@@ -5,6 +5,8 @@ import android.support.annotation.Nullable;
 
 import org.fruct.oss.tsp.App;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.ReadablePartial;
 import org.mapsforge.core.graphics.Paint;
 import org.mapsforge.core.graphics.Style;
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
@@ -66,18 +68,26 @@ public class Utils {
 		return sb.toString();
 	}
 
-	public static String localDateToString(@Nullable LocalDate localDate) {
-		if (localDate == null) {
+	public static String partialToString(@Nullable ReadablePartial partial) {
+		if (partial == null) {
 			return null;
 		}
-		return localDate.toString();
+
+		return partial.toString();
 	}
 
-	public static LocalDate stringToLocalDate(@Nullable String localDateString) {
-		if (localDateString == null) {
+	public static String localDateTimeToString(@Nullable LocalDateTime localDateTime) {
+		if (localDateTime == null) {
+			return null;
+		}
+		return localDateTime.toString();
+	}
+
+	public static LocalDateTime stringToLocalDateTime(@Nullable String localDateTimeString) {
+		if (localDateTimeString == null) {
 			return null;
 		}
 
-		return new LocalDate(localDateString);
+		return new LocalDateTime(localDateTimeString);
 	}
 }

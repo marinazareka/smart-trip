@@ -1,8 +1,6 @@
 package org.fruct.oss.tsp.commondatatype;
 
-import android.os.Parcel;
-
-import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 
 import java.io.Serializable;
 
@@ -15,20 +13,20 @@ public class Schedule implements Serializable {
 	private final TspType tspType;
 
 	private final String roadType;
-	private final LocalDate startDate;
-	private final LocalDate endDate;
+	private final LocalDateTime startDateTime;
+	private final LocalDateTime endDateTime;
 
-	public Schedule(String title, TspType tspType, String roadType, LocalDate startDate, LocalDate endDate) {
-		this(0, title, tspType, roadType, startDate, endDate);
+	public Schedule(String title, TspType tspType, String roadType, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+		this(0, title, tspType, roadType, startDateTime, endDateTime);
 	}
 
-	public Schedule(long id, String title, TspType tspType, String roadType, LocalDate startDate, LocalDate endDate) {
+	public Schedule(long id, String title, TspType tspType, String roadType, LocalDateTime startDateTime, LocalDateTime endDateTime) {
 		this.id = id;
 		this.title = title;
 		this.tspType = tspType;
 		this.roadType = roadType;
-		this.startDate = startDate;
-		this.endDate = endDate;
+		this.startDateTime = startDateTime;
+		this.endDateTime = endDateTime;
 	}
 
 	public long getId() {
@@ -47,12 +45,12 @@ public class Schedule implements Serializable {
 		return roadType;
 	}
 
-	public LocalDate getStartDate() {
-		return startDate;
+	public LocalDateTime getStartDateTime() {
+		return startDateTime;
 	}
 
-	public LocalDate getEndDate() {
-		return endDate;
+	public LocalDateTime getEndDateTime() {
+		return endDateTime;
 	}
 
 }
