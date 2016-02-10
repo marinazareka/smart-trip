@@ -1,9 +1,11 @@
 
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
 #include <signal.h>
 #include <stdarg.h>
+#include <string.h>
 
 #include <smartslog.h>
 
@@ -12,12 +14,44 @@
 
 static sslog_node_t* node;
 
+static time_t parse_to_time_t(const char* iso_date_time) {
+    struct tm t;
+    memset(&t, 0, sizeof(t));
+    if (strptime(iso_date_time, "%Y-%m-%dT%H:%M:%S", &t) == NULL) {
+        return 0;
+    }
+    return mktime(&t);
+}
+
+static bool parse_date_time_interval(const char* date_time_interval, time_t* start_tt, time_t* end_tt) {
+    const char* slash_position = strchr(date_time_interval, '/');
+
+    if (slash_position == NULL || *(slash_position + 1) == '\0') {
+        return false;
+    }
+
+    char* start_date_time = strndup(date_time_interval, slash_position - date_time_interval);
+    char* end_date_time = strdup(slash_position + 1);
+
+    *start_tt = parse_to_time_t(start_date_time);
+    *end_tt = parse_to_time_t(end_date_time);
+
+    free(start_date_time);
+    free(end_date_time);
+
+    if (*start_tt == 0 || *end_tt == 0) {
+        return false;
+    }
+
+    return true;
+}
+
 static const char* to_iso_time(time_t t) {
     struct tm ts;
     gmtime_r(&t, &ts);
 
     static char ret[1000];
-    strftime(ret, sizeof(ret), "%Y-%m-%dT%H-%M-%S", &ts);
+    strftime(ret, sizeof(ret), "%Y-%m-%dT%H:%M:%S", &ts);
 
     return ret;
 }
@@ -27,7 +61,7 @@ static void process_route_individual(sslog_individual_t* route) {
     sslog_node_populate(node, route);
 
     const char* interval = sslog_get_property(route, PROPERTY_SCHEDULEINTERVAL);
-    printf("Times %s\n", interval);
+    printf("Times interval %s\n", interval);
 
     sslog_individual_t* start_movement = (sslog_individual_t*) sslog_get_property(route, PROPERTY_HASSTARTMOVEMENT);
 
@@ -111,7 +145,39 @@ static void work(sslog_node_t* node) {
     }
 }
 
+static int do_test() {
+    tzset();
+
+    if (parse_to_time_t("2016-02-01T13:00:00") == 0) {
+        printf("Can't parse valid iso datetime\n");
+    }
+
+    time_t start_tt, end_tt;
+    parse_date_time_interval("2016-02-01T13:00:00.000/2016-05-01T23:00:00.000", &start_tt, &end_tt);
+    printf("Unix time %d %d\n", (int) start_tt, (int) end_tt);
+
+    const char* invalid[] = {
+        "a2016-02-01T13:00:00.000/2016-05-01T23:00:00.000",
+        "/2016-05-01T23:00:00.000",
+        "2016-02-01T13:00:00.000/",
+        "",
+    };
+
+    for (unsigned i = 0; i < sizeof(invalid) / sizeof(invalid[0]); i++) {
+        const char* invalid_str = invalid[i];
+        if (parse_date_time_interval(invalid_str, &start_tt, &end_tt)) {
+            printf("Wrong datetime interval %s parsed as valid\n", invalid_str);
+        }
+    }
+
+    return 0;
+}
+
 int main(void) {
+    if (getenv("ST_TEST") != NULL) {
+        return do_test();
+    }
+
     init_rand();
 	sslog_init();
     register_ontology();
