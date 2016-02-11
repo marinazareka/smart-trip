@@ -70,10 +70,17 @@ static void schedule_subscription_handler(sslog_subscription_t* ignored) {
     struct Movement movement_array[movement_count];
 
     for (int i = 0; i < movement_count; i++) {
-        sslog_individual_t* movement = ptr_array.array[i];
+        sslog_individual_t* movement_individual = ptr_array.array[i];
+        struct Movement* movement = &movement_array[i];
 
-        sslog_individual_t* point_a = sslog_node_get_property(node, movement, PROPERTY_ISSTARTPOINT);
-        sslog_individual_t* point_b = sslog_node_get_property(node, movement, PROPERTY_ISENDPOINT);
+        // TODO: too many node_get, replace with populate
+        sslog_individual_t* point_a = sslog_node_get_property(node, movement_individual, PROPERTY_ISSTARTPOINT);
+        sslog_individual_t* point_b = sslog_node_get_property(node, movement_individual, PROPERTY_ISENDPOINT);
+        sslog_node_populate(node, point_a);
+        sslog_node_populate(node, point_b);
+
+        const char* start_time = sslog_node_get_property(node, movement_individual, PROPERTY_STARTTIME);
+        const char* end_time = sslog_node_get_property(node, movement_individual, PROPERTY_ENDTIME);
 
         if (point_a == NULL || point_b == NULL) {
             __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Null start and end point in movement");
@@ -85,13 +92,27 @@ static void schedule_subscription_handler(sslog_subscription_t* ignored) {
         const char* title = sslog_get_property(point_a, PROPERTY_POITITLE);
         if (title == NULL)
             title = "Untitled";
-        st_init_point(&movement_array[i].point_a, point_a->entity.uri, title, lat, lon);
+        st_init_point(&movement->point_a, point_a->entity.uri, title, lat, lon);
 
         get_point_coordinates(node, point_b, &lat, &lon);
         title = sslog_get_property(point_b, PROPERTY_POITITLE);
         if (title == NULL)
             title = "Untitled";
-        st_init_point(&movement_array[i].point_b, point_b->entity.uri, title, lat, lon);
+        st_init_point(&movement->point_b, point_b->entity.uri, title, lat, lon);
+
+        if (start_time != NULL) {
+            __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Start time found %s", start_time);
+
+            strlcpy(movement->start_time, start_time, sizeof(movement->start_time));
+        } else {
+            movement->start_time[0] = '\0';
+        }
+
+        if (end_time != NULL) {
+            strlcpy(movement->end_time, end_time, sizeof(movement->end_time));
+        } else {
+            movement->end_time[0] = '\0';
+        }
     }
 
     __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "%d movements found", movement_count);

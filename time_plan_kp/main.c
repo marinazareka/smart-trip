@@ -102,7 +102,7 @@ static void process_route_individual(sslog_individual_t* route) {
         iter_movement = (sslog_individual_t*) sslog_get_property(iter_movement, PROPERTY_HASNEXTMOVEMENT);
     }
 
-    printf("Insert PROPERTY_PROCESSED\n");
+    printf("NOT Insert PROPERTY_PROCESSED\n");
     // sslog_node_insert_property(node, route, PROPERTY_PROCESSED, long_to_string(time(NULL)));
 }
 

@@ -106,7 +106,8 @@ public class MovementsListFragment extends BaseFragment {
 			}
 
 			public void bind(Movement movement) {
-				textView.setText("Movement from " + movement.getA().getTitle() + " to " + movement.getB().getTitle());
+				textView.setText("Movement from " + movement.getA().getTitle()
+						+ " to " + movement.getB().getTitle() + " time " + movement.getStartDateTime());
 			}
 		}
 	}

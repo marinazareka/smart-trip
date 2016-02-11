@@ -80,7 +80,7 @@ JNI_OnLoad(JavaVM *vm, void *reserved) {
     class_string = (*env)->NewGlobalRef(env, class_string);
 
     constructor_movement = (*env)->GetMethodID(env, class_movement, "<init>",
-                                               "(Lorg/fruct/oss/tsp/commondatatype/Point;Lorg/fruct/oss/tsp/commondatatype/Point;)V");
+                                               "(Lorg/fruct/oss/tsp/commondatatype/Point;Lorg/fruct/oss/tsp/commondatatype/Point;Ljava/lang/String;Ljava/lang/String;)V");
 
     constructor_point = (*env)->GetMethodID(env, class_point, "<init>",
                                             "(Ljava/lang/String;Ljava/lang/String;DD)V");
@@ -278,8 +278,10 @@ void st_on_search_request_ready(struct Point *points, int points_count) {
 static jobject create_movement_object(JNIEnv* env, struct Movement* movement) {
     jobject point_a = create_point_object(env, &movement->point_a);
     jobject point_b = create_point_object(env, &movement->point_b);
+    jstring start_time = (*env)->NewStringUTF(env, movement->start_time);
+    jstring end_time = (*env)->NewStringUTF(env, movement->end_time);
 
-    return (*env)->NewObject(env, class_movement, constructor_movement, point_a, point_b);
+    return (*env)->NewObject(env, class_movement, constructor_movement, point_a, point_b, start_time, end_time);
 }
 
 void st_on_schedule_request_ready(struct Movement* movements, int movements_count) {
