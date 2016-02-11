@@ -24,6 +24,10 @@ static time_t parse_to_time_t(const char* iso_date_time) {
 }
 
 static bool parse_date_time_interval(const char* date_time_interval, time_t* start_tt, time_t* end_tt) {
+    if (date_time_interval == NULL || start_tt == NULL || end_tt == NULL) {
+        return false;
+    }
+
     const char* slash_position = strchr(date_time_interval, '/');
 
     if (slash_position == NULL || *(slash_position + 1) == '\0') {
@@ -46,12 +50,13 @@ static bool parse_date_time_interval(const char* date_time_interval, time_t* sta
     return true;
 }
 
-static const char* to_iso_time(time_t t) {
+// TODO: user individual timezone, not localtime
+static const char* to_iso_time_tz(time_t t, sslog_individual_t* ind) {
     struct tm ts;
-    gmtime_r(&t, &ts);
+    localtime_r(&t, &ts);
 
     static char ret[1000];
-    strftime(ret, sizeof(ret), "%Y-%m-%dT%H:%M:%S", &ts);
+    strftime(ret, sizeof(ret), "%Y-%m-%dT%H:%M:%S+03:00", &ts);
 
     return ret;
 }
@@ -61,25 +66,37 @@ static void process_route_individual(sslog_individual_t* route) {
     sslog_node_populate(node, route);
 
     const char* interval = sslog_get_property(route, PROPERTY_SCHEDULEINTERVAL);
-    printf("Times interval %s\n", interval);
+
+    time_t start_tt, end_tt;
+    if (!parse_date_time_interval(interval, &start_tt, &end_tt) ) {
+        fprintf(stderr, "Incorrect date time interval received %s\n", interval);
+        return;
+    }
+
+    printf("Route interval in unixtime %ld %ld\n", (long) start_tt, (long) end_tt);
 
     sslog_individual_t* start_movement = (sslog_individual_t*) sslog_get_property(route, PROPERTY_HASSTARTMOVEMENT);
-
     sslog_individual_t* iter_movement = (sslog_individual_t*) start_movement;
 
-    time_t time_counter = time(NULL);
+    time_t time_counter = 0;
     while (iter_movement != NULL) {
         sslog_node_populate(node, iter_movement);
 
-        const char* time_length = sslog_get_property(iter_movement, PROPERTY_LENGTH);
-        printf("Movement %s %s\n", sslog_entity_get_uri(iter_movement), time_length);
+        const char* movement_length_str = sslog_get_property(iter_movement, PROPERTY_LENGTH);
+        printf("Movement %s, weight: %s\n", sslog_entity_get_uri(iter_movement), movement_length_str);
 
-        if (time_length != NULL) {
-            int time = (int) parse_double(time_length);
-            sslog_node_insert_property(node, iter_movement, PROPERTY_STARTTIME, (void*) to_iso_time(time_counter));
-            time_counter += time;
-            sslog_node_insert_property(node, iter_movement, PROPERTY_ENDTIME, (void*) to_iso_time(time_counter));
-            printf("End time %s\n", to_iso_time(time_counter));
+        if (movement_length_str != NULL) {
+            int movement_length = (int) parse_double(movement_length_str);
+
+            time_t movement_start_tt = start_tt + time_counter;
+            time_t movement_end_tt = start_tt + time_counter + movement_length;
+            time_counter += movement_length;
+
+            // TODO: replace NULL with point individual
+            sslog_node_insert_property(node, iter_movement, PROPERTY_STARTTIME, (void*) to_iso_time_tz(movement_start_tt, NULL));
+            time_counter += movement_length;
+            sslog_node_insert_property(node, iter_movement, PROPERTY_ENDTIME, (void*) to_iso_time_tz(movement_end_tt, NULL));
+            printf("Start time %s\n", to_iso_time_tz(movement_start_tt, NULL));
         }
 
         iter_movement = (sslog_individual_t*) sslog_get_property(iter_movement, PROPERTY_HASNEXTMOVEMENT);
@@ -155,12 +172,16 @@ static int do_test() {
     time_t start_tt, end_tt;
     parse_date_time_interval("2016-02-01T13:00:00.000/2016-05-01T23:00:00.000", &start_tt, &end_tt);
     printf("Unix time %d %d\n", (int) start_tt, (int) end_tt);
+    //if (start_tt != 1454331600 || end_tt != 1462143600) {
+    //    printf("Wrong interval parsed\n");
+    //}
 
     const char* invalid[] = {
         "a2016-02-01T13:00:00.000/2016-05-01T23:00:00.000",
         "/2016-05-01T23:00:00.000",
         "2016-02-01T13:00:00.000/",
         "",
+        NULL
     };
 
     for (unsigned i = 0; i < sizeof(invalid) / sizeof(invalid[0]); i++) {
@@ -173,12 +194,19 @@ static int do_test() {
     return 0;
 }
 
+static void init_timezone() {
+    setenv("TZ", ":Zulu", 1);
+    tzset();
+}
+
 int main(void) {
+    //init_timezone();
+    init_rand();
+
     if (getenv("ST_TEST") != NULL) {
         return do_test();
     }
 
-    init_rand();
 	sslog_init();
     register_ontology();
 
