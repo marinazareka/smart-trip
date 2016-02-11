@@ -4,13 +4,17 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 
 import org.fruct.oss.tsp.App;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
+import org.joda.time.ReadableInstant;
 import org.joda.time.ReadablePartial;
+import org.joda.time.format.DateTimeFormatter;
 import org.mapsforge.core.graphics.Paint;
 import org.mapsforge.core.graphics.Style;
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -89,5 +93,17 @@ public class Utils {
 		}
 
 		return new LocalDateTime(localDateTimeString);
+	}
+
+	public static String toHumanString(@Nullable DateTime dateTime) {
+		if (dateTime == null) {
+			return "";
+		}
+
+		DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(App.getContext());
+		DateFormat timeFormat = android.text.format.DateFormat.getTimeFormat(App.getContext());
+
+		Date javaDate = dateTime.toDate();
+		return timeFormat.format(javaDate) + " " + dateFormat.format(javaDate);
 	}
 }

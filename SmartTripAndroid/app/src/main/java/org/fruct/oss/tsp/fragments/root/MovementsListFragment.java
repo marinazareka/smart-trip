@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import org.fruct.oss.tsp.R;
 import org.fruct.oss.tsp.commondatatype.Movement;
+import org.fruct.oss.tsp.databinding.ItemListMovementBinding;
 import org.fruct.oss.tsp.events.ScheduleStoreChangedEvent;
 import org.fruct.oss.tsp.fragments.BaseFragment;
 import org.fruct.oss.tsp.stores.ScheduleStore;
@@ -83,7 +84,7 @@ public class MovementsListFragment extends BaseFragment {
 		@Override
 		public PointsAdapter.Holder onCreateViewHolder(ViewGroup parent, int viewType) {
 			return new Holder(LayoutInflater.from(parent.getContext())
-					.inflate(android.R.layout.simple_list_item_1, parent, false));
+					.inflate(R.layout.item_list_movement, parent, false));
 		}
 
 		@Override
@@ -97,17 +98,17 @@ public class MovementsListFragment extends BaseFragment {
 		}
 
 		class Holder extends RecyclerView.ViewHolder {
-			@Bind(android.R.id.text1)
-			TextView textView;
+			private ItemListMovementBinding binding;
 
 			public Holder(View itemView) {
 				super(itemView);
-				ButterKnife.bind(this, itemView);
+				binding = ItemListMovementBinding.bind(itemView);
 			}
 
 			public void bind(Movement movement) {
-				textView.setText("Movement from " + movement.getA().getTitle()
-						+ " to " + movement.getB().getTitle() + " time " + movement.getStartDateTime());
+				binding.setMovement(movement);
+				//textView.setText("Movement from " + movement.getA().getTitle()
+				//		+ " to " + movement.getB().getTitle() + " time " + movement.getStartDateTime());
 			}
 		}
 	}
