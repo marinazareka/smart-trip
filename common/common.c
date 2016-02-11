@@ -120,8 +120,10 @@ sslog_individual_t* create_point_individual(sslog_node_t* node, double lat, doub
     return point;
 }
 
+// Get point coordinates
+// Point must be populated
 bool get_point_coordinates(sslog_node_t* node, sslog_individual_t* point, double* out_lat, double* out_lon) {
-    sslog_individual_t* location = (sslog_individual_t*) sslog_node_get_property(node, point, PROPERTY_HASLOCATION);
+    sslog_individual_t* location = (sslog_individual_t*) sslog_get_property(point, PROPERTY_HASLOCATION);
     if (location == NULL) {
         return false;
     }
