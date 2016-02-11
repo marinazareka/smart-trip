@@ -94,6 +94,7 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback, SharedPref
 		uiThreadHandler.removeCallbacksAndMessages(null);
 		context.unbindService(connection);
 		context.stopService(new Intent(context, SmartSpaceService.class));
+		serviceStartDelay = -1;
 		pref.unregisterOnSharedPreferenceChangeListener(this);
 	}
 
@@ -149,7 +150,6 @@ public class BoundSmartSpace implements SmartSpace, Handler.Callback, SharedPref
 		case SmartSpaceService.CALLBACK_HISTORY_RESULT:
 			List<String> patterns = msg.getData().getStringArrayList("patterns");
 			EventBus.getDefault().post(new HistoryEvent(patterns));
-
 		}
 
 		return true;

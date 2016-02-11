@@ -4,6 +4,8 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import oss.fruct.org.smarttrip.transportkp.data.Point;
 import oss.fruct.org.smarttrip.transportkp.data.RouteRequest;
 import oss.fruct.org.smarttrip.transportkp.data.RouteResponse;
@@ -12,6 +14,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class JnaSmartSpace implements SmartSpace {
+	private static final Logger log = LoggerFactory.getLogger(JnaSmartSpace.class);
+
 	private final String name;
 	private final String smartspace;
 	private final String address;
@@ -108,6 +112,9 @@ public class JnaSmartSpace implements SmartSpace {
 		for (Point point : response.getRoute()) {
 			ids[c++] = point.getId();
 		}
+
+		log.debug("Native publish {} {} {} {} {}", response.getRoute().length, ids, response.getWeights(),
+				response.getRoadType(), (RequestData) response.getRequestTag());
 
 		lib.publish(response.getRoute().length, ids, response.getWeights(),
 				response.getRoadType(), (RequestData) response.getRequestTag());

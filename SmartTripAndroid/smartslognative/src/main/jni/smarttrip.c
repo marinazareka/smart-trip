@@ -12,9 +12,7 @@
 
 #include "common/st_point.h"
 #include "st_movement.h"
-#include "ontology/ontology.h"
-#include "common/common.h"
-#include "smartslog.h"
+#include "session_internal.h"
 
 static bool is_ontology_registered;
 static bool is_smartspace_initialized;
@@ -238,6 +236,83 @@ static bool ensure_user_individual(const char *id) {
     user_individual = tmp;
     return true;
 }
+/*
+static int my_sslog_node_populate(sslog_node_t *node, sslog_individual_t *individual)
+{
+    if (node == NULL) {
+        return sslog_error_set(NULL, SSLOG_ERROR_NULL_ARGUMENT, SSLOG_ERROR_TEXT_NULL_ARGUMENT "node");
+    }
+
+    if (individual == NULL) {
+        return sslog_error_set(&node->last_error, SSLOG_ERROR_NULL_ARGUMENT, SSLOG_ERROR_TEXT_NULL_ARGUMENT "individul");
+    }
+
+    sslog_triple_t *query_triple = sslog_new_triple_detached(individual->entity.uri, SSLOG_TRIPLE_ANY, SSLOG_TRIPLE_ANY,
+                                                             SSLOG_RDF_TYPE_URI, SSLOG_RDF_TYPE_URI);
+
+    list_t *result_triples = NULL;
+    int result = sslog_kpi_query_triple(node->kpi, query_triple, &result_triples);
+
+    sslog_free_triple(query_triple);
+
+    if (result != SSLOG_ERROR_NO) {
+        return sslog_error_set(&node->last_error, result, sslog_kpi_get_error_text(result));
+    }
+
+    if (list_is_null_or_empty(result_triples) == 1) {
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "No triples in smart space for individual (%s).", individual->entity.uri);
+        list_free_with_nodes(result_triples, NULL);
+        return sslog_error_reset(&node->last_error);
+    }
+
+    list_t *linked_triples = list_new();
+
+    list_head_t *list_walker = NULL;
+    list_for_each (list_walker, &result_triples->links) {
+        list_t *entry = list_entry(list_walker, list_t, links);
+        sslog_triple_t *triple = (sslog_triple_t *) entry->data;
+
+        if (sslog_triple_is_property_value(triple) == false) {
+            __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Triple is not property value: %s - %s - %s (%d)",
+                                triple->subject, triple->predicate, triple->object, triple->object_type);
+            continue;
+        }
+
+        sslog_property_t *property = sslog_store_get_property(node->session->store, triple->predicate);
+
+        if (property == NULL) {
+            continue;
+        }
+
+        if (sslog_property_is_object(property) == true) {
+            query_triple = sslog_new_triple_detached(triple->object, SSLOG_TRIPLE_RDF_TYPE, SSLOG_TRIPLE_ANY,
+                                                     SSLOG_RDF_TYPE_URI, SSLOG_RDF_TYPE_URI);
+            list_add_data(linked_triples, query_triple);
+        }
+    }
+
+    list_t *result_linked_triples = NULL;
+    result = sslog_kpi_query_triples(node->kpi, linked_triples, &result_linked_triples);
+
+    list_free_with_nodes(linked_triples, LIST_CAST_TO_FREE_FUNC sslog_free_triple);
+
+    if (result != SSLOG_ERROR_NO) {
+        list_free_with_nodes(result_triples, LIST_CAST_TO_FREE_FUNC sslog_free_triple);
+        return sslog_error_set(&node->last_error, result, sslog_kpi_get_error_text(result));
+    }
+
+    sslog_store_add_triples(node->session->store, result_triples);
+
+    if (result_linked_triples != NULL) {
+        sslog_store_add_triples(node->session->store, result_linked_triples);
+    }
+
+    list_free_with_nodes(result_triples, LIST_CAST_TO_FREE_FUNC sslog_free_triple);
+    list_free_with_nodes(result_linked_triples, LIST_CAST_TO_FREE_FUNC sslog_free_triple);
+
+    return sslog_error_reset(&node->last_error);
+}
+*/
 
 /**
  * Загрузить Schedule и Route для текущего пользователя
@@ -371,10 +446,10 @@ bool st_initialize(const char *user_id, const char *kp_name, const char *smart_s
             __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Error sslog_init %s",
                                 sslog_error_get_last_text());
             return false;
-        } else {
-            is_smartspace_initialized = true;
-            __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Sslog_init ok");
         }
+
+        is_smartspace_initialized = true;
+        __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "Sslog_init ok");
     }
 
     if (!is_ontology_registered) {
@@ -423,25 +498,31 @@ bool st_initialize(const char *user_id, const char *kp_name, const char *smart_s
 }
 
 void st_shutdown() {
-    if (node != NULL) {
-        sslog_node_leave(node);
-        node = NULL;
-    }
+    sslog_sbcr_unsubscribe_all(node, true);
 
-    sslog_shutdown();
+    sslog_node_leave(node);
+    sslog_free_node(node);
+
+    //sslog_store_free(node->session->store);
+
+
+    node = NULL;
+
+    //sslog_shutdown();
 
     user_individual = NULL;
     user_location = NULL;
     search_history = NULL;
-    sub_search_request = NULL;
     request_individual = NULL;
+
     sub_schedule_request = NULL;
+    sub_search_request = NULL;
 
     schedule_individual = NULL;
     route_individual = NULL;
 
-    is_ontology_registered = false;
-    is_smartspace_initialized = false;
+    //is_ontology_registered = false;
+    //is_smartspace_initialized = false;
 }
 
 // * error checks
@@ -459,7 +540,8 @@ bool st_update_user_location(double lat, double lon) {
     sslog_insert_property(new_location_individual, PROPERTY_LONG, double_to_string(lon));
 
     if (sslog_node_insert_individual(node, new_location_individual) != SSLOG_ERROR_NO) {
-        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't insert existing user location");
+        __android_log_print(ANDROID_LOG_ERROR, APPNAME, "Can't insert existing user location %s",
+                            sslog_error_get_last_text());
         return false;
     }
 

@@ -78,8 +78,23 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 	@Override
 	public void onDestroy() {
 		handlerThread.getLooper().quit();
-		smartSpace.shutdown();
-		isInitialized = false;
+		if (isInitialized) {
+			smartSpace.shutdown();
+			isInitialized = false;
+		}
+
+		/*// TODO: нужно корректно переинициализировать smartslog, а не завершать процесс
+		new Thread() {
+			@Override
+			public void run() {
+				super.run();
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) { }
+				System.exit(0);
+			}
+		}
+				;//.start();*/
 
 		log.debug("onDestroy");
 		super.onDestroy();
@@ -115,6 +130,7 @@ public class SmartSpaceService extends Service implements Handler.Callback {
 				isInitialized = true;
 			} catch (IOException e) {
 				log.error("Can't initialize smartspace", e);
+				panic();
 			}
 			break;
 
