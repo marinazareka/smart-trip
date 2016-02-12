@@ -1,38 +1,27 @@
-#include <unistd.h>
-#include <signal.h>
-#include <smartslog.h>
+#include "geo_common.h"
 
-#include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
+#include <stdlib.h>
 
-#include "ontology.h"
 #include "common.h"
 #include "st_point.h"
-
-#include "test-loader.h"
-#include "wm-loader.h"
-#include "dbpedia-loader.h"
-
-static volatile bool cont = true;
-
-static struct LoaderInterface point_loader;
+#include "ontology.h"
 
 static void publish_point(sslog_node_t* node, sslog_individual_t* request_individual, struct Point* point) {
     printf("Inserting point %lf %lf %s\n", point->lat, point->lon, point->title);
     // TODO: uuid isn't being copied
-    //
+    
     CLEANUP_INDIVIDUAL sslog_individual_t* point_individual 
         = create_poi_individual(node, point->lat, point->lon, point->title, "nocategory");
     sslog_node_insert_property(node, request_individual, PROPERTY_HASPOINT, point_individual);
 }
 
 static void find_and_publish_points(sslog_node_t* node, sslog_individual_t* request_individual, 
-        double lat, double lon, double radius, const char* pattern) {
+        double lat, double lon, double radius, const char* pattern, struct LoaderInterface loader) {
     struct Point* points = NULL;
     int count = 0;
 
-    point_loader.load_points(lat, lon, radius, pattern,  &points, &count);
+    loader.load_points(lat, lon, radius, pattern,  &points, &count);
 
     for (int i = 0; i < count; i++) {
         publish_point(node, request_individual, &points[i]);
@@ -45,7 +34,7 @@ static void find_and_publish_points(sslog_node_t* node, sslog_individual_t* requ
     sslog_node_insert_property(node, request_individual, PROPERTY_PROCESSED, long_to_string(time(NULL)));
 }
 
-static void process_inserted_request(sslog_node_t* node, const char* request_uuid) {
+static void process_inserted_request(sslog_node_t* node, const char* request_uuid, struct LoaderInterface loader) {
     CLEANUP_INDIVIDUAL sslog_individual_t* request_individual = sslog_get_individual(request_uuid);
     if (request_individual == NULL) {
         printf("Can't get request individual\n");
@@ -93,10 +82,10 @@ static void process_inserted_request(sslog_node_t* node, const char* request_uui
 
     printf("User location: %lf %lf. Search radius: %lf\n", lat, lon, radius);
 
-    find_and_publish_points(node, request_individual, lat, lon, radius, pattern);
+    find_and_publish_points(node, request_individual, lat, lon, radius, pattern, loader);
 }
 
-static void process_subscription_request(sslog_node_t* node, sslog_subscription_t* subscription) {
+static void process_subscription_request(sslog_node_t* node, sslog_subscription_t* subscription, struct LoaderInterface loader) {
     sslog_sbcr_changes_t* changes = sslog_sbcr_get_changes_last(subscription);
     if (changes == NULL) {
         return;
@@ -109,11 +98,11 @@ static void process_subscription_request(sslog_node_t* node, sslog_subscription_
         list_t* entry = list_entry(iter, list_t, links);
         const char* request_uuid = (const char*) entry->data;
         printf("Request inserted %s\n", request_uuid);
-        process_inserted_request(node, request_uuid);
+        process_inserted_request(node, request_uuid, loader);
     }
 }
 
-static void subscribe_request(sslog_node_t* node) {
+static void subscribe_request(sslog_node_t* node, struct LoaderInterface loader) {
     sslog_subscription_t* subscription = sslog_new_subscription(node, false);
     sslog_sbcr_add_class(subscription, CLASS_SEARCHREQUEST);
 
@@ -123,60 +112,17 @@ static void subscribe_request(sslog_node_t* node) {
     }
 
     do {
-       process_subscription_request(node, subscription);         
+       process_subscription_request(node, subscription, loader);
        if (sslog_sbcr_wait(subscription) != SSLOG_ERROR_NO) {
            fprintf(stderr, "Error waiting subscription\n");
        }
-    } while (cont);
+    } while (true);
 
     sslog_sbcr_unsubscribe(subscription);
     sslog_free_subscription(subscription);
 }
 
-static bool create_wmloader(void) {
-    char* wmloader_key = get_config_value("config.ini", "WMLoader", "Key");
-    char* sparql_endpoint = get_config_value("config.ini", "Sparql", "Endpoint");
-    bool created = true;
-
-    if (wmloader_key != NULL) {
-        point_loader = create_wm_loader(wmloader_key);
-    } else if (sparql_endpoint != NULL) {
-        point_loader = create_dbpedia_loader(sparql_endpoint);
-    } else {
-        created = false;
-    }
-
-    free(wmloader_key);
-    free(sparql_endpoint);
-
-    return created;
+void geo_common_serve_kp(sslog_node_t* node, struct LoaderInterface loader) {
+    subscribe_request(node, loader);
 }
 
-int main(void) {
-    init_rand();
-
-    if (!create_wmloader()) {
-        fprintf(stderr, "No point loader specified\n");
-        return 1;
-    }
-
-    // dbpedia_loader_test();
-    // return 0;
-
-	sslog_init();
-    register_ontology();
-
-    static char kp_name[1000];
-    snprintf(kp_name, sizeof(kp_name), "geo_kp_%s", point_loader.get_name());
-
-    sslog_node_t* node = create_node(kp_name, "config.ini");
-	if (sslog_node_join(node) != SSLOG_ERROR_NO) {
-		fprintf(stderr, "Can't join node\n");
-		return 1;
-	}
-
-    subscribe_request(node);
-
-	sslog_node_leave(node);
-	sslog_shutdown();
-}

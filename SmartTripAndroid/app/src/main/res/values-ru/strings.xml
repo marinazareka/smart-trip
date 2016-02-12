@@ -37,5 +37,8 @@
     <string name="title_new_schedule">Новый маршрут</string>
     <string name="action_follow">Следовать</string>
     <string name="action_unfollow">Не следовать</string>
+    <string name="action_delete_from_schedule">Удалить из маршрута</string>
+    <string name="action_map">Карта</string>
+    <string name="action_show">Показать</string>
 
 </resources>
