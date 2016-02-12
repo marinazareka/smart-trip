@@ -70,5 +70,5 @@ popd
 
 pushd SmartSlog_dapi_0.6.0_src
 patch -p1 < ../../smartslog_cmake.patch
-cmake -DCMAKE_INSTALL_PREFIX:PATH="${INSTALL_DIR}" -DWITH_DEMOS=0 && make && make install || die "Error installing smartslog"
+cmake -DCMAKE_INSTALL_PREFIX:PATH="${INSTALL_DIR}" -DWITH_DEMOS=0 -DCMAKE_BUILD_TYPE=Debug && make && make install || die "Error installing smartslog"
 popd

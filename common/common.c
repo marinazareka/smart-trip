@@ -19,7 +19,7 @@
 
 #define BUFSIZE 500
 
-static unsigned short rand_state[3];
+unsigned short rand_state[3];
 
 void init_rand() {
     FILE* urandom = fopen("/dev/urandom", "r");
@@ -306,4 +306,20 @@ sslog_individual_t* st_get_subject_by_object(sslog_node_t* node, const char* obj
     // TODO: Cleanup received triples
 }
 
+bool remove_and_insert_property(sslog_node_t* node, sslog_individual_t* ind,
+                                       sslog_property_t* prop, void* value) {
+    if (value == NULL) {
+        return true;
+    }
+
+    if (sslog_node_remove_property(node, ind, prop, NULL) != SSLOG_ERROR_NO) {
+        return false;
+    }
+
+    if (sslog_node_update_property(node, ind, prop, NULL, value) != SSLOG_ERROR_NO) {
+        return false;
+    }
+
+    return true;
+}
 

@@ -14,6 +14,7 @@ void scoped_pthread_mutex_unlock_ptr(pthread_mutex_t** mutex);
     volatile pthread_mutex_t* mutex##_tmp = &mutex; \
     pthread_mutex_lock(mutex##_tmp);
 
+extern unsigned short rand_state[3];
 
 char* rand_uuid(const char* prefix);
 char* rand_uuid_buf(const char* prefix, char* buf, size_t buf_size);
@@ -69,5 +70,8 @@ void* flat_array_insert(FlatArray* array);
 void flat_array_free(FlatArray* array);
 
 sslog_individual_t* st_get_subject_by_object(sslog_node_t* node, const char* object_id, sslog_property_t* property);
+
+bool remove_and_insert_property(sslog_node_t* node, sslog_individual_t* ind,
+                                       sslog_property_t* prop, void* value);
 
 #endif

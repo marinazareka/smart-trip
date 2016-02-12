@@ -71,13 +71,15 @@ static void handle_updated_request(sslog_individual_t* user, sslog_individual_t*
 
     CLEANUP_INDIVIDUAL sslog_individual_t* location 
         = (sslog_individual_t*) sslog_node_get_property(node, user, PROPERTY_HASLOCATION);
+    sslog_node_populate(node, location);
+    const char* user_lat_str = sslog_get_property(location, PROPERTY_LAT);
+    const char* user_lon_str = sslog_get_property(location, PROPERTY_LONG);
 
-    if (location == NULL) {
-        fprintf(stderr, "User location is NULL\n");
+    if (location == NULL || user_lat_str == NULL || user_lon_str == NULL) {
+        fprintf(stderr, "User location is NULL or incomplete\n");
         return;
     }
 
-    sslog_node_populate(node, location);
 
     // Clean local stored points
     // This is required, because populate doesn't remove local properties, that was removed in sib
@@ -124,14 +126,15 @@ static void handle_updated_request(sslog_individual_t* user, sslog_individual_t*
 
         c += 1;
     }
+    fprintf(stderr, "All points received\n");
 
     request_data->user_id = strdup(sslog_entity_get_uri(user));
     request_data->route = route;
     request_data->points = points_array;
     request_data->point_individuals = point_individuals;
     request_data->count = count;
-    request_data->user_lat = parse_double((const char*) sslog_get_property(location, PROPERTY_LAT));
-    request_data->user_lon = parse_double((const char*) sslog_get_property(location, PROPERTY_LONG));
+    request_data->user_lat = parse_double(user_lat_str);
+    request_data->user_lon = parse_double(user_lon_str);
 
     const char* tsp_type = sslog_get_property(route, PROPERTY_TSPTYPE);
     if (tsp_type != NULL) {
@@ -143,6 +146,7 @@ static void handle_updated_request(sslog_individual_t* user, sslog_individual_t*
         request_data->road_type = strdup(road_type);
     }
 
+    fprintf(stderr, "Request enqueued\n");
     ptr_array_insert(&requests_array, request_data);
 
     list_free_with_nodes(points, NULL);
@@ -328,6 +332,8 @@ static void remove_old_movements_from_route(sslog_individual_t* route_individual
 }
 
 void publish(int points_count, int* ids, double* weights, const char* roadType, RequestData* request_data) {
+    fprintf(stderr, "Native publish\n");
+
     pthread_mutex_lock(&requests_mutex);
     int movements_count = points_count - 1;
 

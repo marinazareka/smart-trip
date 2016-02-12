@@ -706,22 +706,6 @@ static void clear_local_route_and_schedule(void) {
     route_individual = NULL;
 }
 
-static bool remove_and_insert_property(sslog_node_t* node, sslog_individual_t* ind,
-                                       sslog_property_t* prop, void* value) {
-    if (value == NULL) {
-        return true;
-    }
-
-    if (sslog_node_remove_property(node, ind, prop, NULL) != SSLOG_ERROR_NO) {
-        return false;
-    }
-
-    if (sslog_node_update_property(node, ind, prop, NULL, value) != SSLOG_ERROR_NO) {
-        return false;
-    }
-
-    return true;
-}
 
 // * error checks
 // * memory cleanups
