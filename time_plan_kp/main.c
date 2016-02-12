@@ -94,7 +94,6 @@ static void process_route_individual(sslog_individual_t* route) {
 
             // TODO: replace NULL with point individual
             sslog_node_insert_property(node, iter_movement, PROPERTY_STARTTIME, (void*) to_iso_time_tz(movement_start_tt, NULL));
-            time_counter += movement_length;
             sslog_node_insert_property(node, iter_movement, PROPERTY_ENDTIME, (void*) to_iso_time_tz(movement_end_tt, NULL));
             printf("Start time %s\n", to_iso_time_tz(movement_start_tt, NULL));
         }
