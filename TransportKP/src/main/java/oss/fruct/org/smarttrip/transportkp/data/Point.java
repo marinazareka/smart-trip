@@ -22,6 +22,10 @@ public class Point {
 		return id;
 	}
 
+	public double distance(Point point) {
+		return Math.hypot(lat - point.lat, lon - point.lon);
+	}
+
 	// Intellij Idea generated
 	@Override
 	public String toString() {
