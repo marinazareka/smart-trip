@@ -8,7 +8,7 @@ include(FindCURL)
 find_package(CURL REQUIRED)
 pkg_search_module(smartslog REQUIRED smartslog)
 
-find_library(M_LIB m)
+find_library(M_LIB NAMES m)
 
 include_directories(${smartslog_INCLUDE_DIRS})
 include_directories(${CURL_INCLUDE_DIRS})
@@ -21,3 +21,4 @@ add_executable(geo_wm_kp
 
 target_link_libraries(geo_wm_kp ${M_LIB})
 target_link_libraries(geo_wm_kp commons ontology geo_common ${smartslog_LIBRARIES} ${CURL_LIBRARIES})
+target_link_libraries(geo_wm_kp m)
