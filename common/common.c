@@ -149,7 +149,7 @@ bool get_point_coordinates(sslog_node_t* node, sslog_individual_t* point, double
 sslog_node_t* create_node(const char* kp_name, const char* config) {
     GKeyFile* keyfile = g_key_file_new();
 
-    if (!g_key_file_load_from_file(keyfile, config, G_KEY_FILE_NONE, NULL)) {
+    if (!g_key_file_load_from_dirs(keyfile, config, search_dirs, NULL, G_KEY_FILE_NONE, NULL)) {
        fprintf(stderr, "Can't load settings file %s\n", config);
        return NULL;
     }
@@ -171,7 +171,7 @@ char* get_config_value(const char* config, const char* group, const char* key) {
     GKeyFile* keyfile = g_key_file_new();
     char* ret = NULL;
 
-    if (!g_key_file_load_from_file(keyfile, config, G_KEY_FILE_NONE, NULL)) {
+    if (!g_key_file_load_from_dirs(keyfile, config, search_dirs, NULL, G_KEY_FILE_NONE, NULL)) {
        fprintf(stderr, "Can't load settings file %s\n", config);
        return NULL;
     }

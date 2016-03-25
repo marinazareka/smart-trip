@@ -14,3 +14,6 @@ add_executable(rating_kp
     main.c)
 
 target_link_libraries(rating_kp commons ontology ${smartslog_LIBRARIES} ${CURL_LIBRARIES})
+
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/rating_kp 
+    DESTINATION ${CMAKE_INSTALL_BINDIR})
