@@ -102,10 +102,13 @@ static void make_subscriptions(sslog_node_t* node)
 
 }
 
+// время посадки перед движением
 static void time_landing_handler(sslog_subscription_t* sub) {
     fprintf(stderr, "=== (time_landing_handler) start\n");
     sslog_sbcr_changes_t* ch = sslog_sbcr_get_changes_last(sub);
 
+    sslog_sbcr_ch_print(ch);
+    
     if (ch == NULL) {
         return;
     }
@@ -129,6 +132,45 @@ static void time_landing_handler(sslog_subscription_t* sub) {
         sslog_triple_t* individual_triple = sslog_individual_to_triple(individual);
         if (strcmp(individual_triple->object, sslog_entity_get_uri(CLASS_MOVEMENT)) == 0) {
             printf("Current movement: %s -> %s \n", individual_triple->object, individual_triple->subject);
+            // получаем тип дороги
+            const sslog_individual_t* roadType = sslog_get_property(individual, PROPERTY_USEROAD);
+            
+            // по умолчанию, время ожидания = 5 минутам
+            char* waitTime = "5";
+            
+            if (roadType == NULL) {
+                // тип дороги не определен
+                fprintf(stderr, "Road type not defined\n");
+            } else {
+                // есть тип дороги
+                fprintf(stderr, "Found road type\n");
+                sslog_triple_t* roadType_triple = sslog_individual_to_triple((sslog_individual_t*)roadType);
+                
+                if (strcmp(roadType_triple->object, sslog_entity_get_uri(CLASS_AIRROAD)) == 0) {
+                    waitTime = "60"; // за час до посадки на самолет
+                } else {
+                    if (strcmp(roadType_triple->object, sslog_entity_get_uri(CLASS_WALKROAD)) == 0) {
+                        waitTime = "5"; // сбор пред походом
+                    } else {
+                        if (strcmp(roadType_triple->object, sslog_entity_get_uri(CLASS_CARROAD)) == 0) {
+                            waitTime = "10"; // сбор перед посадкой в авто
+                        } else {
+                            if (strcmp(roadType_triple->object, sslog_entity_get_uri(CLASS_BUSROAD)) == 0) {
+                                waitTime = "15"; // сбор перед посадкой в автобус
+                            } else {
+                                if (strcmp(roadType_triple->object, sslog_entity_get_uri(CLASS_RAILROAD)) == 0) {
+                                    waitTime = "30";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            sslog_remove_individual((sslog_individual_t*)roadType);
+            
+            int ret = sslog_node_insert_property(node, individual, PROPERTY_WAITTIME, waitTime);
+            fprintf(stderr, "Wait time: %s, result: %d\n", waitTime, ret);
+
         } else {
             printf("Not a movement individual %s %s:%s\n", sslog_entity_get_uri(individual),
                     individual_triple->object, sslog_entity_get_uri(CLASS_MOVEMENT));

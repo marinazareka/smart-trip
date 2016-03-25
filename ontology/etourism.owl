@@ -125,6 +125,7 @@
     <!-- http://oss.fruct.org/etourism#hasNextMovement -->
 
     <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasNextMovement">
+        <rdfs:comment>Определение порядка передвижений в маршруте</rdfs:comment>
         <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Movement"/>
         <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Movement"/>
     </owl:ObjectProperty>
@@ -458,6 +459,16 @@
 
     <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#endTime">
         <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Action"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#waitTime -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#waitTime">
+        <rdfs:comment>Время ожидания (посадки) перед началом движения</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Movement"/>
         <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
