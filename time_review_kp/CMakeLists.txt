@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(rating_kp)
+project(time_review_kp)
 
 include(FindPkgConfig)
 
@@ -10,10 +10,10 @@ include_directories(${smartslog_INCLUDE_DIRS})
 
 link_directories(${smartslog_LIBRARY_DIRS})
 
-add_executable(rating_kp 
+add_executable(time_review_kp 
     main.c)
 
-target_link_libraries(rating_kp commons ontology ${smartslog_LIBRARIES} ${CURL_LIBRARIES})
+target_link_libraries(time_review_kp commons ontology ${smartslog_LIBRARIES} ${CURL_LIBRARIES})
 
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/rating_kp 
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/time_review_kp 
     DESTINATION ${CMAKE_INSTALL_BINDIR})
