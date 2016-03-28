@@ -21,3 +21,10 @@ add_executable(geo_db_kp
 
 target_link_libraries(geo_db_kp ${M_LIB})
 target_link_libraries(geo_db_kp commons ontology geo_common ${smartslog_LIBRARIES} ${CURL_LIBRARIES})
+
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/geo_db_kp 
+    DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+### install systemd file
+install(FILES geo-db-kp.service
+    DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/systemd/system)

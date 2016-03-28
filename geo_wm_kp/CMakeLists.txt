@@ -22,3 +22,10 @@ add_executable(geo_wm_kp
 target_link_libraries(geo_wm_kp ${M_LIB})
 target_link_libraries(geo_wm_kp commons ontology geo_common ${smartslog_LIBRARIES} ${CURL_LIBRARIES})
 target_link_libraries(geo_wm_kp m)
+
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/geo_wm_kp 
+    DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+### install systemd file
+install(FILES geo-wm-kp.service
+    DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/systemd/system)

@@ -32,6 +32,8 @@ AutoReqProv:    1
 #########################
 Requires: time-review-kp
 Requires: time-plan-kp
+Requires: geo-wm-kp
+Requires: geo-db-kp
  
 %description
  The project provides ability to find points to visist, create route and trip plan.
@@ -55,11 +57,28 @@ Summary: KP to calculate various times
  Also KP calculates visit time for points in Smart Space
 
 #########################
-Package: -n time-plan-kp
+%package -n time-plan-kp
+Requires:       smart-trip-config = %{version} 
 Summary: KP to calculate time plan
 
 %description -n time-plan-kp
  KP loads route from Smart Space and calculate time plan
+
+#########################
+%package -n geo-wm-kp
+Requires:       smart-trip-config = %{version} 
+Summary: KP to load points from WikiMapia
+
+%description -n geo-wm-kp
+ KP loads points from WikiMapia and publish it to smart space
+
+#########################
+%package -n geo-db-kp
+Requires:       smart-trip-config = %{version} 
+Summary: KP to load points from DBPedia
+
+%description -n geo-db-kp
+ KP loads points from DBPedia and publish it to smart space
 
 ########################
 %prep

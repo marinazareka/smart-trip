@@ -1,3 +1,9 @@
+smart-trip (0.1.1-1) stable; urgency=medium
+
+  * add geo-wm-kp
+
+ -- Kirill Kulakov <kulakov@cs.karelia.ru>  Mon, 28 Mar 2016 16:41:01 +0300
+
 smart-trip (0.1-1) unstable; urgency=low
 
   * Initial release
