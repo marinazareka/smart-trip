@@ -10,6 +10,7 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <time.h>
 
 #include <ckpi/ckpi.h>
 #include <scew/scew.h>
@@ -17,8 +18,12 @@
 
 #include "ontology/etourism.h"
 #define KP_SS_NAME "X"
-#define KP_SS_ADDRESS "194.85.173.9" 
-#define KP_SS_PORT 10010
+#define KP_SS_ADDRESS "194.85.173.9"
+#define KP_SS_PORT 20203
+
+//#define KP_SS_PORT 10010  20203
+// cd ~/ssls
+// python ssls.py X:194.85.173.9:10010 
  
 /**
  * @brief Convert special characters in the sparql query.
@@ -72,6 +77,11 @@ static void print_attributes (scew_element *element);
 static sslog_sparql_result_t* sslog_to_sslog_sparql(ss_sparql_result_t *kpi_results, int number_of_bindings);
 
 /**
+* @brief Generate sslog uri
+*/
+static char *sslog_random_uri (char namespace [100]);
+
+/**
 * @brief Get column variable index of sslog_sparql_result_t
 */
 static inline int sslog_sparql_get_column_index(sslog_sparql_result_t *result, const char *variable_name)
@@ -89,7 +99,8 @@ static inline int sslog_sparql_get_column_index(sslog_sparql_result_t *result, c
 
 int main(int argc, char** argv)
 {	
-    sslog_init();    
+
+	sslog_init();    
     sslog_node_t *node = sslog_new_node("KP", KP_SS_NAME, KP_SS_ADDRESS, KP_SS_PORT);
 	register_ontology();
     if (sslog_node_join(node) != SSLOG_ERROR_NO) {
@@ -98,7 +109,7 @@ int main(int argc, char** argv)
     }
     printf("\nKP join to SS\n");
 
-	// cultural information by geo location
+   	// cultural information by geo location
 /*	char *sparql_query_example = "SELECT * WHERE { ?url geo:lat \"48.858223\"^^xsd:float; geo:long \"2.294500\"^^xsd:float; rdfs:label ?POItitle; rdfs:comment ?CulturalInfo. filter langMatches( lang(?CulturalInfo), \"EN\"). filter langMatches( lang(?POItitle), \"EN\").} LIMIT 10";*/
 
     // Architect of the Eiffel Tower
@@ -113,25 +124,27 @@ int main(int argc, char** argv)
     sslog_sparql_result_t *sparql_result = process_accesspoint_spaql_query(sparql_query_example,"http://dbpedia.org/sparql");
     
     int i, j = 0;
-
+    sslog_individual_t *poi = NULL;
+    char *poi_uri = NULL;
+    char ontologynamespace [100] = "http://oss.fruct.org/etourism#";
+  
     if (sparql_result == NULL) {
         printf("SmartSlog SPARQL result is NULL\n");
     } else {
         for (i = 0; i < sparql_result->rows_count; ++i) {
-
-			char *poi_uri = sslog_generate_uri(CLASS_POI);
-			printf("%s\n", poi_uri);
-    		sslog_individual_t *poi = sslog_new_individual(CLASS_POI, poi_uri); 
+			
+			sleep (1);
+		    poi = sslog_new_individual(CLASS_POI, NULL); 
     		if (poi == NULL) {
        			printf("\nError poi: %s\n", sslog_error_get_last_text());
         		return 0;
     		}
-            for (j = 0; j < sparql_result->bindings_count; ++j) {
+                for (j = 0; j < sparql_result->bindings_count; ++j) {
                 // Types decription: incorrect type (-1), RDF_TYPE_URI (1),
                 // SS_RDF_TYPE_LIT (2), RDF_TYPE_BNODE (3), RDF_TYPE_UNBOUND (4)
 		
-                printf("%i - name: %s type: %d value: %s\n", i, sparql_result->names[j], 
-                        sparql_result->rows[i]->types[j], sparql_result->rows[i]->values[j]);
+                //printf("%i - name: %s type: %d value: %s\n", i, sparql_result->names[j], 
+                //        sparql_result->rows[i]->types[j], sparql_result->rows[i]->values[j]);
 				if (strcmp(sparql_result->names[j], "url") == 0) {
 					sslog_insert_property(poi, PROPERTY_URL, sparql_result->rows[i]->values[j]);
 				}
@@ -218,7 +231,6 @@ static sslog_sparql_result_t *process_accesspoint_spaql_query(char *sparql_query
 
     strcat(accesspoint_request, accesspoint_sparql_query);
     strcat(accesspoint_request, accesspoint_extra_parameters);
-
 
     nbytes = strlen(accesspoint_request); 
 
@@ -443,7 +455,6 @@ static sslog_sparql_result_t* sslog_to_sslog_sparql(ss_sparql_result_t *kpi_resu
                     row->values[i] = kpi_results->value[i];
                     kpi_results->value[i] = NULL;
                 }
-
             }
 
             //result->name[i] = kpi_results->name[i];
@@ -460,4 +471,14 @@ static sslog_sparql_result_t* sslog_to_sslog_sparql(ss_sparql_result_t *kpi_resu
     return result;
 }
 
+/*
+static char *sslog_random_uri (char namespace [100])
+{
+	sleep (1);
+	int randnumber = rand() % 999 + 1; printf("randnumber: %d\n", randnumber);
+	char num [3]; 
+	sprintf (num, "%d", randnumber); printf("num: %s\n", num);
+	strcat(namespace, num); printf("namespace: %s\n", namespace);
+	return namespace;
+}*/
 

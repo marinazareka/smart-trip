@@ -1,0 +1,29 @@
+<sparql xmlns="http://www.w3.org/2005/sparql-results#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3.org/2001/sw/DataAccess/rf1/result2.xsd">
+ <head>
+  <variable name="url"/>
+  <variable name="POItitle"/>
+  <variable name="CulturalInfo"/>
+ </head>
+ <results distinct="false" ordered="true">
+  <result>
+   <binding name="url"><uri>http://dbpedia.org/resource/Big_Thunder_Mountain_Railroad</uri></binding>
+   <binding name="POItitle"><literal xml:lang="en">Big Thunder Mountain Railroad</literal></binding>
+   <binding name="CulturalInfo"><literal xml:lang="en">Big Thunder Mountain Railroad (often shortened to Big Thunder Mountain or Thunder Mountain) is an indoor/outdoor mine train roller coaster located in Frontierland at several Disneyland-style Disney Parks worldwide. The ride exists at Disneyland Park (California) and the Magic Kingdom at Walt Disney World as Big Thunder Mountain Railroad, and at Tokyo Disneyland and Disneyland Park (Paris) as Big Thunder Mountain.</literal></binding>
+  </result>
+  <result>
+   <binding name="url"><uri>http://dbpedia.org/resource/Gadget&#39;s_Go_Coaster</uri></binding>
+   <binding name="POItitle"><literal xml:lang="en">Gadget&#39;s Go Coaster</literal></binding>
+   <binding name="CulturalInfo"><literal xml:lang="en">Gadget&#39;s Go Coaster is a junior roller coaster at the Disneyland theme park in Anaheim, California and Tokyo Disneyland theme park, located in Urayasu, Chiba, Japan, near Tokyo. The ride is based on the work of the character Gadget Hackwrench from the 1989 Walt Disney Television Animation series Chip &#39;n Dale Rescue Rangers.</literal></binding>
+  </result>
+  <result>
+   <binding name="url"><uri>http://dbpedia.org/resource/Disneyland_Railroad</uri></binding>
+   <binding name="POItitle"><literal xml:lang="en">Disneyland Railroad</literal></binding>
+   <binding name="CulturalInfo"><literal xml:lang="en">The Disneyland Railroad (DLRR), originally the Santa Fe &amp; Disneyland Railroad (SF &amp; DLRR), is a 3 ft (914 mm) narrow gauge railroad at Disneyland, Anaheim, California, United States, that was inaugurated on the park&#39;s live television preview on July 17, 1955. This live steam railway was constructed for $240,000; the two original locomotives cost $40,000 each. Riders use it as transportation to other areas of the park or simply for the experience of the &quot;Grand Circle Tour&quot;.</literal></binding>
+  </result>
+  <result>
+   <binding name="url"><uri>http://dbpedia.org/resource/Space_Mountain_(Disneyland)</uri></binding>
+   <binding name="POItitle"><literal xml:lang="en">Space Mountain (Disneyland)</literal></binding>
+   <binding name="CulturalInfo"><literal xml:lang="en">Space Mountain is a space-themed indoor steel roller coaster in Tomorrowland at Disneyland in Anaheim, California. Opened on May 27, 1977, it was the second roller coaster built at Disneyland, and was the second of the five versions of Space Mountain built by The Walt Disney Company. Its exterior façade is one of Disneyland&#39;s four &quot;mountain&quot; structures that serve as park landmarks.</literal></binding>
+  </result>
+ </results>
+</sparql>
