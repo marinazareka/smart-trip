@@ -1,0 +1,15 @@
+[Unit]
+Description=run time_plan_kp as service
+Wants=network.target
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/time_plan_kp
+ExecStop=kill -TERM $(cat /var/run/time_plan_kp.pid)
+Restart=on-abort
+PIDFile=/var/run/time_plan_kp.pid
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

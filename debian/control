@@ -1,0 +1,34 @@
+Source: smart-trip
+Section: misc
+Priority: optional
+Maintainer: Kirill Kulakov <kulakov@cs.karelia.ru>
+Build-Depends: debhelper (>= 9), cmake, dh-systemd, pkg-config, libsmartslog0-dev, smartslog-codegen
+Standards-Version: 3.9.6
+Homepage: https://github.com/oss-fruct-org/smart-trip
+
+Package: smart-trip
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends} time-review-kp
+Description: SmartM3 KPs for tourist route planning (Meta package)
+ The project provides ability to find points to visist, create route and trip plan.
+
+Package: smart-trip-config
+Architecture: all
+Depends:
+Description: Template config file for Smart Trip project
+ Package includes template config file for KPs in Smart Trip project.
+ It's fully work for local installation.
+
+Package: time-review-kp
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, systemd, smart-trip-config
+Description: KP to calculate various times
+ KP loads movements from Smart Space and calculate wait time before movement's start.
+ Also KP calculates visit time for points in Smart Space
+
+Package: time-plan-kp
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, systemd, smart-trip-config
+Description: KP to calculate time plan
+ KP loads route from Smart Space and calculate time plan
+

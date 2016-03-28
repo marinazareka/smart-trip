@@ -17,3 +17,7 @@ target_link_libraries(time_review_kp commons ontology ${smartslog_LIBRARIES} ${C
 
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/time_review_kp 
     DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+### install systemd file
+install(FILES time-review-kp.service
+    DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/systemd/system)
