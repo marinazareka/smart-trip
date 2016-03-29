@@ -27,4 +27,4 @@ install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/geo_db_kp
 
 ### install systemd file
 install(FILES geo-db-kp.service
-    DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/systemd/system)
+    DESTINATION ${SYSTEMD_CONFIGURATIONS_FILES_DIR})

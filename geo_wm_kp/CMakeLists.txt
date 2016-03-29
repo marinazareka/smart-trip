@@ -28,4 +28,4 @@ install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/geo_wm_kp
 
 ### install systemd file
 install(FILES geo-wm-kp.service
-    DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/systemd/system)
+    DESTINATION ${SYSTEMD_CONFIGURATIONS_FILES_DIR})

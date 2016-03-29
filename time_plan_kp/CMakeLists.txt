@@ -20,4 +20,4 @@ install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/time_plan_kp
 
 ### install systemd file
 install(FILES time-plan-kp.service
-    DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/systemd/system)
+    DESTINATION ${SYSTEMD_CONFIGURATIONS_FILES_DIR})

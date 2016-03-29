@@ -20,4 +20,4 @@ install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/time_review_kp
 
 ### install systemd file
 install(FILES time-review-kp.service
-    DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/systemd/system)
+    DESTINATION ${SYSTEMD_CONFIGURATIONS_FILES_DIR})
