@@ -1,1 +1,2 @@
 etc/smart-trip/config.ini
+usr/lib/*/lib*.so.*

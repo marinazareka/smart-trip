@@ -8,39 +8,39 @@ Homepage: https://github.com/oss-fruct-org/smart-trip
 
 Package: smart-trip
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends} time-review-kp, time-plan-kp, geo-wm-kp, geo-db-kp
+Depends: time-review-kp, time-plan-kp, geo-wm-kp, geo-db-kp
 Description: SmartM3 KPs for tourist route planning (Meta package)
  The project provides ability to find points to visist, create route and trip plan.
 
-Package: smart-trip-config
-Architecture: all
-Depends:
-Description: Template config file for Smart Trip project
- Package includes template config file for KPs in Smart Trip project.
+Package: smart-trip-core
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Config file and libraries for Smart Trip project
+ Package includes template config file for KPs in Smart Trip project and common libraries.
  It's fully work for local installation.
 
 Package: time-review-kp
-Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, systemd, smart-trip-config
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, systemd, smart-trip-core
 Description: KP to calculate various times
  KP loads movements from Smart Space and calculate wait time before movement's start.
  Also KP calculates visit time for points in Smart Space
 
 Package: time-plan-kp
-Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, systemd, smart-trip-config
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, systemd, smart-trip-core
 Description: KP to calculate time plan
  KP loads route from Smart Space and calculate time plan
 
 Package: geo-wm-kp
-Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, systemd, smart-trip-config
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, systemd, smart-trip-core
 Description: KP to load points from WikiMapia
  KP loads points from WikiMapia and publish it to smart space
 
 Package: geo-db-kp
-Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, systemd, smart-trip-config
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, systemd, smart-trip-core
 Description: KP to load points from DBPedia
  KP loads points from DBPedia and publish it to smart space
 

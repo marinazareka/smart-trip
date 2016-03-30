@@ -1,3 +1,9 @@
+smart-trip (0.1.1-2) unstable; urgency=medium
+
+  * Add core libraries
+
+ -- Kirill Kulakov <kulakov@cs.karelia.ru>  Wed, 30 Mar 2016 14:51:12 +0300
+
 smart-trip (0.1.1-1) stable; urgency=medium
 
   * add geo-wm-kp

@@ -1,7 +1,7 @@
 Name:       smart-trip
 Summary:    SmartM3 KPs for tourist route planning (Meta package)
 Version:    0.1.1
-Release:    1
+Release:    2
 Group:      Productivity/Networking/Other
 License:    GPL-2.0
 URL:        https://github.com/oss-fruct-org/smart-trip
@@ -34,6 +34,10 @@ BuildRequires: cmake
 BuildRequires:  gcc-c++
 BuildRequires: smartslog-codegen
 
+%if 0%{?centos_version} > 0
+BuildRequires: java-1.6.0-openjdk
+%endif
+
 AutoReqProv:    1
 #Requires(post):
 
@@ -47,12 +51,12 @@ Requires: geo-db-kp
  The project provides ability to find points to visist, create route and trip plan.
 
 #########################
-%package -n smart-trip-config
-Summary: Template config file for Smart Trip project
+%package -n smart-trip-core
+Summary: Template config file and libraries for Smart Trip project
 Requires:       smart-trip = %{version} 
 
-%description -n smart-trip-config
- Package includes template config file for KPs in Smart Trip project.
+%description -n smart-trip-core
+ Package includes template config file and libraries for KPs in Smart Trip project.
  It's fully work for local installation.
 
 #########################
@@ -134,10 +138,11 @@ cd build
 %service_del_postun geo-wm-kp.service
 %service_del_postun geo-db-kp.service
  
-%files -n smart-trip-config
+%files -n smart-trip-core
 %defattr(-,root,root,-)
 %dir /etc/smart-trip
 %config /etc/smart-trip/config.ini
+%{_libdir}/lib*.so.*
 
 %files -n time-plan-kp
 %defattr(-,root,root,-)
