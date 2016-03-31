@@ -2,7 +2,7 @@ Source: smart-trip
 Section: misc
 Priority: optional
 Maintainer: Kirill Kulakov <kulakov@cs.karelia.ru>
-Build-Depends: debhelper (>= 9), cmake, dh-systemd, pkg-config, libsmartslog0-dev, smartslog-codegen, libglib2.0-dev, libcurl4-gnutls-dev
+Build-Depends: debhelper (>= 9), cmake, dh-systemd, pkg-config, libsmartslog0-dev, smartslog-codegen, libglib2.0-dev, libcurl4-gnutls-dev, libtool
 Standards-Version: 3.9.6
 Homepage: https://github.com/oss-fruct-org/smart-trip
 
@@ -14,6 +14,7 @@ Description: SmartM3 KPs for tourist route planning (Meta package)
 
 Package: smart-trip-core
 Architecture: any
+Section: user/libs
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Config file and libraries for Smart Trip project
  Package includes template config file for KPs in Smart Trip project and common libraries.
@@ -43,4 +44,3 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, systemd, smart-trip-core
 Description: KP to load points from DBPedia
  KP loads points from DBPedia and publish it to smart space
-

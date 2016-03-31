@@ -19,12 +19,16 @@ include /usr/share/dpkg/default.mk
 
 # main packaging script based on dh7 syntax
 %:
-	dh $@ --with systemd --builddirectory=build
+	dh $@
 
-override_dh_auto_configure:
-	cd ontology && ./generate-ontology.sh >/dev/null 2>&1 && cd ..
-	dh_auto_configure
+# dh_make generated override targets
+# This is example for Cmake (See https://bugs.debian.org/641051 )
+#override_dh_auto_configure:
+#	dh_auto_configure -- \
+#	-DCMAKE_LIBRARY_PATH=$(DEB_HOST_MULTIARCH)
 
-override_dh_clean:
-	rm -f ontology/gen/*
-	dh_clean
+override_dh_auto_install:
+	dh_auto_install
+	dh_install build/libs/*.jar usr/share/transport-kp
+	dh_install linux/transport_kp usr/bin
+	dh_install linux/transport-kp.service /lib/systemd/system/
