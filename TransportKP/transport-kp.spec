@@ -29,8 +29,10 @@ mkdir -p %{buildroot}/usr/bin
 cp linux/transport_kp %{buildroot}/usr/bin
 mkdir -p %{buildroot}/usr/share/transport-kp
 cp build/libs/*.jar %{buildroot}/usr/share/transport-kp
+%if 0%{?centos_version} == 0 && 0%{?rhel_version} == 0
 mkdir -p %{buildroot}/%{_unitdir}
 cp linux/transport-kp.service %{buildroot}/%{_unitdir}
+%endif
 
 %pre
 %if 0%{?centos_version} == 0 && 0%{?rhel_version} == 0
@@ -58,8 +60,9 @@ cp linux/transport-kp.service %{buildroot}/%{_unitdir}
 /usr/bin/transport_kp
 %dir /usr/share/transport-kp
 /usr/share/transport-kp/*.jar
-%{buildroot}/%{_unitdir}/transport-kp.service
-
+%if 0%{?centos_version} == 0 && 0%{?rhel_version} == 0
+%{_unitdir}/transport-kp.service
+%endif
 
 %changelog
 * Tue Mar 31 2016 Kirill Kulakov <kulakov@cs.karelia.ru> - 0.1.1
