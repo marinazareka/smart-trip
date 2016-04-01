@@ -8,7 +8,7 @@ Homepage: https://github.com/oss-fruct-org/smart-trip
 
 Package: smart-trip
 Architecture: any
-Depends: time-review-kp, time-plan-kp, geo-wm-kp, geo-db-kp
+Depends: time-review-kp, time-plan-kp, geo-wm-kp, geo-db-kp, transport-kp
 Description: SmartM3 KPs for tourist route planning (Meta package)
  The project provides ability to find points to visist, create route and trip plan.
 
