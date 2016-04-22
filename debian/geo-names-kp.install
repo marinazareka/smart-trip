@@ -1,0 +1,2 @@
+/lib/systemd/system/geo-names-kp.service
+usr/bin/geo_names_kp

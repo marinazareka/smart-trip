@@ -1,7 +1,7 @@
 Name:       smart-trip
 Summary:    SmartM3 KPs for tourist route planning (Meta package)
-Version:    0.1.1
-Release:    2
+Version:    0.1.2
+Release:    1
 Group:      Productivity/Networking/Other
 License:    GPL-2.0
 URL:        https://github.com/oss-fruct-org/smart-trip
@@ -47,9 +47,10 @@ Requires: time-plan-kp
 Requires: geo-wm-kp
 Requires: geo-db-kp
 Requires: transport-kp
+Requires: geo-names-kp
  
 %description
- The project provides ability to find points to visist, create route and trip plan.
+ The project provides ability to find points to visit, create route and trip plan.
 
 #########################
 %package -n smart-trip-core
@@ -97,6 +98,15 @@ Summary: KP to load points from DBPedia
 
 %description -n geo-db-kp
  KP loads points from DBPedia and publish it to smart space
+
+#########################
+%package -n geo-names-kp
+Group:      Productivity/Networking/Other
+Requires:       smart-trip-config = %{version} 
+Summary: KP to load points from Geonames service
+
+%description -n geo-db-kp
+ KP loads points from Geonames service and publish it to smart space
 
 ########################
 %prep
@@ -206,6 +216,27 @@ cd build
 %service_del_postun geo-db-kp.service
 %endif
 
+#### geo-namaes-kp #######
+%pre -n geo-names-kp
+%if 0%{?centos_version} == 0 && 0%{?rhel_version} == 0
+%service_add_pre geo-names-kp.service
+%endif
+
+%preun -n geo-names-kp
+%if 0%{?centos_version} == 0 && 0%{?rhel_version} == 0
+%service_del_preun geo-names-kp.service
+%endif
+
+%post -n geo-names-kp
+%if 0%{?centos_version} == 0 && 0%{?rhel_version} == 0
+%service_add_post geo-names-kp.service
+%endif
+
+%postun -n geo-names-kp
+%if 0%{?centos_version} == 0 && 0%{?rhel_version} == 0
+%service_del_postun geo-names-kp.service
+%endif
+
 ##### smart-trip-core ########
 %post -n smart-trip-core
 /sbin/ldconfig
@@ -248,7 +279,18 @@ cd build
 %{_unitdir}/geo-db-kp.service
 %endif
 
+%files -n geo-names-kp
+%defattr(-,root,root,-)
+%{_bindir}/geo_names_kp
+%if 0%{?centos_version} == 0 && 0%{?rhel_version} == 0
+%{_unitdir}/geo-names-kp.service
+%endif
+
 %changelog
+* Fri Apr 22 2016 Kirill Kulakov <kulakov@cs.karelia.ru> - 0.1.2
+- Packaging Geonames kp
+- improve kp integrations
+
 * Mon Mar 28 2016 Kirill Kulakov <kulakov@cs.karelia.ru> - 0.1.1
 - Packaging smart trip: WikiMapia and DBPedia
 

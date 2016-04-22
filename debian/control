@@ -8,9 +8,9 @@ Homepage: https://github.com/oss-fruct-org/smart-trip
 
 Package: smart-trip
 Architecture: any
-Depends: time-review-kp, time-plan-kp, geo-wm-kp, geo-db-kp, transport-kp
+Depends: time-review-kp, time-plan-kp, geo-wm-kp, geo-db-kp, transport-kp, geo-names-kp
 Description: SmartM3 KPs for tourist route planning (Meta package)
- The project provides ability to find points to visist, create route and trip plan.
+ The project provides ability to find points to visit, create route and trip plan.
 
 Package: smart-trip-core
 Architecture: any
@@ -44,3 +44,10 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, systemd, smart-trip-core
 Description: KP to load points from DBPedia
  KP loads points from DBPedia and publish it to smart space
+
+Package: geo-names-kp
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, systemd, smart-trip-core
+Description: KP to load points from GEonames service
+ KP loads points from Geonames service and publish it to smart space
+
