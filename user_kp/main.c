@@ -7,7 +7,7 @@
 #include "ontology.h"
 #include "common.h"
 
-static const double TEST_RADIUS = 1000;
+static const double TEST_RADIUS = 1000.0;
 static const double TEST_LAT = 61.78;
 static const double TEST_LONG = 34.35;
 
@@ -49,7 +49,10 @@ static sslog_individual_t* publish_search_request(sslog_node_t* node, sslog_indi
 
     sslog_individual_t* request_individual = sslog_new_individual(CLASS_SEARCHREQUEST, rand_uuid("search_request"));
     sslog_insert_property(request_individual, PROPERTY_USELOCATION, location_individual);
+    sslog_insert_property(request_individual, PROPERTY_SEARCHPATTERN, "петроз");
+    sslog_insert_property(request_individual, PROPERTY_INREGION, region_individual);
 
+    sslog_node_insert_individual(node, region_individual);
     sslog_node_insert_individual(node, request_individual);
     return request_individual;
 }

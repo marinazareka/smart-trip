@@ -46,6 +46,7 @@ Requires: time-review-kp
 Requires: time-plan-kp
 Requires: geo-wm-kp
 Requires: geo-db-kp
+Requires: transport-kp
  
 %description
  The project provides ability to find points to visist, create route and trip plan.
