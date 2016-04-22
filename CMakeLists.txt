@@ -41,9 +41,9 @@ include_directories(ontology/gen)
 ### shared libraries
 set(MAJOR_VERSION "0")
 set(MINOR_VERSION "1")
-set(PATCH_VERSION "0")
+set(PATCH_VERSION "2")
 
-set(GENERIC_LIB_VERSION "0.1.0")
+set(GENERIC_LIB_VERSION "0.1.2")
 set(GENERIC_LIB_SOVERSION "0")
 
 add_subdirectory(common)

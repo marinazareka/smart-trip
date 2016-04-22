@@ -17,6 +17,7 @@ BuildRequires: pkg-config
 BuildRequires: pkgconfig(glib-2.0)
 BuildRequires: pkgconfig(smartslog)
 BuildRequires: pkgconfig(libcurl)
+BuildRequires: pkgconfig(libxml-2.0)
 %endif
 
 %if 0%{?centos_version} > 0 || 0%{?rhel_version} > 0
@@ -28,6 +29,7 @@ BuildRequires: curl-devel
 BuildRequires: libcurl-devel
 %endif
 BuildRequires: glib2-devel
+BuildRequires: libxml2-devel
 %endif
 
 BuildRequires: cmake
@@ -56,7 +58,6 @@ Requires: geo-names-kp
 %package -n smart-trip-core
 Group:      Productivity/Networking/Other
 Summary: Template config file and libraries for Smart Trip project
-Requires:       smart-trip = %{version} 
 
 %description -n smart-trip-core
  Package includes template config file and libraries for KPs in Smart Trip project.
@@ -65,7 +66,7 @@ Requires:       smart-trip = %{version}
 #########################
 %package -n time-review-kp
 Group:      Productivity/Networking/Other
-Requires:       smart-trip-config = %{version} 
+Requires:       smart-trip-core = %{version} 
 Summary: KP to calculate various times
 
 %description -n time-review-kp
@@ -75,7 +76,7 @@ Summary: KP to calculate various times
 #########################
 %package -n time-plan-kp
 Group:      Productivity/Networking/Other
-Requires:       smart-trip-config = %{version} 
+Requires:       smart-trip-core = %{version} 
 Summary: KP to calculate time plan
 
 %description -n time-plan-kp
@@ -84,7 +85,7 @@ Summary: KP to calculate time plan
 #########################
 %package -n geo-wm-kp
 Group:      Productivity/Networking/Other
-Requires:       smart-trip-config = %{version} 
+Requires:       smart-trip-core = %{version} 
 Summary: KP to load points from WikiMapia
 
 %description -n geo-wm-kp
@@ -93,7 +94,7 @@ Summary: KP to load points from WikiMapia
 #########################
 %package -n geo-db-kp
 Group:      Productivity/Networking/Other
-Requires:       smart-trip-config = %{version} 
+Requires:       smart-trip-core = %{version} 
 Summary: KP to load points from DBPedia
 
 %description -n geo-db-kp
@@ -102,10 +103,10 @@ Summary: KP to load points from DBPedia
 #########################
 %package -n geo-names-kp
 Group:      Productivity/Networking/Other
-Requires:       smart-trip-config = %{version} 
+Requires:       smart-trip-core = %{version} 
 Summary: KP to load points from Geonames service
 
-%description -n geo-db-kp
+%description -n geo-names-kp
  KP loads points from Geonames service and publish it to smart space
 
 ########################
@@ -245,6 +246,8 @@ cd build
 /sbin/ldconfig
 
 ##############################
+%files
+
 %files -n smart-trip-core
 %defattr(-,root,root,-)
 %dir /etc/smart-trip

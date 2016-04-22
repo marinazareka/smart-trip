@@ -2,7 +2,7 @@ Source: smart-trip
 Section: misc
 Priority: optional
 Maintainer: Kirill Kulakov <kulakov@cs.karelia.ru>
-Build-Depends: debhelper (>= 9), cmake, dh-systemd, pkg-config, libsmartslog0-dev, smartslog-codegen, libglib2.0-dev, libcurl4-gnutls-dev, libtool
+Build-Depends: debhelper (>= 9), cmake, dh-systemd, pkg-config, libsmartslog0-dev, smartslog-codegen, libglib2.0-dev, libcurl4-gnutls-dev, libtool, libxml2-dev
 Standards-Version: 3.9.6
 Homepage: https://github.com/oss-fruct-org/smart-trip
 
