@@ -14,6 +14,14 @@
 
 static sslog_node_t* node;
 
+/**
+ *  @brief Flag to stop the program activity.
+ *
+ * This flag is used when CTR+C is pressed 
+ * or when subscription indication is a error.
+ */
+static sig_atomic_t exit_flag = 0;
+
 static time_t parse_to_time_t(const char* iso_date_time) {
     struct tm t;
     memset(&t, 0, sizeof(t));
@@ -83,14 +91,21 @@ static void process_route_individual(sslog_individual_t* route) {
         sslog_node_populate(node, iter_movement);
 
         const char* movement_length_str = sslog_get_property(iter_movement, PROPERTY_LENGTH);
-        printf("Movement %s, weight: %s\n", sslog_entity_get_uri(iter_movement), movement_length_str);
-
+        const char*movement_waittime_str = sslog_get_property(iter_movement, PROPERTY_WAITTIME);
+        printf("Movement %s, weight: %s, waittime: %s\n", sslog_entity_get_uri(iter_movement), movement_length_str, movement_waittime_str);
+        
         if (movement_length_str != NULL) {
             int movement_length = (int) parse_double(movement_length_str);
+            
+            // получаем задержку на посадку в минутах и переводим в секунды.
+            int waittime = 0;
+            if (iter_movement != start_movement && movement_waittime_str != NULL) {
+                waittime = parse_double(movement_waittime_str) * 60;
+            }
 
-            time_t movement_start_tt = start_tt + time_counter;
-            time_t movement_end_tt = start_tt + time_counter + movement_length;
-            time_counter += movement_length;
+            time_t movement_start_tt = start_tt + time_counter + waittime;
+            time_t movement_end_tt = start_tt + time_counter + movement_length + waittime;
+            time_counter += movement_length + waittime;
 
             // TODO: replace NULL with point individual
             sslog_node_insert_property(node, iter_movement, PROPERTY_STARTTIME, (void*) to_iso_time_tz(movement_start_tt, NULL));
@@ -157,6 +172,8 @@ static void work(sslog_node_t* node) {
     }
 
     for (;;) {
+        if (exit_flag > 0)
+            break;
         sleep(10);
     }
 }
@@ -198,7 +215,27 @@ static void init_timezone() {
     tzset();
 }
 
+/**
+ * @brief Function to handle ctrl+c (SIGINT) signal. If you press 
+ * CTRL+C twice, then program will be closed immediately.
+ *
+ * @param[in] signum signal identifier number.
+ */
+static void signal_callback_handler(int signum)
+{
+    if (exit_flag == 0) {
+        printf("Please waiting, i'm going to shutdown the program...");
+        exit_flag = 1;  // Set a flag to end the program.
+    } else {
+        printf("OK, am exiting...");
+        exit(signum);
+    }
+}
+
 int main(void) {
+    // Sets handler for CTR+C
+    signal(SIGINT, &signal_callback_handler);
+
     //init_timezone();
     init_rand();
 
@@ -210,13 +247,14 @@ int main(void) {
     register_ontology();
 
     node = create_node("time_plan_kp", "config.ini");
-	if (sslog_node_join(node) != SSLOG_ERROR_NO) {
-		fprintf(stderr, "Can't join node\n");
-		return 1;
-	}
+
+    if (sslog_node_join(node) != SSLOG_ERROR_NO) {
+        fprintf(stderr, "Can't join node\n");
+	return 1;
+    }
 
     work(node);
 
-	sslog_node_leave(node);
-	sslog_shutdown();
+    sslog_node_leave(node);
+    sslog_shutdown();
 }
