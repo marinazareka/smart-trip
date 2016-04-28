@@ -1,0 +1,14 @@
+Source: transport-kp
+Section: java
+Priority: optional
+Maintainer: Kirill Kulakov <kulakov@cs.karelia.ru>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.6
+Homepage: https://github.com/oss-fruct-org/smart-trip
+
+Package: transport-kp
+Architecture: any
+Depends: default-jre | default-jre-headless | java7-runtime | java7-runtime-headless, ${misc:Depends}
+Description: KP to create route between points
+ KP creates route between list of points in trip.
+ KP uses GraphHopper library and OpenStreetMaps.

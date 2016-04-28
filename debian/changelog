@@ -1,3 +1,22 @@
+smart-trip (0.1.2-1) stable; urgency=medium
+
+  * Add Geonames KP
+  * Improve KP integration
+
+ -- Kirill Kulakov <kulakov@cs.karelia.ru>  Fri, 22 Apr 2016 11:49:50 +0300
+
+smart-trip (0.1.1-2) unstable; urgency=medium
+
+  * Add core libraries
+
+ -- Kirill Kulakov <kulakov@cs.karelia.ru>  Wed, 30 Mar 2016 14:51:12 +0300
+
+smart-trip (0.1.1-1) stable; urgency=medium
+
+  * add geo-wm-kp
+
+ -- Kirill Kulakov <kulakov@cs.karelia.ru>  Mon, 28 Mar 2016 16:41:01 +0300
+
 smart-trip (0.1-1) unstable; urgency=low
 
   * Initial release

@@ -1,2 +1,2 @@
-/etc/systemd/system/time-plan-kp.service
+/lib/systemd/system/time-plan-kp.service
 usr/bin/time_plan_kp

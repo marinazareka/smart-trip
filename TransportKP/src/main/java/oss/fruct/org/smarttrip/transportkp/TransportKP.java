@@ -59,6 +59,13 @@ public class TransportKP {
 			process();
 		}
 	}
+        
+        public void stop() {
+		log.debug("Running shutdown hook");
+		isNeedShutdown = true;
+		smartSpace.unsubscribe();
+		smartSpace.shutdown();
+        }
 
 	private boolean process() {
 		log.info("Waiting subscription");

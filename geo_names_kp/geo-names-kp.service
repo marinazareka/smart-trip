@@ -1,0 +1,15 @@
+[Unit]
+Description=run geo_names_kp as service
+Wants=network.target
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/geo_names_kp
+ExecStop=kill -TERM $(cat /var/run/geo_names_kp.pid)
+Restart=on-abort
+PIDFile=/var/run/geo_names_kp.pid
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

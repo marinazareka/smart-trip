@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 2.6.4)
 
 project(time_review_kp)
 
@@ -19,5 +19,7 @@ install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/time_review_kp
     DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 ### install systemd file
+if(NOT DEFINED UPSTART_CONFIGURATIONS_FILES_DIR)
 install(FILES time-review-kp.service
-    DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/systemd/system)
+    DESTINATION ${SYSTEMD_CONFIGURATIONS_FILES_DIR})
+endif(NOT DEFINED UPSTART_CONFIGURATIONS_FILES_DIR)

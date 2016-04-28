@@ -23,13 +23,18 @@ public class JnaSmartSpace implements SmartSpace {
 
 	public static class RequestData extends Structure {
 		public int count;
+                
+                /** Содержит точки (Point) для построение по ним маршрута */
 		public Pointer points;
 
 		public String user_id;
 		public double user_lat;
 		public double user_lon;
 
+                /** Тип замкнутости маршрута open/closed */
 		public String tsp_type;
+                
+                /** Тип используемой дороги */
 		public String road_type;
 
 		public Pointer point_individuals;

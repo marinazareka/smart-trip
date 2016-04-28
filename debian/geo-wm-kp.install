@@ -1,0 +1,2 @@
+/lib/systemd/system/geo-wm-kp.service
+usr/bin/geo_wm_kp

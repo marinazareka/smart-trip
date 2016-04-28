@@ -77,10 +77,9 @@ static void process_inserted_request(sslog_node_t* node, const char* request_uui
     const char* pattern = sslog_node_get_property(node, request_individual, PROPERTY_SEARCHPATTERN);
     if (pattern == NULL) {
         printf("Null pattern property in request\n");
-        return;
     }
 
-    printf("User location: %lf %lf. Search radius: %lf\n", lat, lon, radius);
+    fprintf(stderr, "User location: %lf %lf. Search radius: %lf, pattern: %s\n", lat, lon, radius, pattern);
 
     find_and_publish_points(node, request_individual, lat, lon, radius, pattern, loader);
 }
@@ -123,6 +122,7 @@ static void subscribe_request(sslog_node_t* node, struct LoaderInterface loader)
 }
 
 void geo_common_serve_kp(sslog_node_t* node, struct LoaderInterface loader) {
+    fprintf(stderr, "%s: waiting for subscriptions\n", loader.get_name());
     subscribe_request(node, loader);
 }
 

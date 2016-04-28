@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 2.6.4)
 
 project(geo_kp)
 
@@ -21,3 +21,12 @@ add_executable(geo_db_kp
 
 target_link_libraries(geo_db_kp ${M_LIB})
 target_link_libraries(geo_db_kp commons ontology geo_common ${smartslog_LIBRARIES} ${CURL_LIBRARIES})
+
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/geo_db_kp 
+    DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+### install systemd file
+if(NOT DEFINED UPSTART_CONFIGURATIONS_FILES_DIR)
+install(FILES geo-db-kp.service
+    DESTINATION ${SYSTEMD_CONFIGURATIONS_FILES_DIR})
+endif(NOT DEFINED UPSTART_CONFIGURATIONS_FILES_DIR)
