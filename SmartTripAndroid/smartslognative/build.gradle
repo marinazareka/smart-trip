@@ -32,11 +32,6 @@ model {
         CFlags.add("-std=gnu99")
         ldLibs.add("log")
     }
-
-    compileOptions.with {
-        sourceCompatibility=JavaVersion.VERSION_1_7
-        targetCompatibility=JavaVersion.VERSION_1_7
-    }
 }
 
 dependencies {

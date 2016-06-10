@@ -61,4 +61,4 @@ add_subdirectory(geo_names_kp)
 add_subdirectory(time_plan_kp)
 add_subdirectory(test/test_user_kp)
 add_subdirectory(time_review_kp)
-
+add_subdirectory(ranking_distance_kp)
