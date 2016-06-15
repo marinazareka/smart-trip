@@ -61,7 +61,7 @@ static void make_subscriptions(sslog_node_t* node)
 
     sslog_triple_t* triple = sslog_new_triple_detached(SSLOG_TRIPLE_ANY, sslog_entity_get_uri(PROPERTY_HASLOCATION), SSLOG_TRIPLE_ANY,
             SSLOG_RDF_TYPE_URI, SSLOG_RDF_TYPE_LIT);
-    sslog_sbcr_add_triple_template(sub, triple);
+    //sslog_sbcr_add_triple_template(sub, triple);
 
     
     if (sslog_sbcr_subscribe(sub_tl) != SSLOG_ERROR_NO) {

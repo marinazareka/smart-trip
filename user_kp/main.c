@@ -7,9 +7,10 @@
 #include "ontology.h"
 #include "common.h"
 
-static const double TEST_RADIUS = 1000.0;
+static const double TEST_RADIUS = 20000.0;
 static const double TEST_LAT = 61.78;
 static const double TEST_LONG = 34.35;
+static const char* TEST_PATTERN = "петроз";
 
 static volatile bool cont = true;
 
@@ -38,18 +39,19 @@ static sslog_individual_t* update_user_location(sslog_node_t* node, sslog_indivi
         printf("Location not exists\n");
     }
 
+    //sslog_node_insert_property(node, user_individual, PROPERTY_HASLOCATION, new_location_individual);
     sslog_node_update_property(node, user_individual, PROPERTY_HASLOCATION, (void*) existing_location, new_location_individual);
     return new_location_individual;
     // TODO: existing search request still uses old location
 }
 
-static sslog_individual_t* publish_search_request(sslog_node_t* node, sslog_individual_t* location_individual) {
+static sslog_individual_t* publish_search_request(sslog_node_t* node, sslog_individual_t* location_individual, char *pattern, double radius) {
     sslog_individual_t* region_individual = sslog_new_individual(CLASS_CIRCLEREGION, rand_uuid("circle_search_region"));
-    sslog_insert_property(region_individual, PROPERTY_RADIUS, double_to_string(TEST_RADIUS));
+    sslog_insert_property(region_individual, PROPERTY_RADIUS, double_to_string(radius));
 
     sslog_individual_t* request_individual = sslog_new_individual(CLASS_SEARCHREQUEST, rand_uuid("search_request"));
     sslog_insert_property(request_individual, PROPERTY_USELOCATION, location_individual);
-    sslog_insert_property(request_individual, PROPERTY_SEARCHPATTERN, "петроз");
+    sslog_insert_property(request_individual, PROPERTY_SEARCHPATTERN, pattern);
     sslog_insert_property(request_individual, PROPERTY_INREGION, region_individual);
 
     sslog_node_insert_individual(node, region_individual);
@@ -58,6 +60,7 @@ static sslog_individual_t* publish_search_request(sslog_node_t* node, sslog_indi
 }
 
 static bool process_subscription_result(sslog_node_t* node, sslog_individual_t* request_individual) {
+    fprintf(stderr, "Parse search result\n");
     sslog_individual_t* schedule_individual = sslog_new_individual(CLASS_SCHEDULE, rand_uuid("schedule"));
     sslog_individual_t* route_individual = sslog_new_individual(CLASS_ROUTE, rand_uuid("route"));
 
@@ -91,6 +94,7 @@ static bool process_subscription_result(sslog_node_t* node, sslog_individual_t* 
 
     list_free(inserted_individuals);
 
+    // сам маршрут
     sslog_node_insert_individual(node, route_individual);
     sslog_node_insert_individual(node, schedule_individual);
 
@@ -104,20 +108,20 @@ static void subscribe_response(sslog_node_t* node, sslog_individual_t* request_i
     sslog_subscription_t* subscription = sslog_new_subscription(node, false);
     sslog_sbcr_add_individual(subscription, request_individual, properties);
 
-    printf("Subscribing response\n");
+    fprintf(stderr, "Subscribing response\n");
     if (sslog_sbcr_subscribe(subscription) != SSLOG_ERROR_NO) {
         sslog_free_subscription(subscription);
-        printf("Can't subscribe request\n");
+        fprintf(stderr, "Can't subscribe request\n");
         return;
     }
 
     sslog_sbcr_wait(subscription);
-    printf("Subscription_wait finished\n");
+    fprintf(stderr, "Subscription_wait finished\n");
 
     sslog_node_populate(node, request_individual);
     process_subscription_result(node, request_individual);
 
-    printf("Unsubscribing response\n");
+    fprintf(stderr, "Unsubscribing response\n");
     sslog_sbcr_unsubscribe(subscription);
     sslog_free_subscription(subscription);
 }
@@ -135,14 +139,19 @@ int main() {
 		return 1;
 	}
 
+        char * user = rand_uuid("user");
+        printf("user is %s\n", user);
     // Publish user individual
-    sslog_individual_t* user_individual = sslog_new_individual(CLASS_USER, rand_uuid("user"));
+    sslog_individual_t* user_individual = sslog_new_individual(CLASS_USER, user);
     sslog_node_insert_individual(node, user_individual);
 
     // Update user location
     sslog_individual_t* location_individual = update_user_location(node, user_individual, TEST_LAT, TEST_LONG);
 
-    sslog_individual_t* request_individual = publish_search_request(node, location_individual);
+    // поисковый запрос (тест 1)
+    sslog_individual_t* request_individual = publish_search_request(node, location_individual, (char *)TEST_PATTERN, TEST_RADIUS);
+    
+    // маршрут (тест 2)
     subscribe_response(node, request_individual);
 
     sslog_node_remove_individual(node, request_individual);
