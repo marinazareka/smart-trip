@@ -17,7 +17,8 @@ extern "C" {
 static const char BASE_GEONAMES_SERVER[] = "http://api.geonames.org/";
 struct LoaderInterface create_geonames_loader(const char* server);
 
-
+// количество возвращаемых элементов или 0 если неограниченно
+extern int return_size;
 
 #ifdef	__cplusplus
 }

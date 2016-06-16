@@ -39,6 +39,10 @@ static bool create_loader(struct LoaderInterface* loader) {
     } else {
         *loader = create_geonames_loader(BASE_GEONAMES_SERVER);
     }
+    
+    char *config_return_size = get_config_value("config.ini", "GeoNamesLoader", "ReturnSize");
+    if (config_return_size != NULL)
+        return_size = atoi(config_return_size);
 
     free(namesloader_server);
 
@@ -57,7 +61,7 @@ int main(void) {
     init_rand();
 
     if (!create_loader(&loader)) {
-        fprintf(stderr, "Something was wrong\n");
+        fprintf(stderr, "%s:%i: Something was wrong\n", __FILE__, __LINE__);
         return 1;
     }
 
@@ -69,7 +73,7 @@ int main(void) {
 
     sslog_node_t* node = create_node(kp_name, "config.ini");
 	if (sslog_node_join(node) != SSLOG_ERROR_NO) {
-		fprintf(stderr, "Can't join node\n");
+		fprintf(stderr, "%s:%i: Can't join node\n", __FILE__, __LINE__);
 		return 1;
 	}
     

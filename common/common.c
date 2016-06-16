@@ -172,7 +172,7 @@ char* get_config_value(const char* config, const char* group, const char* key) {
     char* ret = NULL;
 
     if (!g_key_file_load_from_dirs(keyfile, config, search_dirs, NULL, G_KEY_FILE_NONE, NULL)) {
-       fprintf(stderr, "Can't load settings file %s\n", config);
+       fprintf(stderr, "%s:%i: Can't load settings file %s\n", __FILE__, __LINE__, config);
        return NULL;
     }
 
@@ -192,7 +192,9 @@ sslog_node_t* create_node_resolve(const char* name, const char* smartspace, cons
     // Check if address is already IP4 address
     struct in_addr addr;
     if (inet_aton(address, &addr) == 1) {
-        fprintf(stderr, "Address %s doesn't require resolving\n", address);
+#ifdef DEBUG
+        fprintf(stdout, "Address %s doesn't require resolving\n", address);
+#endif
         return sslog_new_node(name, smartspace, address, port);
     }
 
@@ -222,7 +224,7 @@ sslog_node_t* create_node_resolve(const char* name, const char* smartspace, cons
     if (found_address != NULL) {
         char* ip_str = inet_ntoa(found_address->sin_addr);
         node = sslog_new_node(name, smartspace, ip_str, port);
-        fprintf(stderr, "Address %s resolved to %s\n", address, ip_str);
+        fprintf(stdout, "Address %s resolved to %s\n", address, ip_str);
     }
 
     freeaddrinfo(addrinfo);

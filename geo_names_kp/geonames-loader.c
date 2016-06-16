@@ -9,10 +9,15 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#include "common.h"
+
 // используемый сервер, например http://api.geonames.org/
 static char geo_names_server[1024];
 // формат запроса к серверу http://www.geonames.org/export/geonames-search.html
 static const char URL_FORMAT[] = "%s/search?name_startsWith=%s&username=smarttrip";
+
+// количество возвращаемых элементов или 0 если бесконечно
+int return_size = 0;
 
 static xmlNodePtr findNodeByName(xmlNodePtr rootNode, const char *name) {
     if (xmlStrEqual(rootNode->name, (const xmlChar *)name) == 1)
@@ -30,12 +35,12 @@ static xmlNodePtr findNodeByName(xmlNodePtr rootNode, const char *name) {
 
 // обработка запроса на получение объектов
 static void load_points(double lat, double lon, double radius, const char* pattern, struct Point** out_points, int* out_point_count) {
-    fprintf(stderr, "Got request: pattern=%s, radius=%f, lat=%f, lon=%f\n", pattern,radius,lat,lon);
+    fprintf(stdout, "Got request: pattern=%s, radius=%f, lat=%f, lon=%f\n", pattern,radius,lat,lon);
     
     // если поиск по координатам
     if (pattern == NULL) {
         //TODO: реализовать поиск ближайших мест по координатам
-        fprintf(stderr, "NOT IMPLEMENTED!!!\n");
+        fprintf(stderr, "%s:%i: NOT IMPLEMENTED!!!\n", __FILE__, __LINE__);
         return;
     }
     
@@ -48,13 +53,15 @@ static void load_points(double lat, double lon, double radius, const char* patte
     char* pattern_escaped = curl_easy_escape(curl, pattern, 0);
     int bytes = asprintf(&url, URL_FORMAT, geo_names_server, pattern_escaped);
     if (bytes < 0) {
-        fputs("Can't allocate memory for geonames URL\n", stderr);
+        fprintf(stderr, "%s:%i: Can't allocate memory for geonames URL\n", __FILE__, __LINE__);
         abort();
     }
 
     curl_free(pattern_escaped);
 
+#ifdef DEBUG
     fprintf(stderr, "Geonames request: %s\n", url);
+#endif
     curl_easy_setopt(curl, CURLOPT_URL, url);
     free(url);
     
@@ -66,7 +73,7 @@ static void load_points(double lat, double lon, double radius, const char* patte
     if (code == CURLE_OK) {
         ret = memory_struct.memory; 
     } else {
-        fprintf(stderr, "CURL error %s\n", curl_easy_strerror(code));
+        fprintf(stderr, "%s:%i: CURL error %s\n", __FILE__, __LINE__, curl_easy_strerror(code));
         ret = NULL;
     }
 
@@ -74,7 +81,9 @@ static void load_points(double lat, double lon, double radius, const char* patte
     
     // parse response
     if (ret == NULL) {
+#ifdef DEBUG
         fprintf(stderr, "Empty return value\n");
+#endif
         return;
     }
 
@@ -89,11 +98,13 @@ static void load_points(double lat, double lon, double radius, const char* patte
     xmlNodePtr root_element = xmlDocGetRootElement(doc);
     
     if (root_element == NULL) {
-        fprintf(stderr, "Can't load root element");
+        fprintf(stderr, "%s:%i: Can't load root element", __FILE__, __LINE__);
     } else {
         xmlNodePtr currentNode = xmlFirstElementChild(root_element);
     
         while(currentNode != NULL) {
+            if (return_size > 0 && countPoints > return_size)
+                break;
             if (xmlStrEqual(currentNode->name, (const xmlChar *)"geoname") == 1) {
                 // нашли точку, добавляем элемент в конец списка
                 if (startPoint == NULL) {
@@ -160,7 +171,7 @@ static const char* get_name(void) {
 // установка привязок к серверу
 struct LoaderInterface create_geonames_loader(const char* server) {
     snprintf(geo_names_server, 1024, "%s", server);
-
+    
     struct LoaderInterface loader = {
         .load_points = load_points,
         .get_name = get_name
