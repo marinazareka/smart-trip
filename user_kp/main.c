@@ -25,6 +25,9 @@ static volatile bool cont = true;
 // узел доступа к ИП
 sslog_node_t* node;
 
+char *userId = NULL;
+char *searchId = NULL;
+
 // статистика
 struct timeval stat_init_time;
 struct timeval stat_first_search;
@@ -81,7 +84,13 @@ static sslog_individual_t* publish_search_request(sslog_individual_t* location_i
     sslog_individual_t* region_individual = sslog_new_individual(CLASS_CIRCLEREGION, rand_uuid("circle_search_region"));
     sslog_insert_property(region_individual, PROPERTY_RADIUS, double_to_string(radius));
 
-    sslog_individual_t* request_individual = sslog_new_individual(CLASS_SEARCHREQUEST, rand_uuid("search_request"));
+    if (searchId == NULL) {
+    char *request = rand_uuid("search_request");
+    searchId = malloc(sizeof(char) *(strlen(request) + 2));
+    strcpy(searchId, request);
+    }
+    
+    sslog_individual_t* request_individual = sslog_new_individual(CLASS_SEARCHREQUEST, searchId);
     sslog_insert_property(request_individual, PROPERTY_USELOCATION, location_individual);
     sslog_insert_property(request_individual, PROPERTY_SEARCHPATTERN, pattern);
     sslog_insert_property(request_individual, PROPERTY_INREGION, region_individual);
@@ -257,6 +266,8 @@ int main(int argc, char *argv[]) {
 
     gettimeofday(&stat_init_time, NULL);
     char * user = rand_uuid("user");
+    userId = malloc(sizeof(char) * (strlen(user)+2));
+    strcpy(userId, user);
     printf("User is %s\n", user);
     // Publish user individual
     sslog_individual_t* user_individual = sslog_new_individual(CLASS_USER, user);
@@ -278,11 +289,15 @@ int main(int argc, char *argv[]) {
     sslog_shutdown();
     
     // печать статистики
-    fprintf(stderr,"init_time;%li,%li;searchers;%i;first_search;%li,%li;last_search;%li,%li;scount1;%i;scount2;%i;scount3;%i\n",
+    fprintf(stderr,"user:%s;init_time;%li,%li;searchers;%i;first_search;%li,%li;last_search;%li,%li;scount1;%i;scount2;%i;scount3;%i\n",
+            userId,
             stat_init_time.tv_sec,stat_init_time.tv_usec,
             stat_search_count,
             stat_first_search.tv_sec, stat_first_search.tv_usec,
             stat_last_search.tv_sec, stat_last_search.tv_usec,
             stat_scount[0], stat_scount[1], stat_scount[2]);
+    
+    free(userId);
+    free(searchId);
 }
 

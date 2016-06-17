@@ -10,11 +10,13 @@
 #include <libxml/tree.h>
 
 #include "common.h"
+#include "geo_common.h"
 
 // используемый сервер, например http://api.geonames.org/
 static char geo_names_server[1024];
 // формат запроса к серверу http://www.geonames.org/export/geonames-search.html
-static const char URL_FORMAT[] = "%s/search?name_startsWith=%s&username=smarttrip";
+//static const char URL_FORMAT[] = "%s/search?name_startsWith=%s&username=smarttrip";
+static const char URL_FORMAT[] = "%s/search?username=smarttrip";
 
 // количество возвращаемых элементов или 0 если бесконечно
 int return_size = 0;
@@ -35,8 +37,6 @@ static xmlNodePtr findNodeByName(xmlNodePtr rootNode, const char *name) {
 
 // обработка запроса на получение объектов
 static void load_points(double lat, double lon, double radius, const char* pattern, struct Point** out_points, int* out_point_count) {
-    fprintf(stdout, "Got request: pattern=%s, radius=%f, lat=%f, lon=%f\n", pattern,radius,lat,lon);
-    
     // если поиск по координатам
     if (pattern == NULL) {
         //TODO: реализовать поиск ближайших мест по координатам
@@ -46,18 +46,37 @@ static void load_points(double lat, double lon, double radius, const char* patte
     
     //call request to the server
     char* ret;
+    char buffer[300];
     CURL* curl = curl_easy_init();
-    char* url;
+    char *url = malloc(sizeof(char) * 2048);
+    if (url == NULL) {
+        fprintf(stderr, "%s:%i: Cant' allocate memory for url\n", __FILE__, __LINE__);
+        return;
+    }
+    // 1. базовый адрес
+    sprintf(url, URL_FORMAT, geo_names_server);
+    // 2. поисковая фраза
+    if (pattern != NULL) {
+        char* pattern_escaped = curl_easy_escape(curl, pattern, 0);
+        url = strcat(url, "&name_startsWith=");
+        url = strncat(url, pattern_escaped, 2048-strlen(url));
+        curl_free(pattern_escaped);
+    }
+    // 3. размер результата
+    if (return_size > 0) {
+        url = strcat(url, "&maxRows=");
+        snprintf(buffer, 300, "%d", return_size);
+        url = strcat(url, buffer);
+    }
+    // 4. область
+    if (radius > 0) {
+        double diff = length_to_radians(radius);
+        snprintf(buffer, 300, "&east=%f&west=%f&south=%f&north=%f", lon+diff,lon-diff,lat-diff,lat+diff);
+        url = strncat(url,buffer,2048-strlen(url));
+    }
+    
     struct MemoryStruct memory_struct = {.memory = NULL, .size = 0};
 
-    char* pattern_escaped = curl_easy_escape(curl, pattern, 0);
-    int bytes = asprintf(&url, URL_FORMAT, geo_names_server, pattern_escaped);
-    if (bytes < 0) {
-        fprintf(stderr, "%s:%i: Can't allocate memory for geonames URL\n", __FILE__, __LINE__);
-        abort();
-    }
-
-    curl_free(pattern_escaped);
 
 #ifdef DEBUG
     fprintf(stderr, "Geonames request: %s\n", url);

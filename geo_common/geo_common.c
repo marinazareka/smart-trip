@@ -8,7 +8,9 @@
 #include "ontology.h"
 
 static void publish_point(sslog_node_t* node, sslog_individual_t* request_individual, struct Point* point) {
+#ifdef DEBUG
     printf("Inserting point %lf %lf %s\n", point->lat, point->lon, point->title);
+#endif
     // TODO: uuid isn't being copied
     
     CLEANUP_INDIVIDUAL sslog_individual_t* point_individual 
@@ -30,14 +32,16 @@ static void find_and_publish_points(sslog_node_t* node, sslog_individual_t* requ
     st_free_point_array(points, count);
     free(points);
 
-    printf("Inserting updated property\n");
+#ifdef DEBUG
+    printf("%s:%i: Inserting updated property (%i)\n", __FILE__, __LINE__, count);
+#endif
     sslog_node_insert_property(node, request_individual, PROPERTY_PROCESSED, long_to_string(time(NULL)));
 }
 
 static void process_inserted_request(sslog_node_t* node, const char* request_uuid, struct LoaderInterface loader) {
     CLEANUP_INDIVIDUAL sslog_individual_t* request_individual = sslog_get_individual(request_uuid);
     if (request_individual == NULL) {
-        printf("Can't get request individual\n");
+        printf("%s:%i: Can't get request individual\n", __FILE__, __LINE__);
         return;
     }
 
@@ -76,7 +80,9 @@ static void process_inserted_request(sslog_node_t* node, const char* request_uui
 
     const char* pattern = sslog_node_get_property(node, request_individual, PROPERTY_SEARCHPATTERN);
     if (pattern == NULL) {
+#ifdef DEBUG
         printf("Null pattern property in request\n");
+#endif
     }
 
     fprintf(stderr, "User location: %lf %lf. Search radius: %lf, pattern: %s\n", lat, lon, radius, pattern);
@@ -86,17 +92,21 @@ static void process_inserted_request(sslog_node_t* node, const char* request_uui
 
 static void process_subscription_request(sslog_node_t* node, sslog_subscription_t* subscription, struct LoaderInterface loader) {
     sslog_sbcr_changes_t* changes = sslog_sbcr_get_changes_last(subscription);
-    if (changes == NULL) {
+    // если нет изменений или сработала подписка на уже существующие данные
+    if (changes == NULL || sslog_sbcr_ch_get_sequence_number(changes) == 1) {
         return;
     }
 
     const list_t* inserted_requests = sslog_sbcr_ch_get_individual_by_action(changes, SSLOG_ACTION_INSERT);
 
+    if (inserted_requests == NULL)
+        return;
+    
     list_head_t* iter;
     list_for_each(iter, &inserted_requests->links) {
         list_t* entry = list_entry(iter, list_t, links);
         const char* request_uuid = (const char*) entry->data;
-        printf("Request inserted %s\n", request_uuid);
+        printf("%s:%i: Request inserted %s\n", __FILE__, __LINE__, request_uuid);
         process_inserted_request(node, request_uuid, loader);
     }
 }
@@ -106,7 +116,7 @@ static void subscribe_request(sslog_node_t* node, struct LoaderInterface loader)
     sslog_sbcr_add_class(subscription, CLASS_SEARCHREQUEST);
 
     if (sslog_sbcr_subscribe(subscription) != SSLOG_ERROR_NO) {
-        fprintf(stderr, "Error subscribing to CLASS_SEARCHREQUEST\n");
+        fprintf(stderr, "%s:%i: Error subscribing to CLASS_SEARCHREQUEST\n",__FILE__, __LINE__);
         return;
     }
 
@@ -126,3 +136,6 @@ void geo_common_serve_kp(sslog_node_t* node, struct LoaderInterface loader) {
     subscribe_request(node, loader);
 }
 
+double length_to_radians(double length) {
+    return length * 3.1415 / 111300 / 180;
+}
