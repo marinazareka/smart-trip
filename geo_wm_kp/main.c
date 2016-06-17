@@ -14,6 +14,7 @@
 #include "geo_common.h"
 #include "wm-loader.h"
 
+struct LoaderInterface loader;
 
 static bool create_loader(struct LoaderInterface* loader) {
     char* wmloader_key = get_config_value("config.ini", "WMLoader", "Key");
@@ -30,8 +31,23 @@ static bool create_loader(struct LoaderInterface* loader) {
     return created;
 }
 
+static void signal_handler(int sig) {
+    if (loader.isProcessed) {
+    fprintf(stdout, "Finish all\n");
+    loader.isProcessed = false;
+    sslog_sbcr_stop_all(); 
+    } else {
+        exit(0);
+    }
+}
+
+static void subscribe_signals() {
+    signal(SIGINT, &signal_handler);
+    signal(SIGTERM, &signal_handler);
+}
+
 int main(void) {
-    struct LoaderInterface loader;
+    subscribe_signals();
 
     init_rand();
 

@@ -135,7 +135,7 @@ static bool process_subscription_result(sslog_individual_t* request_individual) 
         counter++;
     }
 
-    list_free(inserted_individuals);
+    list_free_with_nodes(inserted_individuals, NULL);
 
     // статистика
     if (stat_search_count < 3) {
@@ -198,6 +198,8 @@ void search_handler(sslog_subscription_t* sub) {
         sslog_remove_individual(individual);
         break;
     }
+    
+    list_free_with_nodes(triples, NULL);
 }
 
 static void subscribe_response(sslog_individual_t* request_individual) {
@@ -282,7 +284,7 @@ int main(int argc, char *argv[]) {
     // маршрут (тест 2)
     subscribe_response(request_individual);
 
-    sslog_node_remove_individual(node, request_individual);
+    //sslog_node_remove_individual(node, request_individual);
     sslog_node_remove_individual(node, user_individual);
 
     sslog_node_leave(node);

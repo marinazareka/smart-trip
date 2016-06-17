@@ -119,13 +119,14 @@ static void subscribe_request(sslog_node_t* node, struct LoaderInterface loader)
         fprintf(stderr, "%s:%i: Error subscribing to CLASS_SEARCHREQUEST\n",__FILE__, __LINE__);
         return;
     }
+    loader.isProcessed = true;
 
     do {
        process_subscription_request(node, subscription, loader);
        if (sslog_sbcr_wait(subscription) != SSLOG_ERROR_NO) {
-           fprintf(stderr, "Error waiting subscription\n");
+           fprintf(stderr, "%s:%i: Error waiting subscription\n", __FILE__, __LINE__);
        }
-    } while (true);
+    } while (loader.isProcessed);
 
     sslog_sbcr_unsubscribe(subscription);
     sslog_free_subscription(subscription);

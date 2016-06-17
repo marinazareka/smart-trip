@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 
 // описание онтологии
 #include "ontology.h"
@@ -49,15 +50,30 @@ static bool create_loader(struct LoaderInterface* loader) {
     return created;
 }
 
+struct LoaderInterface loader;
 
+
+static void signal_handler(int sig) {
+    if (loader.isProcessed) {
+    fprintf(stdout, "Finish all\n");
+    loader.isProcessed = false;
+    sslog_sbcr_stop_all(); 
+    } else {
+        exit(0);
+    }
+}
+
+static void subscribe_signals() {
+    signal(SIGINT, &signal_handler);
+    signal(SIGTERM, &signal_handler);
+}
 
 /*
  * основная функция
  */
 int main(void) {
-
-    struct LoaderInterface loader;
-
+    subscribe_signals();
+    
     init_rand();
 
     if (!create_loader(&loader)) {

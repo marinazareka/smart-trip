@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
 
 // source http://curl.haxx.se/libcurl/c/getinmemory.html
 size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
