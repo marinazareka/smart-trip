@@ -37,7 +37,9 @@ static char* get_points_as_json(double lat, double lon, double radius, const cha
 
     curl_free(pattern_escaped);
 
+#ifdef DEBUG
     fprintf(stderr, "Wikimapia request: %s\n", url);
+#endif
     curl_easy_setopt(curl, CURLOPT_URL, url);
     free(url);
     
@@ -49,7 +51,7 @@ static char* get_points_as_json(double lat, double lon, double radius, const cha
     if (code == CURLE_OK) {
         ret = memory_struct.memory; 
     } else {
-        fprintf(stderr, "CURL error %s\n", curl_easy_strerror(code));
+        fprintf(stderr, "%s:%i: CURL error %s\n", __FILE__, __LINE__, curl_easy_strerror(code));
         ret = NULL;
     }
 
@@ -59,21 +61,23 @@ static char* get_points_as_json(double lat, double lon, double radius, const cha
 
 static void load_points(double lat, double lon, double radius, const char* pattern, struct Point** out_points, int* out_point_count) {
     if (strchr(pattern, '"') != NULL) {
-        fprintf(stderr, "Wrong pattern received\n");
+        fprintf(stderr, "%s:%i: Wrong pattern received\n", __FILE__, __LINE__);
         return;
     }
 
     char* points_json = get_points_as_json(lat, lon, radius, pattern);
     if (points_json == NULL) {
-        fprintf(stderr, "Can't load points\n");
+        fprintf(stderr, "%s:%i: Can't load points\n", __FILE__, __LINE__);
         return;
     }
 
+#ifdef DEBUG
     fprintf(stderr, "Loaded points json %s\n", points_json);
+#endif
     cJSON* json = cJSON_Parse(points_json);
 
     if (cJSON_GetObjectItem(json, "count") == NULL) {
-        fprintf(stderr, "Wikimapia error\n");
+        fprintf(stderr, "%s:%i: Wikimapia output format error\n", __FILE__, __LINE__);
         return;
     }
 
@@ -86,7 +90,7 @@ static void load_points(double lat, double lon, double radius, const char* patte
 
     struct Point* points = malloc(count * sizeof(struct Point));
 
-    fprintf(stderr, "Found %d points\n", count);
+    fprintf(stderr, "%s:%i: Found %d points\n", __FILE__, __LINE__, count);
 
     int i = 0;
     for (cJSON* place = places->child; place != NULL ; place = place->next) {
@@ -94,20 +98,26 @@ static void load_points(double lat, double lon, double radius, const char* patte
         cJSON* title_object = cJSON_GetObjectItem(place, "title");
 
         if (title_object == NULL) {
-            fprintf(stderr, "Untitled place found\n");
+#ifdef DEBUG
+            fprintf(stderr, "%s:%i: Untitled place found\n", __FILE__, __LINE__);
+#endif
             continue;
         }
 
         const char* title = title_object->valuestring;
         if (strlen(title) == 0) {
+#ifdef DEBUG
             fprintf(stderr, "Place with empty title found\n");
+#endif
             continue;
         }
 
 
         cJSON* location = cJSON_GetObjectItem(place, "location");
         if (location == NULL) {
+#ifdef DEBUG
             fprintf(stderr, "Point without location found\n");
+#endif
             continue;
         }
 
