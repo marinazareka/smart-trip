@@ -108,6 +108,7 @@ static void load_points(double lat, double lon, double radius, const char* patte
 
     //fprintf(stderr, "%s\n", ret);
     xmlDocPtr doc = xmlReadMemory(memory_struct.memory, memory_struct.size, "result.xml", NULL, 0);
+    free(memory_struct.memory);
 
     // количество найденных точек
     int countPoints = 0;

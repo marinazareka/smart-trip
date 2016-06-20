@@ -78,6 +78,7 @@ static void load_points(double lat, double lon, double radius, const char* patte
     fprintf(stderr, "Loaded points json %s\n", points_json);
 #endif
     cJSON* json = cJSON_Parse(points_json);
+    free(points_json);
 
     if (cJSON_GetObjectItem(json, "count") == NULL) {
         fprintf(stderr, "%s:%i: Wikimapia output format error\n", __FILE__, __LINE__);
