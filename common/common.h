@@ -5,7 +5,8 @@
 #include <pthread.h>
 
 void cleanup_individual(sslog_individual_t** individual);
-#define CLEANUP_INDIVIDUAL __attribute__((cleanup(cleanup_individual)))
+//#define CLEANUP_INDIVIDUAL __attribute__((cleanup(cleanup_individual)))
+#define CLEANUP_INDIVIDUAL
 
 void scoped_pthread_mutex_unlock_ptr(pthread_mutex_t** mutex);
 
