@@ -61,6 +61,7 @@ bool init(const char* name, const char* smartspace, const char* address, int por
 void shutdown() {
     if (node != NULL)
         sslog_node_leave(node);
+    node = NULL;
     sslog_shutdown();
 }
 
@@ -253,8 +254,8 @@ void unsubscribe() {
     if (sub == NULL)
         return;
     
-    sslog_sbcr_stop(sub);
-    sslog_sbcr_unsubscribe(sub);
+    //sslog_sbcr_stop(sub);
+    //sslog_sbcr_unsubscribe(sub);
     sslog_free_subscription(sub);
     ptr_array_free(&requests_array);
     sub = NULL;

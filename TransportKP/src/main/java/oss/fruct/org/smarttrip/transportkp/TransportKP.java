@@ -48,10 +48,14 @@ public class TransportKP {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
-				log.debug("Running shutdown hook");
-				isNeedShutdown = true;
-				smartSpace.unsubscribe();
-				smartSpace.shutdown();
+				if (!isNeedShutdown) {
+					log.debug("Running shutdown hook");
+					isNeedShutdown = true;
+					smartSpace.unsubscribe();
+					smartSpace.shutdown();
+				} else {
+					log.debug("Already shutting down");
+				}
 			}
 		});
 
@@ -61,10 +65,14 @@ public class TransportKP {
 	}
         
         public void stop() {
-		log.debug("Running shutdown hook");
-		isNeedShutdown = true;
-		smartSpace.unsubscribe();
-		smartSpace.shutdown();
+			if (!isNeedShutdown) {
+				log.debug("Running shutdown hook");
+				isNeedShutdown = true;
+				smartSpace.unsubscribe();
+				smartSpace.shutdown();
+			} else {
+				log.debug("Already shutting down");
+			}
         }
 
 	private boolean process() {
