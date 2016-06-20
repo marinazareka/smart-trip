@@ -195,7 +195,7 @@ void search_handler(sslog_subscription_t* sub) {
             continue;
         }
         process_subscription_result(individual);
-        sslog_remove_individual(individual);
+        //sslog_remove_individual(individual);
         break;
     }
     
@@ -285,7 +285,7 @@ int main(int argc, char *argv[]) {
     subscribe_response(request_individual);
 
     //sslog_node_remove_individual(node, request_individual);
-    sslog_node_remove_individual(node, user_individual);
+    //sslog_node_remove_individual(node, user_individual);
 
     sslog_node_leave(node);
     sslog_shutdown();

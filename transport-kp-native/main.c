@@ -59,7 +59,8 @@ bool init(const char* name, const char* smartspace, const char* address, int por
 }
 
 void shutdown() {
-    sslog_node_leave(node);
+    if (node != NULL)
+        sslog_node_leave(node);
     sslog_shutdown();
 }
 
@@ -225,6 +226,9 @@ static void subscription_handler_2(sslog_subscription_t* sub) {
 }
 
 bool subscribe() {
+    if (node == NULL)
+        return false;
+    
     sub = sslog_new_subscription(node, false);
     sslog_sbcr_set_changed_handler(sub, &subscription_handler_2);
 
@@ -246,6 +250,9 @@ bool subscribe() {
 }
 
 void unsubscribe() {
+    if (sub == NULL)
+        return;
+    
     sslog_sbcr_stop(sub);
     sslog_sbcr_unsubscribe(sub);
     sslog_free_subscription(sub);
