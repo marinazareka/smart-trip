@@ -16,6 +16,9 @@ static const char* URL_FORMAT = "%s/?key=%s&function=place.search&q=%s&lat=%lf&l
 static const char* URL_PREFIX = "http://api.wikimapia.org";
 static char wm_key[1024];
 
+// количество возвращаемых элементов или 0 если бесконечно
+int return_size = 0;
+
 static char* get_points_as_json(double lat, double lon, double radius, const char* pattern) {
     char* ret;
     CURL* curl = curl_easy_init();
@@ -94,6 +97,9 @@ static void load_points(double lat, double lon, double radius, const char* patte
 
     int i = 0;
     for (cJSON* place = places->child; place != NULL ; place = place->next) {
+        if (return_size > 0 && i>=return_size)
+            break;
+        
         int id = cJSON_GetObjectItem(place, "id")->valueint;
         cJSON* title_object = cJSON_GetObjectItem(place, "title");
 

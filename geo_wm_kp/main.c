@@ -22,11 +22,18 @@ static bool create_loader(struct LoaderInterface* loader) {
 
     if (wmloader_key != NULL) {
         *loader = create_wm_loader(wmloader_key);
+
+        free(wmloader_key);
     } else {
         created = false;
     }
 
-    free(wmloader_key);
+    char *config_return_size = get_config_value("config.ini", "GeoNamesLoader", "ReturnSize");
+    if (config_return_size != NULL) {
+        return_size = atoi(config_return_size);
+        free(config_return_size);
+    }
+
 
     return created;
 }

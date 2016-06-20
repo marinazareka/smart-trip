@@ -37,15 +37,17 @@ static bool create_loader(struct LoaderInterface* loader) {
 
     if (namesloader_server != NULL) {
         *loader = create_geonames_loader(namesloader_server);
+        free(namesloader_server);
     } else {
         *loader = create_geonames_loader(BASE_GEONAMES_SERVER);
     }
     
     char *config_return_size = get_config_value("config.ini", "GeoNamesLoader", "ReturnSize");
-    if (config_return_size != NULL)
+    if (config_return_size != NULL) {
         return_size = atoi(config_return_size);
+        free(config_return_size);
+    }
 
-    free(namesloader_server);
 
     return created;
 }
