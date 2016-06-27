@@ -10,6 +10,14 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 include_directories(${smartslog_INCLUDE_DIRS})
 link_directories(${smartslog_LIBRARY_DIRS})
 
+if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
+  if (CMAKE_SYSTEM_PROCESSOR EQUAL "x86_64")
+    set(CMAKE_INSTALL_LIBDIR "\${prefix}/lib64")
+  else (CMAKE_SYSTEM_PROCESSOR EQUAL "x86_64")
+    set(CMAKE_INSTALL_LIBDIR "\${prefix}/lib")
+  endif(CMAKE_SYSTEM_PROCESSOR EQUAL "x86_64")
+endif(NOT DEFINED CMAKE_INSTALL_LIBDIR)
+
 add_library(ontology SHARED
     gen/ontology.c gen/ontology.h)
 

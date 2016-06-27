@@ -97,8 +97,9 @@ int main(void) {
     
     geo_common_serve_kp(node, loader);
 
-	sslog_node_leave(node);
-	sslog_shutdown();
+    sslog_sbcr_unsubscribe_all(node, true);
+    sslog_node_leave(node);
+    sslog_shutdown();
 
     return (EXIT_SUCCESS);
 }
