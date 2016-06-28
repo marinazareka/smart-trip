@@ -52,7 +52,6 @@ include_directories(common)
 add_subdirectory(geo_common)
 include_directories(geo_common)
 
-add_subdirectory(user_kp)
 add_subdirectory(geo_wm_kp)
 add_subdirectory(geo_db_kp)
 add_subdirectory(transport-kp-native)
