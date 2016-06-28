@@ -116,7 +116,7 @@ public class GraphhopperGraphFactory implements GraphFactory {
 			return Double.NaN;
 		}
 
-		return response.getDistance();
+		return response.getBest().getDistance();
 	}
 
 	@Override

@@ -171,7 +171,6 @@ public class Main {
 		graphHopper.setOSMFile(mapFile);
 		graphHopper.setGraphHopperLocation(graphhopperDir);
 		graphHopper.setEncodingManager(new EncodingManager("car, foot"));
-		graphHopper.setCHEnable(false);
 		graphHopper.importOrLoad();
 		return graphHopper;
 	}
