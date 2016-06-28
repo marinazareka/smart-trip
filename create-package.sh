@@ -5,7 +5,7 @@ rm -rf ../$PACKAGENAME-$VERSION
 mkdir ../$PACKAGENAME-$VERSION
 cp -r * ../$PACKAGENAME-$VERSION
 cd ../$PACKAGENAME-$VERSION
-rm -rf build nbproject ontology/gen/* SmartTripAndroid TransportKP
+rm -rf build nbproject ontology/gen/* SmartTripAndroid TransportKP tests
 cd ..
 tar -cJf $PACKAGENAME\_$VERSION.orig.tar.xz $PACKAGENAME-$VERSION
 cd $PACKAGENAME-$VERSION
