@@ -8,3 +8,8 @@ ontology/gen
 ontology/catalog-v001.xml
 .ycm_extra_conf.py
 /TransportKP/.nb-gradle/
+
+CMakeCache.txt
+CMakeFiles
+cmake_install.cmake
+Makefile
