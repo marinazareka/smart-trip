@@ -18,7 +18,7 @@ public class RouteRequest {
 	}
 
 	public boolean isValid() {
-		return tag != null && userId != null && points != null && userPoint != null && tspType != null && roadType != null;
+		return tag != null && userId != null && points != null && userPoint != null;
 	}
 
 
@@ -35,7 +35,10 @@ public class RouteRequest {
 	}
 
 	public String getTspType() {
-		return tspType;
+		if (tspType != null && !tspType.isEmpty())
+			return tspType;
+		else
+			return "open";
 	}
 
 	public String getUserId() {
@@ -43,6 +46,9 @@ public class RouteRequest {
 	}
 
 	public String getRoadType() {
-		return roadType;
+		if (roadType != null && !roadType.isEmpty())
+			return roadType;
+		else
+			return "foot";
 	}
 }

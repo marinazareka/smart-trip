@@ -66,7 +66,7 @@ void shutdown() {
 }
 
 static void handle_updated_request(sslog_individual_t* user, sslog_individual_t* schedule, sslog_individual_t* route) {
-    fprintf(stderr, "handle_updated_request %s %s %s\n",
+    fprintf(stderr, "%s:%i: handle_updated_request %s %s %s\n", __FILE__, __LINE__,
             sslog_entity_get_uri(user),
             sslog_entity_get_uri(schedule),
             sslog_entity_get_uri(route));
@@ -148,8 +148,8 @@ static void handle_updated_request(sslog_individual_t* user, sslog_individual_t*
         request_data->road_type = strdup(road_type);
     }
 
-    fprintf(stderr, "Request enqueued\n");
     ptr_array_insert(&requests_array, request_data);
+    fprintf(stderr, "%s:%i: Request enqueued (%li)\n", __FILE__, __LINE__, requests_array.size);
 
     list_free_with_nodes(points, NULL);
 }
@@ -263,7 +263,7 @@ void unsubscribe() {
 
 static RequestData* find_last_processed() {
     if (requests_array.size == 0)
-        return false;
+        return NULL;
 
     RequestData* request_data = ptr_array_remove_last(&requests_array);
     return request_data;
@@ -286,18 +286,12 @@ RequestData* wait_subscription() {
     }
 
     RequestData* request_data = find_last_processed();
+    fprintf(stdout, "%s:%i: Got request ptr %p\n", __FILE__, __LINE__, request_data);
     if (request_data == NULL) {
         fprintf(stderr, "Waiting for request\n");
-        //pthread_cond_wait(&requests_cond, &requests_mutex);
-        //request_data = find_last_processed();
-    }
-
-    if (request_data == NULL) {
-        //pthread_mutex_unlock(&requests_mutex);
         return NULL;
     }
 
-    //pthread_mutex_unlock(&requests_mutex);
     return request_data;
 }
 
