@@ -12,8 +12,8 @@ link_directories(${smartslog_LIBRARY_DIRS})
 add_subdirectory(../../ontology ${CMAKE_CURRENT_BINARY_DIR}/ontology)
 include_directories(../../ontology/gen)
 
-add_subdirectory(../../common ${CMAKE_CURRENT_BINARY_DIR}/common)
-include_directories(../../common)
+add_subdirectory(../../libraries/common ${CMAKE_CURRENT_BINARY_DIR}/common)
+include_directories(../../libraries/common)
 
 
 add_executable(user_kp 
