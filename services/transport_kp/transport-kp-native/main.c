@@ -41,7 +41,14 @@ static pthread_mutex_t requests_mutex = PTHREAD_MUTEX_INITIALIZER;
 // static pthread_cond_t requests_cond = PTHREAD_COND_INITIALIZER;
 
 
-// Implementations
+/**
+ * Инициализаия нативной части модуля
+ * @param name Имя модуля
+ * @param smartspace Имя ИП
+ * @param address Адрес ИП
+ * @param port Порт ИП
+ * @return true если инициализация прошла успешно, иначе false
+ */
 bool init(const char* name, const char* smartspace, const char* address, int port) {
     setlocale(LC_NUMERIC, "C");
     init_rand();
@@ -58,28 +65,45 @@ bool init(const char* name, const char* smartspace, const char* address, int por
     }
 }
 
+/**
+ * Отключение от ИП. Необходимо вызывать перед закрытием модуля.
+ */
 void shutdown() {
+    unsubscribe();
     if (node != NULL)
         sslog_node_leave(node);
     node = NULL;
     sslog_shutdown();
 }
 
+/**
+ * Получение данных по заявке на маршрут
+ * @param user Индивид пользователя (устарело) или null
+ * @param schedule Индивид расписания (устарело) или null
+ * @param route Индивид маршрута
+ */
 static void handle_updated_request(sslog_individual_t* user, sslog_individual_t* schedule, sslog_individual_t* route) {
     fprintf(stderr, "%s:%i: handle_updated_request %s %s %s\n", __FILE__, __LINE__,
             sslog_entity_get_uri(user),
             sslog_entity_get_uri(schedule),
             sslog_entity_get_uri(route));
 
-    CLEANUP_INDIVIDUAL sslog_individual_t* location 
-        = (sslog_individual_t*) sslog_node_get_property(node, user, PROPERTY_HASLOCATION);
-    sslog_node_populate(node, location);
-    const char* user_lat_str = sslog_get_property(location, PROPERTY_LAT);
-    const char* user_lon_str = sslog_get_property(location, PROPERTY_LONG);
+    CLEANUP_INDIVIDUAL sslog_individual_t* location;
+    if (user != NULL) {
+        location = (sslog_individual_t*) sslog_node_get_property(node, user, PROPERTY_HASLOCATION);
+    } else {
+        location = (sslog_individual_t*) sslog_node_get_property(node, route, PROPERTY_HASLOCATION);
+    }
+    const char* user_lat_str = NULL;
+    const char* user_lon_str = NULL;
+    if (location != NULL) {
+        sslog_node_populate(node, location);
+        user_lat_str = sslog_get_property(location, PROPERTY_LAT);
+        user_lon_str = sslog_get_property(location, PROPERTY_LONG);
+    }
 
     if (location == NULL || user_lat_str == NULL || user_lon_str == NULL) {
         fprintf(stderr, "User location is NULL or incomplete\n");
-        return;
     }
 
 
@@ -115,11 +139,11 @@ static void handle_updated_request(sslog_individual_t* user, sslog_individual_t*
 
         double lat, lon;
         if (!get_point_coordinates(node, point_individual, &lat, &lon)) {
-            fprintf(stderr, "Can't get point coordinates\n");
+            fprintf(stderr, "%s:%i: Can't get point coordinates\n", __FILE__, __LINE__);
             return;
         }
 
-        fprintf(stderr, "Point %lf %lf\n", lat, lon);
+        //fprintf(stdout, "Point %lf %lf\n", lat, lon);
 
         points_array[2 * c] = lat;
         points_array[2 * c + 1] = lon;
@@ -128,15 +152,15 @@ static void handle_updated_request(sslog_individual_t* user, sslog_individual_t*
 
         c += 1;
     }
-    fprintf(stderr, "All points received\n");
+    fprintf(stdout, "All points received\n");
 
     request_data->user_id = strdup(sslog_entity_get_uri(user));
     request_data->route = route;
     request_data->points = points_array;
     request_data->point_individuals = point_individuals;
     request_data->count = count;
-    request_data->user_lat = parse_double(user_lat_str);
-    request_data->user_lon = parse_double(user_lon_str);
+    request_data->user_lat = user_lat_str != NULL ? parse_double(user_lat_str) : 0;
+    request_data->user_lon = user_lat_str != NULL ? parse_double(user_lon_str) : 0;
 
     const char* tsp_type = sslog_get_property(route, PROPERTY_TSPTYPE);
     if (tsp_type != NULL) {
@@ -149,36 +173,45 @@ static void handle_updated_request(sslog_individual_t* user, sslog_individual_t*
     }
 
     ptr_array_insert(&requests_array, request_data);
-    fprintf(stderr, "%s:%i: Request enqueued (%li)\n", __FILE__, __LINE__, requests_array.size);
+    fprintf(stdout, "%s:%i: Request enqueued (%li)\n", __FILE__, __LINE__, requests_array.size);
 
     list_free_with_nodes(points, NULL);
 }
 
+/**
+ * Обработка события обновления маршрута (Route -> updated)
+ * @param route_id
+ */
 static void handle_updated_property_update(const char* route_id) {
-    fprintf(stderr, "handle_updated_property_update %s\n", route_id);
+    fprintf(stdout, "handle_updated_property_update %s\n", route_id);
     sslog_individual_t* route_individual = sslog_node_get_individual_by_uri(node, route_id);
+    // проверяем что маршрут это маршрут.
+    sslog_triple_t *route_triple = sslog_individual_to_triple(route_individual);
+    if (strcmp(route_triple->object, sslog_entity_get_uri(CLASS_ROUTE)) != 0) {
+        fprintf(stdout, "%s:%i: Individe class %s is not a route\n", __FILE__, __LINE__, route_triple->subject);
+        return;
+    }
+    
     sslog_individual_t* schedule_individual = st_get_subject_by_object(node, route_id, PROPERTY_HASROUTE);   
 
     if (schedule_individual == NULL) {
-        fprintf(stderr, "Can't get schedule for updated route\n");
-        return;
+        fprintf(stdout, "%s:%i: Can't get schedule for updated route\n", __FILE__, __LINE__);
     }
 
     const char* schedule_uri = sslog_entity_get_uri(schedule_individual);
-    fprintf(stderr, "schedule uri %s\n", schedule_uri);
+    fprintf(stdout, "schedule uri %s\n", schedule_uri);
 
     sslog_individual_t* user_individual = st_get_subject_by_object(node, schedule_uri, PROPERTY_PROVIDE);
 
     if (user_individual == NULL) {
-        fprintf(stderr, "Can't get user for updated schedule\n");
-        return;
+        fprintf(stdout, "Can't get user for updated schedule\n");
     }
 
     handle_updated_request(user_individual, schedule_individual, route_individual);
 }
 
 static void handle_updated_property_location(const char* user_id, const char* location_individual) {
-    fprintf(stderr, "handle_updated_property_location\n");
+    fprintf(stdout, "handle_updated_property_location\n");
     sslog_individual_t* user_individual = sslog_node_get_individual_by_uri(node, user_id);
     sslog_individual_t* schedule_individual = (sslog_individual_t*) sslog_node_get_property(node, user_individual, PROPERTY_PROVIDE);
     sslog_individual_t* route_individual = (sslog_individual_t*) sslog_node_get_property(node, schedule_individual, PROPERTY_HASROUTE);
@@ -199,8 +232,12 @@ static bool is_triple_location_property(sslog_triple_t* triple) {
     return strcmp(triple->predicate, sslog_entity_get_uri(PROPERTY_HASLOCATION)) == 0;
 }
 
+/**
+ * Обработка события по подписке
+ * @param sub указатель на подписку
+ */
 static void subscription_handler_2(sslog_subscription_t* sub) {
-    fprintf(stderr, "subscription_handler_2\n");
+    fprintf(stdout, "subscription_handler_2\n");
     pthread_mutex_lock(&requests_mutex);
 
     sslog_sbcr_changes_t* changes = sslog_sbcr_get_changes_last(sub);
@@ -211,7 +248,7 @@ static void subscription_handler_2(sslog_subscription_t* sub) {
         list_t* entry = list_entry(iter, list_t, links);
         sslog_triple_t* triple = entry->data;
 
-        fprintf(stderr, "Triple received: <%s> <%s> <%s>\n", triple->subject, triple->predicate, triple->object);
+        fprintf(stdout, "Triple received: <%s> <%s> <%s>\n", triple->subject, triple->predicate, triple->object);
 
         if (is_triple_updated_property(triple)) {
             handle_updated_property_update(triple->subject);
@@ -226,6 +263,10 @@ static void subscription_handler_2(sslog_subscription_t* sub) {
 //    pthread_cond_signal(&requests_cond);
 }
 
+/**
+ * Подписка на обновления в ИП.
+ * @return true если подписка произошла успешно, иначе false
+ */
 bool subscribe() {
     if (node == NULL)
         return false;
@@ -250,17 +291,24 @@ bool subscribe() {
     }
 }
 
+/**
+ * Отключение подписки. Функция вызывается также в shutdown().
+ */
 void unsubscribe() {
     if (sub == NULL)
         return;
     
-    //sslog_sbcr_stop(sub);
+    sslog_sbcr_stop(sub);
     //sslog_sbcr_unsubscribe(sub);
     sslog_free_subscription(sub);
     ptr_array_free(&requests_array);
     sub = NULL;
 }
 
+/**
+ * Получение последней полученной заявки из стека.
+ * @return Заявка на построение маршрута или null если стек пуст.
+ */
 static RequestData* find_last_processed() {
     if (requests_array.size == 0)
         return NULL;
@@ -269,6 +317,10 @@ static RequestData* find_last_processed() {
     return request_data;
 }
 
+/**
+ * Основная функция. Ожидает получение сообщения по подписке и возвращает результат.
+ * @return Заявка на построение маршрута или null если параметры заявки не удовлетворяют требованиям.
+ */
 RequestData* wait_subscription() {
     //pthread_mutex_lock(&requests_mutex);
 
@@ -294,21 +346,6 @@ RequestData* wait_subscription() {
 
     return request_data;
 }
-
-/*static void remove_old_points_from_route(sslog_individual_t* route_individual) {
-    list_t* has_points = sslog_get_properties(route_individual, PROPERTY_HASPOINT);
-
-    list_head_t* iter;
-    list_for_each(iter, &has_points->links) {
-        list_t* entry = list_entry(iter, list_t, links);
-        sslog_individual_t* point_individual = entry->data;
-        sslog_node_remove_individual_with_local(node, point_individual);
-    }
-
-    sslog_node_remove_property(node, route_individual, PROPERTY_HASPOINT, NULL);
-
-    list_free_with_nodes(has_points, NULL);
-}*/
 
 static void remove_old_movements_from_route(sslog_individual_t* route_individual) {
     list_t* individuals = sslog_get_properties(route_individual, PROPERTY_HASMOVEMENT);

@@ -10,6 +10,20 @@ include_directories(${smartslog_INCLUDE_DIRS})
 
 link_directories(${smartslog_LIBRARY_DIRS})
 
+add_subdirectory(../../ontology ${CMAKE_CURRENT_BINARY_DIR}/ontology)
+include_directories(../../ontology/gen)
+
+add_subdirectory(../../libraries/common ${CMAKE_CURRENT_BINARY_DIR}/common)
+include_directories(../../libraries/common)
+
+
+
+if(NOT DEFINED CMAKE_INSTALL_BINDIR)
+  set(CMAKE_INSTALL_BINDIR "\${prefix}/bin")
+endif(NOT DEFINED CMAKE_INSTALL_BINDIR)
+
+
+
 add_executable(log_kp 
     main.c)
 
