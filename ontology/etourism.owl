@@ -61,6 +61,17 @@
     <!-- http://oss.fruct.org/etourism#hasClimateRestriction -->
 
     <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasClimateRestriction">
+        <rdfs:comment>Климатические ограничения на посещения объекта</rdfs:comment>
+        <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Climate"/>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#POI"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#hasClimateRestriction -->
+
+    <owl:ObjectProperty rdf:about="http://oss.fruct.org/etourism#hasClimate">
+        <rdfs:comment>Метеоусловия в районе объекта</rdfs:comment>
         <rdfs:range rdf:resource="http://oss.fruct.org/etourism#Climate"/>
         <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#POI"/>
     </owl:ObjectProperty>
@@ -746,6 +757,26 @@
     
 
 
+    <!-- http://oss.fruct.org/etourism#downloadDate -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#downloadTime">
+        <rdfs:comment>Время загрузки с сервера (unix time)</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Climate"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://oss.fruct.org/etourism#exactDate -->
+
+    <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#exactTime">
+        <rdfs:comment>Время актуальности/использования (unix time)</rdfs:comment>
+        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Climate"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+
+
+
     <!-- http://oss.fruct.org/etourism#tspType -->
 
     <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#tspType">
@@ -770,8 +801,16 @@
     <!-- http://oss.fruct.org/etourism#updated -->
 
     <owl:DatatypeProperty rdf:about="http://oss.fruct.org/etourism#updated">
-        <rdfs:comment>Обновление свойства updated означает обновление Route-запроса</rdfs:comment>
-        <rdfs:domain rdf:resource="http://oss.fruct.org/etourism#Route"/>
+        <rdfs:comment>Обновление свойства updated означает обновление Route-запроса или описания точки</rdfs:comment>
+        <rdfs:domain>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Route"/>
+                    <rdf:Description rdf:about="http://oss.fruct.org/etourism#Point"/>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:domain>
+        <rdfs:range rdf:resource="&xsd;string"/>
     </owl:DatatypeProperty>
     
 
