@@ -1,6 +1,6 @@
 Name:       smart-trip
 Summary:    SmartM3 KPs for tourist route planning (Meta package)
-Version:    0.1.2
+Version:    0.1.3
 Release:    1
 Group:      Productivity/Networking/Other
 License:    GPL-2.0
@@ -50,6 +50,7 @@ Requires: geo-wm-kp
 Requires: geo-db-kp
 Requires: transport-kp
 Requires: geo-names-kp
+Requires: weather-kp
  
 %description
  The project provides ability to find points to visit, create route and trip plan.
@@ -108,6 +109,15 @@ Summary: KP to load points from Geonames service
 
 %description -n geo-names-kp
  KP loads points from Geonames service and publish it to smart space
+
+########################
+%package -n weather-kp
+Group:      Productivity/Networking/Other
+Requires:       smart-trip-core = %{version} 
+Summary: KP to load weather for presented points
+
+%description -n weather-kp
+ KP load weather for presented points and publish it to smart space
 
 ########################
 %prep
@@ -238,6 +248,27 @@ cd build
 %service_del_postun geo-names-kp.service
 %endif
 
+#### weather-kp #######
+%pre -n weather-kp
+%if 0%{?centos_version} == 0 && 0%{?rhel_version} == 0
+%service_add_pre weather-kp.service
+%endif
+
+%preun -n weather-kp
+%if 0%{?centos_version} == 0 && 0%{?rhel_version} == 0
+%service_del_preun weather-kp.service
+%endif
+
+%post -n weather-kp
+%if 0%{?centos_version} == 0 && 0%{?rhel_version} == 0
+%service_add_post weather-kp.service
+%endif
+
+%postun -n weather-kp
+%if 0%{?centos_version} == 0 && 0%{?rhel_version} == 0
+%service_del_postun weather-kp.service
+%endif
+
 ##### smart-trip-core ########
 %post -n smart-trip-core
 /sbin/ldconfig
@@ -289,7 +320,17 @@ cd build
 %{_unitdir}/geo-names-kp.service
 %endif
 
+%files -n weather-kp
+%defattr(-,root,root,-)
+%{_bindir}/weather_kp
+%if 0%{?centos_version} == 0 && 0%{?rhel_version} == 0
+%{_unitdir}/weather-kp.service
+%endif
+
 %changelog
+* Tue Jan 17 2017 Kirill Kulakov <kulakov@cs.karelia.ru> - 0.1.3
+- Packaging Weather KP
+
 * Fri Apr 22 2016 Kirill Kulakov <kulakov@cs.karelia.ru> - 0.1.2
 - Packaging Geonames kp
 - improve kp integrations

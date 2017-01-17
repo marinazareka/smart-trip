@@ -51,3 +51,9 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, systemd, smart-trip-core
 Description: KP to load points from GEonames service
  KP loads points from Geonames service and publish it to smart space
 
+Package: weather-kp
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, systemd, smart-trip-core
+Description: KP to load weather for presented points
+ KP load weather for presented points and publish it to smart space
+

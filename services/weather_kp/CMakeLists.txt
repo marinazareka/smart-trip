@@ -29,4 +29,13 @@ endif (NOT TARGET commons)
 add_executable(weather_kp 
     main.c)
 
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/weather_kp 
+    DESTINATION ${CMAKE_INSTALL_BINDIR})
+
 target_link_libraries(weather_kp commons ontology ${smartslog_LIBRARIES} ${CURL_LIBRARIES} ${libxml-2.0_LIBRARIES})
+
+### install systemd file
+if(NOT DEFINED UPSTART_CONFIGURATIONS_FILES_DIR)
+install(FILES weather-kp.service
+    DESTINATION ${SYSTEMD_CONFIGURATIONS_FILES_DIR})
+endif(NOT DEFINED UPSTART_CONFIGURATIONS_FILES_DIR)

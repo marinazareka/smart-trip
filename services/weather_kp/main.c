@@ -24,7 +24,7 @@ static volatile bool cont = true;
 sslog_node_t* node;
 
 char* cond;
-char* url[150];
+char url[150];
 char wr_buf[MAX_BUF+1];
 int wr_index;
 
